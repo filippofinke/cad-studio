@@ -49,3 +49,39 @@ enum ClaudeRunner {
         }
         return arguments
     }
+
+    static func quotedPython(_ python: URL) -> String {
+        python.path.contains(" ") ? "\"\(python.path)\"" : python.path
+    }
+
+    private static func allowedTools(python: URL) -> [String] {
+        guard AppSettings.usesRestrictedBash else {
+            return ["Read,Write,Edit,Glob,Grep,Bash"]
+        }
+        let interpreter = quotedPython(python)
+        let readOnlyCommands = ["ls", "cat", "head", "tail", "wc", "file", "test", "pwd", "stat"]
+        return ["Read", "Write", "Edit", "Glob", "Grep", "Bash(\(interpreter):*)"]
+            + readOnlyCommands.map { "Bash(\($0):*)" }
+    }
+
+    static func systemPrompt(for request: ClaudeRequest) -> String {
+        guard let url = Bundle.main.url(forResource: "CADSystemPrompt", withExtension: "md"),
+              let template = try? String(contentsOf: url, encoding: .utf8)
+        else { return "" }
+        return template
+            .replacingOccurrences(of: "{{PYTHON}}", with: quotedPython(request.python))
+            .replacingOccurrences(of: "{{PROJECT_NAME}}", with: request.projectName)
+            .replacingOccurrences(of: "{{DATE}}", with: Date.now.formatted(date: .numeric, time: .omitted))
+            .replacingOccurrences(of: "{{UNITS}}", with: AppSettings.measurementUnit.promptName)
+            .replacingOccurrences(of: "{{PRINTER}}", with: printerDescription())
+            .replacingOccurrences(of: "{{PRINTING_GUIDELINES}}", with: AppSettings.printerType.promptGuidelines)
+            .replacingOccurrences(of: "{{ENVIRONMENT}}", with: request.environment)
+    }
+
+    private static func printerDescription() -> String {
+        guard let model = AppSettings.printerModel else {
+            return "not specified"
+        }
+        return model
+    }
+}

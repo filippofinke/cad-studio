@@ -123,3 +123,111 @@ struct ToolResultBlock {
         isError = raw.isError ?? false
     }
 }
+
+struct TurnResult {
+    let subtype: String
+    let isError: Bool
+    let text: String
+    let sessionID: String?
+}
+
+private struct RawEvent: Decodable {
+    let type: String
+    let subtype: String?
+    let sessionID: String?
+    let message: RawMessage?
+    let event: RawStreamEvent?
+    let result: String?
+    let isError: Bool?
+    let estimatedTokens: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case type, subtype, message, event, result
+        case sessionID = "session_id"
+        case isError = "is_error"
+        case estimatedTokens = "estimated_tokens"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        type = try container.decode(String.self, forKey: .type)
+        subtype = try? container.decode(String.self, forKey: .subtype)
+        sessionID = try? container.decode(String.self, forKey: .sessionID)
+        message = try? container.decode(RawMessage.self, forKey: .message)
+        event = try? container.decode(RawStreamEvent.self, forKey: .event)
+        result = try? container.decode(String.self, forKey: .result)
+        isError = try? container.decode(Bool.self, forKey: .isError)
+        estimatedTokens = try? container.decode(Int.self, forKey: .estimatedTokens)
+    }
+}
+
+private struct RawMessage: Decodable {
+    let content: [RawBlock]?
+
+    enum CodingKeys: String, CodingKey {
+        case content
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        content = try? container.decode([RawBlock].self, forKey: .content)
+    }
+}
+
+private struct RawBlock: Decodable {
+    let type: String
+    let text: String?
+    let id: String?
+    let name: String?
+    let input: JSONValue?
+    let toolUseID: String?
+    let content: JSONValue?
+    let isError: Bool?
+
+    enum CodingKeys: String, CodingKey {
+        case type, text, id, name, input, content
+        case toolUseID = "tool_use_id"
+        case isError = "is_error"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        type = (try? container.decode(String.self, forKey: .type)) ?? ""
+        text = try? container.decode(String.self, forKey: .text)
+        id = try? container.decode(String.self, forKey: .id)
+        name = try? container.decode(String.self, forKey: .name)
+        input = try? container.decode(JSONValue.self, forKey: .input)
+        toolUseID = try? container.decode(String.self, forKey: .toolUseID)
+        content = try? container.decode(JSONValue.self, forKey: .content)
+        isError = try? container.decode(Bool.self, forKey: .isError)
+    }
+}
+
+private struct RawStreamEvent: Decodable {
+    struct Delta: Decodable {
+        let type: String?
+        let text: String?
+        let partialJSON: String?
+
+        enum CodingKeys: String, CodingKey {
+            case type, text
+            case partialJSON = "partial_json"
+        }
+    }
+
+    struct ContentBlock: Decodable {
+        let type: String?
+        let id: String?
+        let name: String?
+    }
+
+    let type: String?
+    let index: Int?
+    let delta: Delta?
+    let contentBlock: ContentBlock?
+
+    enum CodingKeys: String, CodingKey {
+        case type, index, delta
+        case contentBlock = "content_block"
+    }
+}
