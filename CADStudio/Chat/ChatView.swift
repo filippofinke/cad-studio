@@ -103,3 +103,119 @@ struct ChatView: View {
         }
     }
 }
+
+private struct ChatEmptyState: View {
+    let onSelect: (String) -> Void
+
+    private let suggestions: [String] = [
+        String(localized: "Staffa a L 40×40×3 mm con due fori M4"),
+        String(localized: "Scatola 60×40×25 mm con coperchio a incastro"),
+        String(localized: "Distanziale cilindrico Ø 12 mm, alto 15 mm, con foro M3"),
+        String(localized: "Supporto per smartphone inclinato a 60°"),
+    ]
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Spacer()
+            Image(systemName: "cube.transparent")
+                .font(.system(size: 40, weight: .light))
+                .foregroundStyle(.tertiary)
+                .accessibilityHidden(true)
+            VStack(spacing: 4) {
+                Text("Descrivi un oggetto")
+                    .font(.title3.weight(.semibold))
+                Text("\(AgentEngine.current.name) scrive lo script CAD, genera il modello 3D e la tavola tecnica.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            VStack(alignment: .leading, spacing: 6) {
+                ForEach(suggestions, id: \.self) { suggestion in
+                    Button {
+                        onSelect(suggestion)
+                    } label: {
+                        Label(suggestion, systemImage: "sparkles")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(.quaternary.opacity(0.6), in: RoundedRectangle(cornerRadius: 6))
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .font(.callout)
+            .frame(maxWidth: 340)
+            Spacer()
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+private struct ThinkingRow: View {
+    let text: String
+    let isActive: Bool
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "brain")
+                .foregroundStyle(.secondary)
+                .symbolEffect(.pulse, isActive: isActive)
+            Text(text)
+                .foregroundStyle(.secondary)
+                .contentTransition(.numericText())
+            if isActive {
+                ProgressView()
+                    .controlSize(.mini)
+            }
+        }
+        .font(.callout)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 2)
+        .animation(.default, value: text)
+        .accessibilityElement(children: .combine)
+    }
+}
+
+private struct VersionMarker: View {
+    let project: Project
+    let message: ChatMessage
+
+    static func number(of message: ChatMessage) -> Int? {
+        if let detail = message.detail.flatMap(Int.init) {
+            return detail
+        }
+        let words = message.text.split(separator: " ")
+        guard words.count == 2, let number = Int(words[1]) else { return nil }
+        return number
+    }
+
+    private var version: ProjectVersion? {
+        let number = Self.number(of: message)
+        return project.history.versions.first { $0.number == number }
+    }
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "clock.arrow.circlepath")
+            Text(message.text)
+                .fontDesign(.monospaced)
+            Spacer()
+            if let version {
+                if project.metadata.currentVersion == version.number {
+                    Text("Attuale")
+                } else {
+                    Button("Ripristina") {
+                        project.restore(version)
+                    }
+                    .buttonStyle(.link)
+                    .disabled(project.isBusy)
+                }
+            }
+        }
+        .font(.caption)
+        .foregroundStyle(.secondary)
+        .padding(.bottom, 6)
+    }
+}
