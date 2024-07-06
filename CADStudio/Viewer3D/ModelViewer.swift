@@ -183,3 +183,155 @@ final class ModelScene {
         }
         grid.isEnabled = showsGrid
     }
+
+    func showBed(_ size: SIMD2<Float>?) {
+        guard size != bed else { return }
+        bed = size
+        bedEntity.children.removeAll()
+        guard let size else { return }
+        let half = size / 2
+        let corners = [SIMD3(-half.x, 0.06, half.y), SIMD3(half.x, 0.06, half.y), SIMD3(half.x, 0.06, -half.y), SIMD3(-half.x, 0.06, -half.y)]
+        var positions: [SIMD3<Float>] = []
+        for index in corners.indices {
+            positions += quad(from: corners[index], to: corners[(index + 1) % corners.count], width: max(size.x, size.y) / 250)
+        }
+        bedEntity.addChild(lineEntity(positions, color: .controlAccentColor))
+    }
+
+    func animate(parts: [NamedMesh], partsID: UUID, hidden: Set<String>, study: MotionStudy?, player: MotionPlayer) {
+        self.player = player
+        guard let study, !parts.isEmpty else {
+            self.study = nil
+            stopPlayback()
+            animatedParts.isEnabled = false
+            model.isEnabled = true
+            interior.isEnabled = !isWireframe
+            return
+        }
+        self.study = study
+        let appearance = "\(isWireframe)-\(isDark)"
+        if animatedMeshID != partsID || animatedAppearance != appearance {
+            animatedMeshID = partsID
+            animatedAppearance = appearance
+            buildAnimatedParts(parts, movingParts: study.movingParts)
+        }
+        model.isEnabled = false
+        interior.isEnabled = false
+        animatedParts.isEnabled = true
+        for (name, part) in partEntities {
+            part.entity.isEnabled = !hidden.contains(name)
+        }
+        posedTime = nil
+        startPlayback()
+    }
+
+    func stopPlayback() {
+        timer?.invalidate()
+        timer = nil
+    }
+
+    private func startPlayback() {
+        guard timer == nil else { return }
+        lastTick = CACurrentMediaTime()
+        let timer = Timer(timeInterval: 1.0 / 60, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                let now = CACurrentMediaTime()
+                self.tick(now - self.lastTick)
+                self.lastTick = now
+            }
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        self.timer = timer
+    }
+
+    private func tick(_ deltaTime: Double) {
+        guard let study, let player else { return }
+        if player.isPlaying {
+            player.advance(by: deltaTime, duration: study.duration)
+        }
+        guard player.time != posedTime else { return }
+        posedTime = player.time
+        pose(study.state(at: player.time))
+    }
+
+    private func pose(_ motion: MotionStudy.State) {
+        let colliding = motion.collidingParts
+        for (name, part) in partEntities {
+            let pose = motion.poses[name] ?? .identity
+            part.entity.position = Self.sceneVector(pose.translate)
+            part.entity.orientation = simd_quatf(vector: SIMD4(Self.sceneVector(pose.rotate.imag), pose.rotate.real))
+            if colliding.contains(name) != collidingParts.contains(name) {
+                part.entity.model?.materials = colliding.contains(name) ? part.collision : part.materials
+            }
+        }
+        collidingParts = colliding
+    }
+
+    private func buildAnimatedParts(_ parts: [NamedMesh], movingParts: Set<String>) {
+        animatedParts.children.removeAll()
+        partEntities = [:]
+        collidingParts = []
+        var collisionMaterial = PhysicallyBasedMaterial()
+        collisionMaterial.baseColor = .init(tint: .systemRed)
+        collisionMaterial.emissiveColor = .init(color: .systemRed)
+        collisionMaterial.emissiveIntensity = 0.6
+        collisionMaterial.faceCulling = .none
+        for part in parts {
+            guard let resource = Self.resource(for: part.mesh) else { continue }
+            let materials = movingParts.contains(part.name)
+                ? surfaceMaterials(for: part.mesh.colors)
+                : surfaceMaterials(for: part.mesh.colors).map(Self.translucent)
+            let entity = ModelEntity(mesh: resource, materials: materials)
+            animatedParts.addChild(entity)
+            partEntities[part.name] = (entity, materials, Array(repeating: collisionMaterial, count: materials.count))
+        }
+    }
+
+    func pick(at point: CGPoint, in size: CGSize, on mesh: TriangleMesh) -> SIMD3<Float>? {
+        guard size.width > 0, size.height > 0 else { return nil }
+        let tangent = tan(camera.camera.fieldOfViewInDegrees * .pi / 360)
+        let x = (2 * Float(point.x / size.width) - 1) * tangent * Float(size.width / size.height)
+        let y = (2 * Float(point.y / size.height) - 1) * tangent
+        let direction = simd_normalize(camera.convert(direction: SIMD3(x, y, -1), to: root))
+        let origin = camera.position(relativeTo: root) - content.position
+        return mesh.firstIntersection(origin: Self.modelVector(origin), direction: Self.modelVector(direction))
+    }
+
+    func orbit(by delta: CGSize) {
+        yaw -= Float(delta.width) * 0.008
+        pitch = min(max(pitch + Float(delta.height) * 0.008, -Self.maximumPitch), Self.maximumPitch)
+        placeCamera()
+    }
+
+    func zoom(by factor: Float) {
+        distance = min(max(distance * factor, modelRadius * 0.1), modelRadius * 200)
+        placeCamera()
+    }
+
+    func pan(by delta: CGSize, viewHeight: CGFloat) {
+        guard viewHeight > 0 else { return }
+        let halfAngle = camera.camera.fieldOfViewInDegrees * .pi / 360
+        let unitsPerPoint = 2 * distance * tan(halfAngle) / Float(viewHeight)
+        let right = camera.convert(direction: SIMD3(1, 0, 0), to: root)
+        let up = camera.convert(direction: SIMD3(0, 1, 0), to: root)
+        target += (-right * Float(delta.width) + up * Float(delta.height)) * unitsPerPoint
+        placeCamera()
+    }
+
+    func frameIfNeeded(mesh: TriangleMesh, preset: CameraPreset, cameraID: UUID) {
+        guard cameraID != framedCameraID else { return }
+        framedCameraID = cameraID
+        frame(mesh: mesh, preset: preset)
+    }
+
+    private func frame(mesh: TriangleMesh, preset: CameraPreset) {
+        let size = Self.sceneVector(mesh.size)
+        modelRadius = max(simd_length(size) / 2, 1)
+        target = SIMD3(0, size.y / 2, 0)
+        let halfAngle = camera.camera.fieldOfViewInDegrees * .pi / 360
+        distance = modelRadius / sin(halfAngle) * 1.15
+        yaw = preset.yaw
+        pitch = preset.pitch
+        placeCamera()
+    }
