@@ -90,3 +90,104 @@ final class ProjectOutput {
             .map(\.1)
         return (FileManager.default.fileExists(atPath: folder.svg.path) ? [folder.svg] : []) + extra
     }
+
+    private func loadPlate() {
+        let plate = folder.plate
+        guard FileManager.default.fileExists(atPath: plate.path) else {
+            plateParts = []
+            plateID = UUID()
+            return
+        }
+        Task {
+            let model = await Task.detached(priority: .userInitiated) {
+                try? ThreeMFParser.parse(plate)
+            }.value
+            plateParts = model?.parts ?? []
+            plateID = UUID()
+        }
+    }
+
+    private func orderedParameters() -> [ModelParameter] {
+        let values = manifest?.parameters ?? [:]
+        let script = (try? String(contentsOf: folder.modelScript, encoding: .utf8)) ?? ""
+        return values
+            .map { ModelParameter(name: $0.key, value: $0.value) }
+            .sorted { first, second in
+                let firstIndex = script.range(of: first.name)?.lowerBound ?? script.endIndex
+                let secondIndex = script.range(of: second.name)?.lowerBound ?? script.endIndex
+                return firstIndex == secondIndex ? first.name < second.name : firstIndex < secondIndex
+            }
+    }
+
+    private func loadMotionStudy() {
+        guard FileManager.default.fileExists(atPath: folder.animation.path) else {
+            motionStudy = nil
+            motionError = nil
+            return
+        }
+        do {
+            let study = try JSONDecoder().decode(MotionStudy.self, from: Data(contentsOf: folder.animation))
+            motionStudy = study.frames.count > 1 ? study : nil
+            motionError = nil
+        } catch {
+            motionStudy = nil
+            motionError = String(localized: "animation.json non è valido: \(error.localizedDescription)")
+        }
+    }
+
+    private func loadMesh() {
+        let threeMF = folder.threeMF
+        let stl = folder.stl
+        guard hasThreeMF || FileManager.default.fileExists(atPath: stl.path) else {
+            mesh = nil
+            meshError = nil
+            return
+        }
+        loadTask?.cancel()
+        loadTask = Task {
+            let result = await Task.detached(priority: .userInitiated) {
+                Self.parseMesh(threeMF: threeMF, stl: stl)
+            }.value
+            guard !Task.isCancelled else { return }
+            switch result {
+            case .success(let loaded):
+                mesh = loaded.mesh
+                parts = loaded.parts
+                meshID = UUID()
+                meshError = nil
+            case .failure(let error):
+                meshError = error.localizedDescription
+            }
+        }
+    }
+
+    func loadComparison(from directory: URL?) {
+        guard let directory else {
+            comparisonMesh = nil
+            comparisonManifest = nil
+            comparisonID = nil
+            return
+        }
+        let output = directory.appending(path: "output")
+        comparisonManifest = try? ProjectStore.read(Manifest.self, from: output.appending(path: "manifest.json"))
+        Task {
+            let result = await Task.detached(priority: .userInitiated) {
+                Self.parseMesh(threeMF: output.appending(path: "model.3mf"), stl: output.appending(path: "model.stl"))
+            }.value
+            comparisonMesh = try? result.get().mesh
+            comparisonID = UUID()
+        }
+    }
+
+    private nonisolated static func parseMesh(threeMF: URL, stl: URL) -> Result<LoadedModel, Error> {
+        if let model = try? ThreeMFParser.parse(threeMF) {
+            return .success(model)
+        }
+        return Result { LoadedModel(mesh: try STLParser.parse(stl), parts: []) }
+    }
+}
+
+struct DrawingPage: Equatable {
+    let file: URL
+    let title: String
+}
