@@ -138,3 +138,71 @@ final class Project {
         isChatVisible = true
         persistLayout()
     }
+
+    func setFraction(_ fraction: Double, at path: [Bool]) {
+        guard isChatVisible else { return }
+        layout = layout.updatingFraction(at: path, to: fraction)
+        metadata.layout = layout
+    }
+
+    func dragPane(_ pane: Pane, to screenPoint: CGPoint) {
+        let hit = paneLocator?(screenPoint)
+        let target = hit?.0 == pane ? nil : hit?.0
+        let drag = PaneDrag(pane: pane, target: target, edge: target == nil ? nil : hit?.1)
+        if drag != paneDrag {
+            paneDrag = drag
+        }
+    }
+
+    func dropPane() {
+        defer { paneDrag = nil }
+        guard let paneDrag, let target = paneDrag.target, let edge = paneDrag.edge else { return }
+        setLayout(layout.moving(paneDrag.pane, to: edge, of: target))
+    }
+
+    private func persistLayout() {
+        metadata.layout = layout
+        AppSettings.defaultLayout = layout
+        save()
+    }
+
+    func focus(_ pane: Pane) {
+        if pane == .chat {
+            isChatVisible = true
+            chat.focusInput()
+        }
+        focusRequest = PaneFocusRequest(pane: pane)
+    }
+
+    func sendDraft() {
+        if isBusy {
+            if let draft = chat.takeDraft() {
+                queue.append(QueuedMessage(text: draft.text, attachments: draft.attachments))
+            }
+            return
+        }
+        guard PythonEnvironment.shared.isReady else {
+            PythonEnvironment.shared.isSetupSheetPresented = !PythonEnvironment.shared.isReady
+            return
+        }
+        guard let draft = chat.takeDraft() else { return }
+        send(draft.text, attachments: draft.attachments)
+    }
+
+    func send(_ text: String, attachments: [URL] = []) {
+        guard !isBusy else { return }
+        guard PythonEnvironment.shared.isReady else {
+            chat.draft = text
+            PythonEnvironment.shared.isSetupSheetPresented = true
+            return
+        }
+        let references = copyReferences(attachments)
+        chat.append(ChatMessage(role: .user, text: text, attachments: references.isEmpty ? nil : references))
+        chat.save()
+        buildError = nil
+        activity = .working(String(localized: "\(AgentEngine.current.name) sta lavorando…"))
+        let prompt = Self.prompt(text, references: references, missing: missingRequirements)
+        task = Task {
+            await agent?.run(prompt, images: references.map { folder.root.appending(path: $0) })
+        }
+    }

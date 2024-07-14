@@ -221,3 +221,119 @@ final class AgentSession {
             project.activity = activity
         }
     }
+
+    private func appendStreamingText(_ text: String) {
+        let id: UUID
+        if let streamingID {
+            id = streamingID
+        } else {
+            id = chat.append(ChatMessage(role: .assistant, text: ""))
+            streamingID = id
+            unconfirmedTextIDs.append(id)
+        }
+        chat.appendText(text, to: id)
+    }
+
+    private func handle(_ block: AssistantBlock) {
+        switch block {
+        case .text(let text):
+            hasText = true
+            if unconfirmedTextIDs.isEmpty {
+                chat.append(ChatMessage(role: .assistant, text: text))
+            } else {
+                chat.setText(text, of: unconfirmedTextIDs.removeFirst())
+            }
+        case .toolUse(let id, let name, let input):
+            streamingID = nil
+            let title = ToolSummary.title(
+                name: name,
+                input: input,
+                root: project.folder.root,
+                python: PythonEnvironment.shared.interpreter
+            )
+            let inputText = ToolSummary.inputText(name: name, input: input)
+            if chat.containsTool(id) {
+                chat.updateTool(id, title: title, input: inputText, preview: nil)
+            } else {
+                chat.append(ChatMessage(role: .tool, text: title, tool: ToolActivity(toolUseID: id, name: name, input: inputText)))
+            }
+            show(.working(String(localized: "\(engine.name) sta lavorando… · \(title)")))
+        }
+    }
+
+    private func finish(_ result: ProcessResult) {
+        chat.failRunningTools()
+        chat.activeThinkingID = nil
+        if result.wasInterrupted {
+            chat.append(ChatMessage(role: .summary, text: String(localized: "Interrotto")))
+            project.agentDidFinish(.failed(String(localized: "Interrotto")))
+            return
+        }
+        guard let turnResult, !turnResult.isError else {
+            reportFailure(turnResult?.text ?? "", result: result)
+            return
+        }
+        if !hasText, !turnResult.text.isEmpty {
+            chat.append(ChatMessage(role: .assistant, text: turnResult.text))
+        }
+        project.agentDidFinish(nil)
+    }
+
+    private func reportFailure(_ message: String, result: ProcessResult) {
+        let details = [message, result.errorOutput, result.status == 0 ? "" : result.output]
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .joined(separator: "\n")
+        if isAuthenticationError(details) {
+            chat.append(ChatMessage(
+                role: .system,
+                text: String(localized: "\(engine.name) non è autenticato. Apri il Terminale ed esegui `\(engine.loginCommand)` per effettuare l’accesso."),
+                detail: details,
+                action: .openTerminal
+            ))
+            project.agentDidFinish(.failed(String(localized: "Accesso a \(engine.name) richiesto")))
+        } else {
+            chat.append(ChatMessage(
+                role: .system,
+                text: String(localized: "\(engine.name) ha terminato con un errore (codice \(result.status))."),
+                detail: details.isEmpty ? nil : details
+            ))
+            project.agentDidFinish(.failed(String(localized: "Errore di \(engine.name)")))
+        }
+    }
+
+    private func isBusySession(_ result: ProcessResult) -> Bool {
+        guard turnResult == nil || turnResult?.isError == true else { return false }
+        let text = (turnResult?.text ?? "") + result.output + result.errorOutput
+        return text.localizedCaseInsensitiveContains("already has an active writer")
+    }
+
+    private func isMissingSession(_ result: ProcessResult) -> Bool {
+        guard turnResult == nil || turnResult?.isError == true else { return false }
+        let text = (turnResult?.text ?? "") + result.output + result.errorOutput
+        return text.localizedCaseInsensitiveContains("No conversation found")
+            || text.localizedCaseInsensitiveContains("no rollout found")
+            || text.localizedCaseInsensitiveContains("session not found")
+            || text.localizedCaseInsensitiveContains("thread not found")
+    }
+
+    private func isAuthenticationError(_ text: String) -> Bool {
+        ["invalid api key", "/login", "not logged in", "authentication", "oauth token", "unauthorized", "codex login", "401"]
+            .contains { text.localizedCaseInsensitiveContains($0) }
+    }
+
+    private func openLog() {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd'T'HH-mm-ss"
+        let url = project.folder.logs.appending(path: "\(formatter.string(from: .now)).jsonl")
+        try? FileManager.default.createDirectory(at: project.folder.logs, withIntermediateDirectories: true)
+        FileManager.default.createFile(atPath: url.path, contents: nil)
+        log = try? FileHandle(forWritingTo: url)
+    }
+
+    private func closeLog() {
+        try? log?.close()
+        log = nil
+    }
+}
