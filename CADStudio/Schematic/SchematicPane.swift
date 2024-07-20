@@ -79,3 +79,64 @@ struct SchematicPane: View {
         }
         .buttonStyle(.borderless)
     }
+
+    private func pagePicker(_ currentPage: DrawingPage) -> some View {
+        let index = min(viewer.page, pages.count - 1)
+        return HStack(spacing: 2) {
+            Button {
+                viewer.page = max(index - 1, 0)
+            } label: {
+                Image(systemName: "chevron.left")
+            }
+            .disabled(index == 0)
+            .help("Pagina precedente")
+            .accessibilityLabel(Text("Pagina precedente"))
+            Menu {
+                ForEach(Array(pages.enumerated()), id: \.offset) { offset, page in
+                    Button("\(offset + 1). \(page.title)") {
+                        viewer.page = offset
+                    }
+                }
+            } label: {
+                Text("\(index + 1)/\(pages.count) · \(currentPage.title)")
+                    .lineLimit(1)
+            }
+            .menuStyle(.borderlessButton)
+            .fixedSize()
+            .help("Scegli la pagina della tavola")
+            Button {
+                viewer.page = min(index + 1, pages.count - 1)
+            } label: {
+                Image(systemName: "chevron.right")
+            }
+            .disabled(index == pages.count - 1)
+            .help("Pagina successiva")
+            .accessibilityLabel(Text("Pagina successiva"))
+        }
+    }
+
+    private var previewFile: URL? {
+        [project.folder.pdf, project.folder.png].first { FileManager.default.fileExists(atPath: $0.path) }
+    }
+
+    private var previewFiles: [URL] {
+        guard let file = previewFile else { return [] }
+        let pagePDFs = pages.dropFirst()
+            .map { $0.file.deletingPathExtension().appendingPathExtension("pdf") }
+            .filter { FileManager.default.fileExists(atPath: $0.path) }
+        guard file == project.folder.pdf, !pagePDFs.isEmpty, (PDFDocument(url: file)?.pageCount ?? 0) < pages.count else {
+            return [file]
+        }
+        return [file] + pagePDFs
+    }
+
+    private func openInPreview() {
+        let files = previewFiles
+        guard !files.isEmpty else { return }
+        guard let preview = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.Preview") else {
+            files.forEach { NSWorkspace.shared.open($0) }
+            return
+        }
+        NSWorkspace.shared.open(files, withApplicationAt: preview, configuration: NSWorkspace.OpenConfiguration())
+    }
+}

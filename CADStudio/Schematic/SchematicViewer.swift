@@ -31,3 +31,36 @@ final class SchematicViewer {
         isFitted = false
         setZoom(zoom * factor, anchor: point)
     }
+
+    func viewDidResize() {
+        if isFitted {
+            fit()
+        }
+    }
+
+    func fit() {
+        isFitted = true
+        guard let webView, sheetSize.width > 0, sheetSize.height > 0 else { return }
+        let available = CGSize(width: webView.bounds.width - 48, height: webView.bounds.height - 48)
+        setZoom(min(available.width / sheetSize.width, available.height / sheetSize.height))
+    }
+
+    func sheetDidLoad(size: CGSize) {
+        sheetSize = size
+        if hasLoaded, !isFitted {
+            setZoom(zoom)
+        } else {
+            hasLoaded = true
+            fit()
+        }
+    }
+
+    private func setZoom(_ value: Double, anchor: CGPoint? = nil) {
+        zoom = min(max(value, Self.zoomRange.lowerBound), Self.zoomRange.upperBound)
+        if let anchor {
+            webView?.evaluateJavaScript("setZoom(\(zoom), \(anchor.x), \(anchor.y))")
+        } else {
+            webView?.evaluateJavaScript("setZoom(\(zoom))")
+        }
+    }
+}
