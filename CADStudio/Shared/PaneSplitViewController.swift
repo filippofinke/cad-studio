@@ -75,3 +75,74 @@ final class WorkspaceViewController: NSViewController {
         return axis == .row ? 240 : 140
     }
 }
+
+final class PaneSplitViewController: NSSplitViewController {
+    private var fraction: Double
+    private let onFractionChange: (Double) -> Void
+    private var appliedLength: CGFloat?
+
+    init(
+        first: NSViewController,
+        second: NSViewController,
+        isVertical: Bool,
+        minimumFirstLength: CGFloat,
+        minimumSecondLength: CGFloat,
+        fraction: Double,
+        onFractionChange: @escaping (Double) -> Void
+    ) {
+        self.fraction = fraction
+        self.onFractionChange = onFractionChange
+        super.init(nibName: nil, bundle: nil)
+
+        splitView.isVertical = isVertical
+        splitView.dividerStyle = .thin
+
+        let firstItem = NSSplitViewItem(viewController: first)
+        firstItem.minimumThickness = minimumFirstLength
+        let secondItem = NSSplitViewItem(viewController: second)
+        secondItem.minimumThickness = minimumSecondLength
+        addSplitViewItem(firstItem)
+        addSplitViewItem(secondItem)
+    }
+
+    required init?(coder: NSCoder) {
+        nil
+    }
+
+    func dismantle() {
+        for item in splitViewItems {
+            (item.viewController as? PaneSplitViewController)?.dismantle()
+            removeSplitViewItem(item)
+        }
+    }
+
+    private var totalLength: CGFloat {
+        splitView.isVertical ? splitView.bounds.width : splitView.bounds.height
+    }
+
+    private var firstLength: CGFloat {
+        let frame = splitViewItems[0].viewController.view.frame
+        return splitView.isVertical ? frame.width : frame.height
+    }
+
+    override func viewDidLayout() {
+        super.viewDidLayout()
+        guard view.window != nil, totalLength > 0, totalLength != appliedLength else { return }
+        appliedLength = totalLength
+        splitView.setPosition(totalLength * fraction, ofDividerAt: 0)
+    }
+
+    override func splitViewDidResizeSubviews(_ notification: Notification) {
+        super.splitViewDidResizeSubviews(notification)
+        guard appliedLength == totalLength, splitViewItems.count == 2, totalLength > 0 else { return }
+        fraction = firstLength / totalLength
+        onFractionChange(fraction)
+    }
+}
+
+@MainActor
+func hostingController<Content: View>(_ content: Content) -> NSViewController {
+    let controller = NSHostingController(rootView: content)
+    controller.sizingOptions = []
+    return controller
+}
