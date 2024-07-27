@@ -206,3 +206,136 @@ final class Project {
             await agent?.run(prompt, images: references.map { folder.root.appending(path: $0) })
         }
     }
+
+    private func copyReferences(_ urls: [URL]) -> [String] {
+        guard !urls.isEmpty else { return [] }
+        try? FileManager.default.createDirectory(at: folder.references, withIntermediateDirectories: true)
+        let stamp = Int(Date.now.timeIntervalSince1970)
+        return urls.enumerated().compactMap { index, url in
+            let name = "\(stamp)-\(index + 1)-\(url.lastPathComponent)"
+            guard (try? FileManager.default.copyItem(at: url, to: folder.references.appending(path: name))) != nil else { return nil }
+            return "references/\(name)"
+        }
+    }
+
+    private var missingRequirements: [String] {
+        let manager = FileManager.default
+        guard manager.fileExists(atPath: folder.modelScript.path) else { return [] }
+        var missing = folder.expectedOutputs.filter { !manager.fileExists(atPath: $0.path) }.map(\.lastPathComponent)
+        if !manager.fileExists(atPath: folder.plate.path) {
+            missing.append("plate.3mf (print plate)")
+        }
+        if output.parts.count > 1, !manager.fileExists(atPath: folder.output.appending(path: "schematic-2.svg").path) {
+            missing.append("one drawing page per piece (schematic-2.svg, …) with the parts list on page 1")
+        }
+        if let manifest = output.manifest {
+            if output.drawingPages.count > 1, manifest.drawings.isEmpty {
+                missing.append("`drawings` in manifest.json (page titles)")
+            }
+            if manifest.bed == nil, AppSettings.printerModel != nil {
+                missing.append("`bed` in manifest.json (bed size of the user's printer)")
+            }
+        }
+        if output.drawingPages.count > 1, (PDFDocument(url: folder.pdf)?.pageCount ?? 0) < output.drawingPages.count {
+            missing.append("schematic.pdf with all drawing pages in one file (PdfPages)")
+        }
+        return missing
+    }
+
+    private static func prompt(_ text: String, references: [String], missing: [String]) -> String {
+        var prompt = text.isEmpty && !references.isEmpty ? "Create a model based on the attached files." : text
+        if !references.isEmpty {
+            let list = references.map { "- \($0)" }.joined(separator: "\n")
+            prompt += "\n\nAttached reference files:\n\(list)"
+        }
+        if !missing.isEmpty {
+            let list = missing.map { "- \($0)" }.joined(separator: "\n")
+            prompt += "\n\nNote from CAD Studio: model.py does not produce these required outputs yet. Add them in this turn as well, following your instructions:\n\(list)"
+        }
+        return prompt
+    }
+
+    func askClaudeToFix(_ traceback: String) {
+        send(String(localized: "L’esecuzione di model.py non riesce con questo errore. Correggi lo script:\n```\n\(traceback)\n```"))
+    }
+
+    func agentDidFinish(_ failure: Activity?) {
+        chat.save()
+        save()
+        output.reload()
+        missingOutputs = output.missingFiles
+        if let failure {
+            activity = failure
+        } else if missingOutputs.isEmpty {
+            activity = .succeeded(String(localized: "Modello generato"))
+            recordVersion(prompt: chat.messages.last { $0.role == .user }?.text ?? "")
+        } else {
+            activity = .succeeded(String(localized: "Risposta completata"))
+        }
+        continueQueue(succeeded: failure == nil)
+    }
+
+    func removeQueued(_ message: QueuedMessage) {
+        queue.removeAll { $0.id == message.id }
+        if queue.isEmpty {
+            isQueuePaused = false
+        }
+    }
+
+    func sendQueuedNow() {
+        isQueuePaused = false
+        sendNextQueued()
+    }
+
+    private func continueQueue(succeeded: Bool) {
+        guard !queue.isEmpty else { return }
+        guard succeeded else {
+            isQueuePaused = true
+            return
+        }
+        Task {
+            try? await Task.sleep(for: .seconds(1))
+            sendNextQueued()
+        }
+    }
+
+    private func sendNextQueued() {
+        guard !isBusy, !isQueuePaused, !queue.isEmpty, PythonEnvironment.shared.isReady else { return }
+        let next = queue.removeFirst()
+        send(next.text, attachments: next.attachments)
+    }
+
+    func restore(_ version: ProjectVersion) {
+        guard !isBusy else { return }
+        do {
+            try history.restore(version)
+            metadata.sessionID = version.sessionID
+            metadata.currentVersion = version.number
+            save()
+            chat.reload()
+            output.reload()
+            buildError = nil
+            missingOutputs = []
+            activity = .succeeded(String(localized: "Versione \(version.number) ripristinata"))
+        } catch {
+            activity = .failed(String(localized: "Impossibile ripristinare la versione \(version.number)"))
+            buildError = error.localizedDescription
+        }
+    }
+
+    private func recordVersion(prompt: String) {
+        guard history.hasChanges(since: metadata.currentVersion) else { return }
+        chat.append(ChatMessage(role: .summary, text: String(localized: "Versione \(history.nextNumber)"), detail: String(history.nextNumber)))
+        chat.save()
+        do {
+            let version = try history.record(prompt: prompt, sessionID: metadata.sessionID)
+            metadata.currentVersion = version.number
+            save()
+        } catch {
+            buildError = error.localizedDescription
+        }
+    }
+
+    var parameters: [ModelParameter] {
+        output.parameters
+    }

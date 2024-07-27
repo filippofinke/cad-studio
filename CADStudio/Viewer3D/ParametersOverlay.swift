@@ -112,3 +112,88 @@ struct ParametersOverlay: View {
         .shadow(color: .black.opacity(0.15), radius: 8, y: 2)
     }
 }
+
+private struct ParameterSlider: View {
+    let parameter: ModelParameter
+    let previousValue: Double?
+    let isDisabled: Bool
+    let onCommit: (Double) -> Void
+    @State private var value: Double
+    @State private var range: ClosedRange<Double>
+    @State private var isEditing = false
+
+    init(parameter: ModelParameter, previousValue: Double?, isDisabled: Bool, onCommit: @escaping (Double) -> Void) {
+        self.parameter = parameter
+        self.previousValue = previousValue
+        self.isDisabled = isDisabled
+        self.onCommit = onCommit
+        _value = State(initialValue: parameter.value)
+        _range = State(initialValue: Self.range(around: parameter.value))
+    }
+
+    private var isInteger: Bool {
+        parameter.value == parameter.value.rounded() && abs(parameter.value) >= 1
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(parameter.name)
+                    .font(.system(size: 11, design: .monospaced))
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .help(parameter.name)
+                Spacer(minLength: 6)
+                if let previousValue, previousValue != parameter.value {
+                    Text(previousValue.formatted(.number.precision(.fractionLength(0...2))))
+                        .font(.caption2)
+                        .strikethrough()
+                        .foregroundStyle(.orange)
+                        .help("Valore nella versione a confronto")
+                }
+                TextField(parameter.name, value: $value, format: .number.precision(.fractionLength(0...3)))
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 11, design: .monospaced).monospacedDigit())
+                    .multilineTextAlignment(.trailing)
+                    .frame(width: 56)
+                    .labelsHidden()
+                    .onSubmit(commit)
+            }
+            Slider(value: $value, in: range) { editing in
+                isEditing = editing
+                if !editing {
+                    commit()
+                }
+            }
+            .labelsHidden()
+            .accessibilityLabel(Text(parameter.name))
+        }
+        .disabled(isDisabled)
+        .onChange(of: parameter.value) {
+            guard !isEditing else { return }
+            value = parameter.value
+            if !range.contains(parameter.value) {
+                range = Self.range(around: parameter.value)
+            }
+        }
+    }
+
+    private func commit() {
+        let rounded = isInteger ? value.rounded() : (value * 1000).rounded() / 1000
+        guard rounded != parameter.value else { return }
+        if !range.contains(rounded) {
+            range = Self.range(around: rounded)
+        }
+        onCommit(rounded)
+    }
+
+    private static func range(around value: Double) -> ClosedRange<Double> {
+        if value > 0 {
+            return 0...max(value * 2, 1)
+        }
+        if value < 0 {
+            return value * 2...max(-value * 2, 1)
+        }
+        return -10...10
+    }
+}
