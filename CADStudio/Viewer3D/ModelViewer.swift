@@ -335,3 +335,166 @@ final class ModelScene {
         pitch = preset.pitch
         placeCamera()
     }
+
+    private func placeCamera() {
+        let direction = SIMD3(cos(pitch) * sin(yaw), sin(pitch), cos(pitch) * cos(yaw))
+        camera.look(at: target, from: target + direction * distance, upVector: SIMD3(0, 1, 0), relativeTo: root)
+    }
+
+    private func addLights() {
+        let key = DirectionalLight()
+        key.light.intensity = 2600
+        key.look(at: .zero, from: SIMD3(60, 120, 90), relativeTo: nil)
+        let fill = DirectionalLight()
+        fill.light.intensity = 900
+        fill.look(at: .zero, from: SIMD3(-90, 40, -60), relativeTo: nil)
+        root.addChild(key)
+        root.addChild(fill)
+    }
+
+    private func show(_ mesh: TriangleMesh) {
+        colors = mesh.colors
+        guard let resource = Self.resource(for: mesh) else {
+            model.model = nil
+            interior.model = nil
+            return
+        }
+        model.model = ModelComponent(mesh: resource, materials: surfaceMaterials(for: colors))
+        var cut = UnlitMaterial(color: NSColor.systemRed.blended(withFraction: 0.15, of: .black) ?? .systemRed)
+        cut.faceCulling = .front
+        interior.model = ModelComponent(mesh: resource, materials: Array(repeating: cut, count: colors.count + 1))
+        interior.isEnabled = !isWireframe
+    }
+
+    private func showGhost(_ mesh: TriangleMesh?) {
+        guard let mesh, let resource = Self.resource(for: mesh) else {
+            ghostEntity.model = nil
+            return
+        }
+        var material = UnlitMaterial(color: .systemOrange)
+        material.blending = .transparent(opacity: 0.6)
+        material.faceCulling = .none
+        material.triangleFillMode = .lines
+        ghostEntity.model = ModelComponent(mesh: resource, materials: Array(repeating: material, count: mesh.colors.count + 1))
+    }
+
+    private func showMarkers(_ points: [SIMD3<Float>]) {
+        markers.children.removeAll()
+        let radius = max(modelRadius * 0.03, 0.4)
+        let material = UnlitMaterial(color: .systemOrange)
+        let scenePoints = points.map(Self.sceneVector)
+        for point in scenePoints {
+            let marker = ModelEntity(mesh: .generateSphere(radius: radius), materials: [material])
+            marker.position = point
+            markers.addChild(marker)
+        }
+        guard scenePoints.count == 2 else { return }
+        let length = simd_distance(scenePoints[0], scenePoints[1])
+        guard length > 0 else { return }
+        let line = ModelEntity(mesh: .generateBox(size: SIMD3(radius * 0.5, radius * 0.5, length)), materials: [material])
+        line.position = (scenePoints[0] + scenePoints[1]) / 2
+        line.orientation = simd_quatf(from: SIMD3(0, 0, 1), to: simd_normalize(scenePoints[1] - scenePoints[0]))
+        markers.addChild(line)
+    }
+
+    private func surfaceMaterials(for colors: [SIMD4<Float>]) -> [RealityKit.Material] {
+        let neutral = isDark
+            ? NSColor(red: 0.62, green: 0.70, blue: 0.80, alpha: 1)
+            : NSColor(red: 0.55, green: 0.64, blue: 0.75, alpha: 1)
+        let partColors = colors.map { NSColor(red: CGFloat($0.x), green: CGFloat($0.y), blue: CGFloat($0.z), alpha: 1) }
+        return ([neutral] + partColors).map(surfaceMaterial)
+    }
+
+    private static func translucent(_ material: RealityKit.Material) -> RealityKit.Material {
+        guard var material = material as? PhysicallyBasedMaterial else { return material }
+        material.blending = .transparent(opacity: 0.22)
+        material.faceCulling = .none
+        return material
+    }
+
+    private func surfaceMaterial(_ color: NSColor) -> RealityKit.Material {
+        var material = PhysicallyBasedMaterial()
+        material.baseColor = .init(tint: color)
+        material.metallic = 0.15
+        material.roughness = 0.55
+        material.faceCulling = isWireframe ? .none : .back
+        material.triangleFillMode = isWireframe ? .lines : .fill
+        return material
+    }
+
+    private func rebuildGrid(for mesh: TriangleMesh) {
+        grid.children.removeAll()
+        let footprint = max(mesh.size.x, mesh.size.y)
+        let half = Float(max(100, (Int(footprint * 0.75 / 10) + 1) * 10))
+        let minorColor = isDark ? NSColor(white: 1, alpha: 0.10) : NSColor(white: 0, alpha: 0.10)
+        let majorColor = isDark ? NSColor(white: 1, alpha: 0.28) : NSColor(white: 0, alpha: 0.28)
+        var minor: [SIMD3<Float>] = []
+        var major: [SIMD3<Float>] = []
+        var offset = -half
+        while offset <= half + 0.01 {
+            let isMajor = Int(offset.rounded()) % 100 == 0
+            let width: Float = isMajor ? 0.5 : 0.25
+            let quads = quad(from: SIMD3(offset, 0, -half), to: SIMD3(offset, 0, half), width: width)
+                + quad(from: SIMD3(-half, 0, offset), to: SIMD3(half, 0, offset), width: width)
+            if isMajor {
+                major += quads
+            } else {
+                minor += quads
+            }
+            offset += 10
+        }
+        grid.position.y = -0.05
+        grid.addChild(lineEntity(minor, color: minorColor))
+        grid.addChild(lineEntity(major, color: majorColor))
+        let footprintSize = Self.sceneVector(mesh.size)
+        let margin = max(max(mesh.size.x, mesh.size.y) * 0.15, 3)
+        let corner = SIMD3<Float>(-footprintSize.x / 2 - margin, 0.05, abs(footprintSize.z) / 2 + margin)
+        let axisLength = max(max(mesh.size.x, mesh.size.y, mesh.size.z) * 0.3, 5)
+        grid.addChild(axisEntity(from: corner, direction: SIMD3(1, 0, 0), length: axisLength, color: .systemRed))
+        grid.addChild(axisEntity(from: corner, direction: SIMD3(0, 0, -1), length: axisLength, color: .systemGreen))
+        grid.addChild(axisEntity(from: corner, direction: SIMD3(0, 1, 0), length: axisLength, color: .systemBlue))
+    }
+
+    private func quad(from start: SIMD3<Float>, to end: SIMD3<Float>, width: Float) -> [SIMD3<Float>] {
+        let along = simd_normalize(end - start)
+        let side = simd_cross(along, SIMD3(0, 1, 0)) * width / 2
+        return [start - side, end - side, end + side, start - side, end + side, start + side]
+    }
+
+    private func lineEntity(_ positions: [SIMD3<Float>], color: NSColor) -> Entity {
+        var descriptor = MeshDescriptor(name: "grid")
+        descriptor.positions = MeshBuffer(positions)
+        descriptor.primitives = .triangles((0..<UInt32(positions.count)).map { $0 })
+        var material = UnlitMaterial(color: color.withAlphaComponent(1))
+        material.blending = .transparent(opacity: .init(floatLiteral: Float(color.alphaComponent)))
+        material.faceCulling = .none
+        guard let resource = try? MeshResource.generate(from: [descriptor]) else { return Entity() }
+        return ModelEntity(mesh: resource, materials: [material])
+    }
+
+    private func axisEntity(from origin: SIMD3<Float>, direction: SIMD3<Float>, length: Float, color: NSColor) -> Entity {
+        let thickness = max(length / 40, 0.6)
+        let size = direction * length + (SIMD3(repeating: 1) - abs(direction)) * thickness
+        let entity = ModelEntity(mesh: .generateBox(size: size), materials: [UnlitMaterial(color: color)])
+        entity.position = origin + direction * length / 2
+        return entity
+    }
+
+    private static func resource(for mesh: TriangleMesh) -> MeshResource? {
+        guard mesh.triangleCount > 0 else { return nil }
+        var descriptor = MeshDescriptor(name: "model")
+        descriptor.positions = MeshBuffer(mesh.positions.map(sceneVector))
+        descriptor.normals = MeshBuffer(mesh.normals.map(sceneVector))
+        descriptor.primitives = .triangles((0..<UInt32(mesh.positions.count)).map { $0 })
+        descriptor.materials = .perFace(mesh.faceMaterials)
+        return try? MeshResource.generate(from: [descriptor])
+    }
+
+    private static func sceneVector(_ vector: SIMD3<Float>) -> SIMD3<Float> {
+        SIMD3(vector.x, vector.z, -vector.y)
+    }
+
+    private static func modelVector(_ vector: SIMD3<Float>) -> SIMD3<Float> {
+        SIMD3(vector.x, -vector.z, vector.y)
+    }
+}
