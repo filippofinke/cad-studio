@@ -98,3 +98,34 @@ struct MotionStudy: Decodable, Sendable {
         }
         valueNames = names
     }
+
+    func state(at time: Double) -> State {
+        guard let first = frames.first else {
+            return State(poses: [:], label: nil, values: [], collisions: [])
+        }
+        let upper = frames.firstIndex { $0.t >= time } ?? frames.count - 1
+        let next = frames[upper]
+        let previous = upper > 0 ? frames[upper - 1] : first
+        let span = next.t - previous.t
+        let fraction = Float(span > 0 ? min(max((time - previous.t) / span, 0), 1) : 1)
+        let names = Set(previous.parts.keys).union(next.parts.keys)
+        var poses: [String: Pose] = [:]
+        for name in names {
+            let start = previous.parts[name] ?? next.parts[name] ?? .identity
+            let end = next.parts[name] ?? start
+            poses[name] = start.interpolated(to: end, fraction: fraction)
+        }
+        let values = valueNames.compactMap { name -> (name: String, value: Double)? in
+            guard let start = previous.values[name] ?? next.values[name] else { return nil }
+            let end = next.values[name] ?? start
+            return (name, start + (end - start) * Double(fraction))
+        }
+        let nearest = fraction < 0.5 ? previous : next
+        let label = frames.last { $0.t <= time && $0.label != nil }?.label
+        return State(poses: poses, label: label, values: values, collisions: nearest.collisions)
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case title, frames
+    }
+}
