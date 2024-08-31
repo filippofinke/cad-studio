@@ -182,3 +182,67 @@ struct AttachmentThumbnail: View {
         .help(url.lastPathComponent)
     }
 }
+
+private struct QueueList: View {
+    let project: Project
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Image(systemName: project.isQueuePaused ? "pause.circle" : "clock")
+                    .foregroundStyle(.secondary)
+                Text(project.isQueuePaused ? "In coda, in pausa dopo l’ultimo errore" : "In coda, partiranno uno alla volta")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                if project.isQueuePaused, !project.isBusy {
+                    Button("Invia ora") {
+                        project.sendQueuedNow()
+                    }
+                    .buttonStyle(.link)
+                    .controlSize(.small)
+                }
+            }
+            ScrollView {
+                VStack(spacing: 4) {
+                    ForEach(Array(project.queue.enumerated()), id: \.element.id) { index, message in
+                        HStack(alignment: .top, spacing: 8) {
+                            Text("\(index + 1)")
+                                .font(.caption.monospacedDigit())
+                                .foregroundStyle(.secondary)
+                                .frame(width: 14)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(message.text.isEmpty ? String(localized: "Solo immagini") : message.text)
+                                    .lineLimit(2)
+                                    .truncationMode(.tail)
+                                if !message.attachments.isEmpty {
+                                    Label("\(message.attachments.count) immagini", systemImage: "photo")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            Spacer(minLength: 4)
+                            Button {
+                                project.removeQueued(message)
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundStyle(.tertiary)
+                            }
+                            .buttonStyle(.plain)
+                            .help("Rimuovi dalla coda")
+                            .accessibilityLabel(Text("Rimuovi dalla coda"))
+                        }
+                        .font(.callout)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 7)
+                        .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 7))
+                    }
+                }
+            }
+            .frame(maxHeight: 150)
+            .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(.horizontal, 10)
+        .padding(.top, 10)
+    }
+}
