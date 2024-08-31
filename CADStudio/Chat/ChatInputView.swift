@@ -102,3 +102,83 @@ struct ChatInputView: View {
             .padding(.top, 10)
         }
     }
+
+    private func chooseFiles() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.item]
+        panel.allowsMultipleSelection = true
+        panel.prompt = String(localized: "Allega")
+        if panel.runModal() == .OK {
+            chat.attach(panel.urls)
+        }
+    }
+
+    @ViewBuilder
+    private var sendButton: some View {
+        if project.isBusy {
+            if chat.canSend {
+                Button {
+                    project.sendDraft()
+                } label: {
+                    Image(systemName: "text.badge.plus")
+                        .font(.system(size: 15))
+                        .foregroundStyle(Color.accentColor)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("Aggiungi alla coda"))
+                .help("Aggiungi alla coda: partirà al termine (Invio)")
+            }
+            Button {
+                project.stop()
+            } label: {
+                Image(systemName: "stop.circle.fill")
+                    .font(.system(size: 18))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text("Stop"))
+            .help("Interrompi (⌘.)")
+        } else {
+            Button {
+                project.sendDraft()
+            } label: {
+                Image(systemName: "arrow.up.circle.fill")
+                    .font(.system(size: 18))
+                    .foregroundStyle(chat.canSend ? Color.accentColor : Color.secondary)
+            }
+            .buttonStyle(.plain)
+            .disabled(!chat.canSend)
+            .accessibilityLabel(Text("Invia"))
+            .help("Invia (Invio)")
+        }
+    }
+}
+
+struct AttachmentThumbnail: View {
+    let url: URL
+    let size: CGFloat
+
+    var body: some View {
+        Group {
+            if Attachments.isImage(url), let image = NSImage(contentsOf: url) {
+                Image(nsImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } else {
+                VStack(spacing: 3) {
+                    Image(nsImage: NSWorkspace.shared.icon(forFile: url.path))
+                        .resizable()
+                        .frame(width: size * 0.5, height: size * 0.5)
+                    Text(url.pathExtension.uppercased())
+                        .font(.system(size: max(8, size * 0.15), weight: .semibold))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            }
+        }
+        .frame(width: size, height: size)
+        .background(.quaternary)
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(.separator))
+        .help(url.lastPathComponent)
+    }
+}
