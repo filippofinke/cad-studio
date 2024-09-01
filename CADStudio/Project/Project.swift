@@ -339,3 +339,122 @@ final class Project {
     var parameters: [ModelParameter] {
         output.parameters
     }
+
+    func setParameter(_ name: String, to value: Double) {
+        guard !isBusy, let script = try? String(contentsOf: folder.modelScript, encoding: .utf8) else { return }
+        let escaped = NSRegularExpression.escapedPattern(for: name)
+        let pattern = "(?m)^\\s*\(escaped)\\s*(?::[^=\\n]+)?=\\s*([-+]?(?:\\d+\\.?\\d*|\\.\\d+)(?:[eE][-+]?\\d+)?)"
+        guard let regex = try? NSRegularExpression(pattern: pattern),
+              let match = regex.firstMatch(in: script, range: NSRange(script.startIndex..., in: script)),
+              let range = Range(match.range(at: 1), in: script)
+        else {
+            activity = .failed(String(localized: "Parametro \(name) non trovato in model.py"))
+            return
+        }
+        let original = script[range]
+        let text = value == value.rounded() && !original.contains(".") ? String(Int(value)) : String(value)
+        do {
+            try script.replacingCharacters(in: range, with: text).write(to: folder.modelScript, atomically: true, encoding: .utf8)
+            build(versionPrompt: "\(name) = \(text)")
+        } catch {
+            activity = .failed(error.localizedDescription)
+        }
+    }
+
+    func compare(with number: Int?) {
+        viewer.compareVersion = number
+        let version = history.versions.first { $0.number == number }
+        output.loadComparison(from: version.map(history.directory))
+    }
+
+    func build(versionPrompt: String? = nil) {
+        guard !isBusy else { return }
+        guard PythonEnvironment.shared.isReady else {
+            PythonEnvironment.shared.isSetupSheetPresented = true
+            return
+        }
+        guard hasModelScript else {
+            activity = .failed(String(localized: "Nessun model.py da compilare"))
+            return
+        }
+        activity = .working(String(localized: "Compilazione di model.py…"))
+        buildError = nil
+        task = Task {
+            do {
+                let result = try await ModelBuilder.build(folder, python: PythonEnvironment.shared.interpreter)
+                buildDidFinish(result, versionPrompt: versionPrompt)
+            } catch {
+                buildError = error.localizedDescription
+                activity = .failed(String(localized: "Errore nello script"))
+            }
+        }
+    }
+
+    private func buildDidFinish(_ result: ProcessResult, versionPrompt: String?) {
+        output.reload()
+        if result.wasInterrupted {
+            activity = .failed(String(localized: "Compilazione interrotta"))
+        } else if result.status == 0 {
+            missingOutputs = output.missingFiles
+            activity = .succeeded(String(localized: "Modello generato"))
+            recordVersion(prompt: versionPrompt ?? String(localized: "Compilazione manuale di model.py"))
+            continueQueue(succeeded: true)
+        } else {
+            let traceback = (result.errorOutput.isEmpty ? result.output : result.errorOutput)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            buildError = traceback.split(separator: "\n").last.map(String.init) ?? String(localized: "Errore nello script")
+            activity = .failed(String(localized: "Errore nello script"))
+            continueQueue(succeeded: false)
+            chat.append(ChatMessage(
+                role: .system,
+                text: String(localized: "La compilazione di model.py non è riuscita."),
+                detail: traceback,
+                action: .askClaudeToFix
+            ))
+            chat.save()
+        }
+    }
+
+    func stop() {
+        task?.cancel()
+    }
+
+    func close() {
+        task?.cancel()
+        AppSettings.defaultLayout = layout
+        watcher = nil
+        save()
+    }
+
+    func save() {
+        metadata.updatedAt = .now
+        metadata.appVersion = Bundle.main.shortVersion
+        try? ProjectStore.write(metadata, to: folder.projectFile)
+    }
+
+    func exportPackage() {
+        guard let destination = ProjectPanels.chooseExportDestination(for: name) else { return }
+        let outputs = (try? FileManager.default.contentsOfDirectory(at: folder.output, includingPropertiesForKeys: nil)) ?? []
+        let files = ([folder.modelScript] + outputs.filter { !$0.lastPathComponent.hasPrefix(".") })
+            .filter { FileManager.default.fileExists(atPath: $0.path) }
+            .map(\.path)
+        try? FileManager.default.removeItem(at: destination)
+        Task {
+            let result = try? await ProcessRunner.run(URL(filePath: "/usr/bin/zip"), arguments: ["-j", "-q", destination.path] + files)
+            if result?.status == 0 {
+                activity = .succeeded(String(localized: "Pacchetto esportato"))
+                NSWorkspace.shared.activateFileViewerSelecting([destination])
+            } else {
+                activity = .failed(String(localized: "Esportazione non riuscita"))
+            }
+        }
+    }
+
+    func revealInFinder() {
+        NSWorkspace.shared.activateFileViewerSelecting([folder.root])
+    }
+
+    func openInSlicer() {
+        NSWorkspace.shared.open(FileManager.default.fileExists(atPath: folder.plate.path) ? folder.plate : folder.threeMF)
+    }
+}
