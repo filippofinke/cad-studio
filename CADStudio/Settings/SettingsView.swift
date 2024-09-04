@@ -112,3 +112,162 @@ private struct AgentSettingsView: View {
         .fixedSize(horizontal: false, vertical: true)
     }
 }
+
+private struct AgentEngineSection: View {
+    let locator: AgentLocator
+    @AppStorage private var customPath: String
+    @AppStorage private var model: String
+
+    init(locator: AgentLocator) {
+        self.locator = locator
+        _customPath = AppStorage(wrappedValue: "", locator.engine.pathKey)
+        _model = AppStorage(wrappedValue: "", locator.engine.modelKey)
+    }
+
+    var body: some View {
+        Section {
+            LabeledContent("Eseguibile:") {
+                switch locator.state {
+                case .found(let url, _):
+                    PathText(url: url)
+                case .checking:
+                    ProgressView()
+                        .controlSize(.small)
+                case .unknown:
+                    Text("—")
+                case .missing:
+                    Text("Non trovato")
+                        .foregroundStyle(.red)
+                }
+            }
+            LabeledContent("Versione:") {
+                if case .found(_, let version) = locator.state {
+                    Text(version)
+                        .fontDesign(.monospaced)
+                        .textSelection(.enabled)
+                } else {
+                    Text("—")
+                }
+            }
+            TextField("Percorso personalizzato:", text: $customPath, prompt: Text("Automatico"))
+                .fontDesign(.monospaced)
+            TextField("Modello:", text: $model, prompt: Text("Predefinito di \(locator.engine.name)"))
+                .fontDesign(.monospaced)
+            HStack {
+                Spacer()
+                Button("Verifica") {
+                    Task { await locator.locate() }
+                }
+            }
+        }
+        .task {
+            if locator.state == .unknown {
+                await locator.locate()
+            }
+        }
+    }
+}
+
+private struct PythonSettingsView: View {
+    let python: PythonEnvironment
+
+    var body: some View {
+        Form {
+            Section {
+                LabeledContent("Interprete:") {
+                    PathText(url: python.interpreter)
+                }
+                LabeledContent("build123d:") {
+                    switch python.state {
+                    case .ready(let version):
+                        Text(version)
+                            .fontDesign(.monospaced)
+                    case .checking, .installing, .unknown:
+                        ProgressView()
+                            .controlSize(.small)
+                    case .missing:
+                        Text("Non installato")
+                            .foregroundStyle(.secondary)
+                    case .failed:
+                        Text("Non funzionante")
+                            .foregroundStyle(.red)
+                    }
+                }
+                HStack {
+                    Spacer()
+                    Button("Verifica") {
+                        Task { await python.check() }
+                    }
+                    Button("Reinstalla…") {
+                        python.isSetupSheetPresented = true
+                        Task { await python.reinstall() }
+                    }
+                }
+                .disabled(python.isInstalling)
+            } footer: {
+                Text("Pacchetti: build123d, matplotlib, numpy.")
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .formStyle(.grouped)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+private struct AdvancedSettingsView: View {
+    @AppStorage(AppSettings.streamingOutputKey) private var streamingOutput = true
+    @AppStorage(AppSettings.isolatesClaudeKey) private var isolatesClaude = true
+
+    var body: some View {
+        Form {
+            Section {
+                Picker("Formato di output:", selection: $streamingOutput) {
+                    Text("stream-json (in tempo reale)").tag(true)
+                    Text("json (risposta unica)").tag(false)
+                }
+            } footer: {
+                Text("Vale per Claude Code. Il formato json non mostra il testo in streaming né le singole attività, ma può essere utile con versioni che non supportano lo streaming.")
+                    .foregroundStyle(.secondary)
+            }
+            Section {
+                Toggle("Ignora le configurazioni personali dell’agente", isOn: $isolatesClaude)
+            } footer: {
+                Text("L’agente CAD non carica le tue impostazioni utente (hook, plugin e server MCP di Claude Code, config.toml di Codex), così parte più velocemente e risponde in modo prevedibile. Disattiva se la tua autenticazione dipende da impostazioni utente, ad esempio apiKeyHelper.")
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .formStyle(.grouped)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+private struct PathText: View {
+    let url: URL
+
+    var body: some View {
+        Text((url.path as NSString).abbreviatingWithTildeInPath)
+            .fontDesign(.monospaced)
+            .lineLimit(1)
+            .truncationMode(.middle)
+            .textSelection(.enabled)
+            .help(url.path)
+    }
+}
+
+private enum AppLanguage: String, CaseIterable {
+    case system
+    case italian = "it"
+    case english = "en"
+    case german = "de"
+    case french = "fr"
+
+    var title: LocalizedStringKey {
+        switch self {
+        case .system: "Lingua di sistema"
+        case .italian: "Italiano"
+        case .english: "English"
+        case .german: "Deutsch"
+        case .french: "Français"
+        }
+    }
+}
