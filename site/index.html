@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAD Studio · Describe a part. Print it.</title>
+<meta name="description" content="A native macOS app that turns a sentence into a parametric 3D model, ISO drawings and a print plate, written and run by the coding agent on your Mac. Free and MIT licensed.">
+<meta name="theme-color" content="#000000">
+<meta property="og:title" content="CAD Studio">
+<meta property="og:description" content="Describe a part. Print it. Parametric CAD, written by the coding agent on your Mac.">
+<meta property="og:image" content="assets/latch.webp">
+<link rel="icon" type="image/png" href="assets/icon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preload" href="fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="modulepreload" href="vendor/three/three.module.min.js">
+<link rel="stylesheet" href="styles.css">
+<script type="importmap">
+{ "imports": { "three": "./vendor/three/three.module.min.js" } }
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="gnav">
+  <div class="gnav-inner">
+    <a class="brand" href="#top" aria-label="CAD Studio home">
+      <img src="assets/logo.webp" alt="" width="18" height="18">
+      <span>CAD Studio</span>
+    </a>
+    <nav class="gnav-links" aria-label="Sections">
+      <a href="#sentence">Overview</a>
+      <a href="#parts">Parts</a>
+      <a href="#motion">Motion</a>
+      <a href="#drawings">Drawings</a>
+      <a href="#features">Features</a>
+      <a href="#start">Get started</a>
+    </nav>
+    <a class="pill pill-sm" href="https://github.com/filippofinke/cad-studio/releases/latest">Download</a>
+  </div>
+</header>
+
+<main id="main">
+<section class="tile tile-black hero" id="top">
+  <div class="hero-copy">
+    <h1>CAD Studio</h1>
+    <p class="hero-tag">Describe a part. Print&nbsp;it.</p>
+    <p class="hero-sub">Parametric CAD, written and run by the coding agent on your&nbsp;Mac.</p>
+    <div class="ctas">
+      <a class="pill" href="https://github.com/filippofinke/cad-studio/releases/latest">Download for macOS</a>
+      <button class="link-cta" type="button" data-film-open>Watch the film <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+  </div>
+  <div class="hero-stage">
+    <canvas class="stage" data-stage="hero" data-zoom="0.95" data-model="models/latch.3mf" data-animation="models/latch-animation.json" data-ghost="Housing,Lid" aria-label="A four-color push-to-open latch CAD Studio generated, clicking in and out in 3D, its housing see-through"></canvas>
+    <img class="stage-fallback" src="assets/latch.webp" alt="" width="1400" height="900">
+  </div>
+  <p class="hero-note">This push-to-open latch was made in CAD Studio from one prompt.</p>
+</section>
+
+<section class="tile tile-white sentence" id="sentence">
+  <div class="sticky sentence-sticky">
+    <p class="sentence-label">You type</p>
+    <p class="sentence-text" data-words>A fully 3D-printed push-to-open latch for a drawer, about 80&nbsp;mm long. A heart-shaped cam, a printed spring, four colors. Animate a full cycle.</p>
+    <p class="sentence-after" data-after>9 minutes later, it clicks. Simulated, collision-checked, ready to print.</p>
+  </div>
+</section>
+
+<section class="tile tile-parchment reveal-shot">
+  <div class="shot-copy">
+    <h2>Watch it take shape.<br>Then hold the result.</h2>
+    <p>Every step streams into the chat as it happens: the code being written, the model being built, the drawing being checked. The 3D view, the parameters and the technical drawing land the moment the files do.</p>
+  </div>
+  <figure class="app-shot">
+    <div class="appwin" role="img" aria-label="CAD Studio window from the real latch session: the chat with the agent's steps and reply, the 3D model and the assembly drawing">
+      <div class="appwin-bar">
+        <span class="appwin-lights" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="appwin-status"><b>Push Latch</b> <span class="appwin-chev">›</span> <span class="appwin-ok"></span> Model generated</span>
+        <span class="appwin-version">v1</span>
+      </div>
+      <div class="appwin-body">
+        <div class="appwin-chat">
+          <p class="cw-user">A fully 3D-printed push-to-open latch for a drawer, about 80 mm long: a housing with a lid, a plunger with a heart-shaped cam groove, a follower pin and a printed serpentine spring. Give it four colors so each part stands out. Animate a full cycle: push to latch, push again and the spring pushes it back out.</p>
+          <p class="cw-tool">Writing the model · 843 lines</p>
+          <p class="cw-tool">Checking the drawing</p>
+          <p class="cw-text">Drawings are almost done; one callout still overlaps an edge, so I'm moving it.</p>
+          <p class="cw-tool">Editing the model</p>
+          <p class="cw-reply">I've built the latch. It's an 80 × 30 mm housing with screw flanges and a lid, a plunger with a heart-shaped cam groove that sticks out 18.5 mm, a sliding follower pin, and an 8-beam printed serpentine spring.</p>
+          <p class="cw-reply"><b>Simulated cycle:</b> the first push goes in 15 mm and the plunger holds at 12 mm. The second push releases it and the spring returns it fully, with no collisions. Spring force runs from about 2.4 N at rest to about 11.3 N fully pushed.</p>
+        </div>
+        <div class="appwin-panes">
+          <img src="assets/latch.webp" alt="" width="1400" height="900" loading="lazy">
+          <div class="appwin-sheet"><img src="assets/latch-sheet1.webp" alt="" width="1600" height="1132" loading="lazy"></div>
+        </div>
+      </div>
+    </div>
+    <figcaption class="appwin-cap">From the real session: 12 steps, 9 minutes 9 seconds, one prompt.</figcaption>
+  </figure>
+</section>
+
+<section class="tile tile-black parts" id="parts">
+  <div class="sticky parts-sticky">
+    <div class="parts-copy">
+      <h2 class="parts-line is-on" data-line="0">One latch.</h2>
+      <h2 class="parts-line" data-line="1">Five parts.</h2>
+      <h2 class="parts-line" data-line="2">Laid flat, ready to print.</h2>
+    </div>
+    <canvas class="stage" data-stage="parts" data-model="models/latch.3mf" aria-label="The push latch separating into its five parts, then laid flat on the print bed, as you scroll"></canvas>
+    <img class="stage-fallback" src="assets/latch.webp" alt="" width="1400" height="900">
+    <ul class="part-labels" data-part-labels aria-hidden="true"></ul>
+    <p class="parts-foot">Assembled, exploded or laid out on your print bed. Hide a part, keep two together, open the plate in your slicer.</p>
+  </div>
+</section>
+
+<section class="tile tile-black motion" id="motion">
+  <div class="tile-head tile-head-center">
+    <h2>See it click<br>before you print it.</h2>
+    <p>Ask for an animation and the agent simulates the mechanism: the spring, the cam and the push of your finger. The real solids are checked for collisions in every frame.</p>
+  </div>
+  <div class="motion-stage">
+    <canvas class="stage" data-stage="motion" data-zoom="0.8" data-model="models/latch.3mf" data-animation="models/latch-animation.json" data-ghost="Lid" aria-label="The latch from above, lid see-through, going through a full push-to-open cycle"></canvas>
+    <img class="stage-fallback" src="assets/latch.webp" alt="" width="1400" height="900">
+    <p class="motion-phase" data-phase>Rest</p>
+  </div>
+  <dl class="specs specs-dark" data-readout>
+    <div><dt>Plunger travel</dt><dd><span data-value="Plunger travel (mm)" data-decimals="1">0.0</span><small>mm</small></dd></div>
+    <div><dt>Spring force</dt><dd><span data-value="Spring force (N)" data-decimals="1">2.4</span><small>N</small></dd></div>
+    <div><dt>Finger force</dt><dd><span data-value="Finger force (N)" data-decimals="1">0.0</span><small>N</small></dd></div>
+    <div><dt>Collisions</dt><dd>0<small>of 189 frames</small></dd></div>
+  </dl>
+</section>
+
+<section class="tile tile-white drawings" id="drawings">
+  <div class="tile-head tile-head-center">
+    <h2>Drawings, sheet by sheet.</h2>
+    <p>An ISO first-angle drawing comes with every model. The latch got six: the assembly with its parts list, then one sheet per part, all in a single PDF.</p>
+  </div>
+  <div class="chips" role="tablist" aria-label="Drawing sheet">
+    <button type="button" role="tab" aria-selected="true" data-sheet="0">Assembly</button>
+    <button type="button" role="tab" aria-selected="false" data-sheet="1">Housing</button>
+    <button type="button" role="tab" aria-selected="false" data-sheet="2">Lid</button>
+    <button type="button" role="tab" aria-selected="false" data-sheet="3">Plunger</button>
+    <button type="button" role="tab" aria-selected="false" data-sheet="4">Follower pin</button>
+    <button type="button" role="tab" aria-selected="false" data-sheet="5">Spring</button>
+  </div>
+  <div class="sheet-stage" data-sheets>
+    <img class="is-on" src="assets/latch-sheet1.webp" alt="Sheet 1 of 6: latch assembly with front, side and top views, an isometric view and a parts list with colors" width="1600" height="1132" loading="lazy">
+    <img src="assets/latch-sheet2.webp" alt="Sheet 2 of 6: housing with its screw flanges" width="1600" height="1132" loading="lazy">
+    <img src="assets/latch-sheet3.webp" alt="Sheet 3 of 6: lid with the follower slot" width="1600" height="1132" loading="lazy">
+    <img src="assets/latch-sheet4.webp" alt="Sheet 4 of 6: plunger with the heart-shaped cam groove" width="1600" height="1132" loading="lazy">
+    <img src="assets/latch-sheet5.webp" alt="Sheet 5 of 6: follower pin" width="1600" height="1132" loading="lazy">
+    <img src="assets/latch-sheet6.webp" alt="Sheet 6 of 6: serpentine spring" width="1600" height="1132" loading="lazy">
+  </div>
+</section>
+
+<section class="tile tile-black inspect" id="inspect">
+  <div class="tile-head tile-head-center">
+    <h2>Measure it.<br>Cut it open.</h2>
+    <p>Click two points for the distance and its X, Y and Z deltas. Slide a section plane along any axis to see inside, down to the cam groove and the spring.</p>
+  </div>
+  <div class="inspect-grid">
+    <figure class="inspect-shot">
+      <img src="assets/latch-measure.webp" alt="The latch in the 3D view with a measurement along the housing, shown with its X, Y and Z deltas" width="724" height="534" loading="lazy">
+      <figcaption><b>Measure</b> Point to point, in your units.</figcaption>
+    </figure>
+    <figure class="inspect-shot">
+      <img src="assets/latch-section.webp" alt="The latch cut open by a section plane, showing the plunger, the cam and the spring inside the housing" width="724" height="534" loading="lazy">
+      <figcaption><b>Section</b> X, Y or Z, at any depth.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="tile tile-parchment bento-tile">
+  <h2 class="bento-title">Everything a maker needs.<br>Nothing in the way.</h2>
+  <div class="bento">
+    <article class="card card-wide card-dark">
+      <div class="card-copy">
+        <h3>Every change is a version.</h3>
+        <p>“Make the nose stick out 25 mm.” Version 2 lands next to version 1, outlined in orange. Go back any time: the chat and what the agent remembers come back too.</p>
+      </div>
+      <img src="assets/latch-compare.webp" alt="Version 1 of the latch inside the orange outline of version 2, with the longer nose" width="950" height="620" loading="lazy">
+    </article>
+    <article class="card card-plate">
+      <div class="card-copy">
+        <h3>Ready for the bed.</h3>
+        <p>Every part laid flat in its print orientation, with 0.2 mm of play between the sliding parts.</p>
+      </div>
+      <img src="assets/latch-plate.webp" alt="The five latch parts laid out flat on the print bed" width="1300" height="760" loading="lazy">
+    </article>
+    <article class="card">
+      <div class="card-copy">
+        <h3>The numbers that matter.</h3>
+        <p>Straight from the latch's parameters and simulation.</p>
+      </div>
+      <dl class="gear-data">
+        <div><dt>Stroke</dt><dd>15 mm</dd></div>
+        <div><dt>Latched depth</dt><dd>12 mm</dd></div>
+        <div><dt>Nose out</dt><dd>18.5 mm</dd></div>
+        <div><dt>Spring</dt><dd>8 beams</dd></div>
+        <div><dt>Spring force</dt><dd>2.4–11.3 N</dd></div>
+        <div><dt>Sliding fit</dt><dd>0.2 mm</dd></div>
+      </dl>
+    </article>
+    <article class="card card-files">
+      <div class="card-copy">
+        <h3>Every file you need.</h3>
+        <p>One click exports the lot as a ZIP.</p>
+      </div>
+      <ul class="files"><li title="Source"><svg viewBox="0 0 48 60" role="img" aria-label="Source"><path class="fi-page" d="M6 2h25l13 13v39a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><path class="fi-fold" d="M31 2v9a4 4 0 0 0 4 4h9"/><rect class="fi-band" x="2" y="36" width="42" height="13" style="fill:#5e5ce6"/><text x="23" y="45.6" text-anchor="middle">CODE</text></svg></li><li title="model.3mf"><svg viewBox="0 0 48 60" role="img" aria-label="model.3mf"><path class="fi-page" d="M6 2h25l13 13v39a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><path class="fi-fold" d="M31 2v9a4 4 0 0 0 4 4h9"/><rect class="fi-band" x="2" y="36" width="42" height="13" style="fill:#00a3a3"/><text x="23" y="45.6" text-anchor="middle">3MF</text></svg></li><li title="model.step"><svg viewBox="0 0 48 60" role="img" aria-label="model.step"><path class="fi-page" d="M6 2h25l13 13v39a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><path class="fi-fold" d="M31 2v9a4 4 0 0 0 4 4h9"/><rect class="fi-band" x="2" y="36" width="42" height="13" style="fill:#2f3b4c"/><text x="23" y="45.6" text-anchor="middle">STEP</text></svg></li><li title="model.stl"><svg viewBox="0 0 48 60" role="img" aria-label="model.stl"><path class="fi-page" d="M6 2h25l13 13v39a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><path class="fi-fold" d="M31 2v9a4 4 0 0 0 4 4h9"/><rect class="fi-band" x="2" y="36" width="42" height="13" style="fill:#8e8e93"/><text x="23" y="45.6" text-anchor="middle">STL</text></svg></li><li title="plate.3mf"><svg viewBox="0 0 48 60" role="img" aria-label="plate.3mf"><path class="fi-page" d="M6 2h25l13 13v39a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><path class="fi-fold" d="M31 2v9a4 4 0 0 0 4 4h9"/><rect class="fi-band" x="2" y="36" width="42" height="13" style="fill:#f4b400"/><text x="23" y="45.6" text-anchor="middle">PLATE</text></svg></li><li title="drawing.pdf"><svg viewBox="0 0 48 60" role="img" aria-label="drawing.pdf"><path class="fi-page" d="M6 2h25l13 13v39a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><path class="fi-fold" d="M31 2v9a4 4 0 0 0 4 4h9"/><rect class="fi-band" x="2" y="36" width="42" height="13" style="fill:#e5533d"/><text x="23" y="45.6" text-anchor="middle">PDF</text></svg></li></ul>
+    </article>
+    <article class="card card-local card-dark">
+      <div class="card-copy">
+        <h3>Yours, on your Mac.</h3>
+        <p>CAD Studio runs the agent you already use, in a folder you choose. No accounts, no servers, nothing uploaded by the app.</p>
+      </div>
+      <ul class="local-icons" aria-hidden="true">
+        <li><svg viewBox="0 0 48 48"><rect x="9" y="10" width="30" height="20" rx="2.5"/><path d="M4 36h40l-2.5 3.5h-35z"/><path d="M20 33.5h8"/></svg></li>
+        <li><svg viewBox="0 0 48 48"><path d="M5 14a3 3 0 0 1 3-3h10l4 4h18a3 3 0 0 1 3 3v17a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z"/><path d="M5 20h38"/></svg></li>
+        <li><svg viewBox="0 0 48 48"><path d="M14 35h21a8 8 0 0 0 1.5-15.85A11 11 0 0 0 15.3 18.2 8.5 8.5 0 0 0 14 35z"/><path d="M8 8l32 32"/></svg></li>
+      </ul>
+    </article>
+    <article class="card card-feature">
+      <svg class="card-glyph" viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="9" width="26" height="30" rx="3"/><path d="M13 30l6-7 4 4 3-3 7 6"/><circle cx="16" cy="17" r="2.5"/><path d="M38 20v16a6 6 0 0 1-12 0V22a3.5 3.5 0 0 1 7 0v13"/></svg>
+      <div class="card-copy">
+        <h3>Show it what you mean.</h3>
+        <p>Paste a screenshot with ⌘V, or drop in a sketch, a photo, a PDF drawing or the STEP of the part it has to fit. The agent measures what it can instead of guessing.</p>
+      </div>
+    </article>
+    <article class="card card-feature">
+      <svg class="card-glyph" viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="8" width="36" height="9" rx="4.5"/><rect x="6" y="21" width="36" height="9" rx="4.5"/><rect x="6" y="34" width="24" height="9" rx="4.5"/><path d="M37 34v9M32.5 38.5h9"/></svg>
+      <div class="card-copy">
+        <h3>Line up the next idea.</h3>
+        <p>Keep typing while it works. Messages wait in a queue and go out one by one as each version finishes. If something fails, the queue pauses for you.</p>
+      </div>
+    </article>
+    <article class="card card-feature">
+      <svg class="card-glyph" viewBox="0 0 48 48" aria-hidden="true"><path d="M8 40h32M12 40V12h24v28"/><path d="M12 18h24"/><path d="M22 18v6l2 3 2-3v-6"/><path d="M18 36h12"/></svg>
+      <div class="card-copy">
+        <h3>Made for your printer.</h3>
+        <p>FDM, multi-material, resin or SLS, in millimeters, centimeters, meters or inches. Wall thickness, overhangs, clearances and colors follow what your machine can do.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="tile tile-white features" id="features">
+  <div class="tile-head tile-head-center">
+    <h2>Everything in the box.</h2>
+    <p>One app, from the first sentence to the file on your print bed.</p>
+  </div>
+  <div class="feature-groups">
+    <div class="feature-group">
+      <h3>Design</h3>
+      <ul>
+        <li>Chat that writes and fixes the parametric model for you</li>
+        <li>Named parameters as sliders, rebuilt locally in seconds</li>
+        <li>Reference images, sketches, PDFs and STEP or STL files</li>
+        <li>Message queue that sends the next request when a version is done</li>
+        <li>Build checks on every run: valid solids, warnings and errors in the chat</li>
+      </ul>
+    </div>
+    <div class="feature-group">
+      <h3>View</h3>
+      <ul>
+        <li>Live 3D view with orbit, zoom, pan, grid and wireframe</li>
+        <li>Multi-color 3MF parts, shown in their real colors</li>
+        <li>Assembled, exploded and print plate views</li>
+        <li>Show, hide or keep parts together</li>
+        <li>Point-to-point measurements and section planes on X, Y and Z</li>
+      </ul>
+    </div>
+    <div class="feature-group">
+      <h3>Simulate</h3>
+      <ul>
+        <li>Mechanisms animated by a physics simulation</li>
+        <li>Masses, springs, friction and the force of your hand</li>
+        <li>Collision checks on the real solids while it moves</li>
+        <li>Live readouts of speeds, angles and forces as it plays</li>
+      </ul>
+    </div>
+    <div class="feature-group">
+      <h3>Document</h3>
+      <ul>
+        <li>ISO first-angle technical drawings with every model</li>
+        <li>Assembly sheet with balloons and a parts list</li>
+        <li>One sheet per part, with its own dimensions</li>
+        <li>All sheets in one multi-page PDF</li>
+      </ul>
+    </div>
+    <div class="feature-group">
+      <h3>Print</h3>
+      <ul>
+        <li>Design rules for FDM, multi-material, resin and SLS</li>
+        <li>Print plate with every part oriented and laid out</li>
+        <li>The print plate opened straight in your slicer</li>
+        <li>STEP, 3MF, STL, the PDF drawing and the source script in one ZIP</li>
+      </ul>
+    </div>
+    <div class="feature-group">
+      <h3>Work your way</h3>
+      <ul>
+        <li>Every generation saved as a version, chat and context included</li>
+        <li>Compare any two versions in 3D</li>
+        <li>Panels you can drag anywhere, layout saved per project</li>
+        <li>Each project is a plain folder you can open, copy or back up</li>
+        <li>English, Italian, German and French</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="tile tile-black how" id="how">
+  <div class="tile-head tile-head-center">
+    <h2>Bring your own agent.</h2>
+    <p>CAD Studio has no AI of its own and no account to make. It drives the coding agent already signed in on your Mac, with your plan, and you can switch agents in Settings at any time.</p>
+  </div>
+  <ol class="flow">
+    <li>
+      <h3>You describe it.</h3>
+      <p>In words, with pictures or with the file it has to fit. In millimeters or inches.</p>
+    </li>
+    <li>
+      <h3>The agent writes the code.</h3>
+      <p>A parametric script with every dimension as a named parameter, plus the drawing and the simulation.</p>
+    </li>
+    <li>
+      <h3>It runs and checks.</h3>
+      <p>The model is built right on your Mac. The agent looks at the drawings it produced and fixes what is wrong.</p>
+    </li>
+    <li>
+      <h3>You get files.</h3>
+      <p>Ready for your slicer, your CAD app and your workshop, in a folder you own. Nothing leaves your Mac through the app.</p>
+    </li>
+  </ol>
+  <div class="agents">
+    <p class="agents-label">Works with</p>
+    <ul>
+      <li><b>Claude Code</b><span>Anthropic's command line agent</span></li>
+      <li><b>Codex</b><span>OpenAI's command line agent</span></li>
+    </ul>
+    <p class="agents-note">Choose the model and the reasoning effort in Settings.</p>
+  </div>
+</section>
+
+<section class="tile tile-black start" id="start">
+  <div class="tile-head tile-head-center">
+    <h2>Get CAD Studio.</h2>
+    <p>Free and open source. For macOS 15 or later.</p>
+    <div class="ctas ctas-center">
+      <a class="pill pill-lg" href="https://github.com/filippofinke/cad-studio/releases/latest">Download for macOS</a>
+      <a class="link-cta link-cta-dark" href="https://github.com/filippofinke/cad-studio">View the source <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
+  </div>
+  <ol class="steps">
+    <li>
+      <h3>Sign in to your agent.</h3>
+      <p>Install <a href="https://claude.com/claude-code">Claude Code</a> and run <code>claude</code> once, or install <a href="https://developers.openai.com/codex/cli">Codex</a> and run <code>codex login</code>. CAD Studio uses your plan.</p>
+    </li>
+    <li>
+      <h3>Open CAD Studio.</h3>
+      <p>Drag it into Applications. It isn't notarized yet, so allow it in Privacy &amp; Security, or run:</p>
+      <pre class="cmd"><code>xattr -dr com.apple.quarantine "/Applications/CAD Studio.app"</code><button type="button" class="copy" data-copy aria-label="Copy command"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="5" width="8.5" height="8.5" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M10.5 3.2V3A1.5 1.5 0 009 1.5H3A1.5 1.5 0 001.5 3v6A1.5 1.5 0 003 10.5h.2" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></button></pre>
+    </li>
+    <li>
+      <h3>Describe a part.</h3>
+      <p>Pick your printer and units, and say what you need. Everything else is set up for you on first launch.</p>
+    </li>
+  </ol>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-cols">
+      <div>
+        <h4>Download</h4>
+        <a href="https://github.com/filippofinke/cad-studio/releases/latest">Latest release</a>
+        <a href="https://github.com/filippofinke/cad-studio/releases">All releases</a>
+        <a href="https://github.com/filippofinke/cad-studio/blob/main/CHANGELOG.md">Changelog</a>
+      </div>
+      <div>
+        <h4>Source</h4>
+        <a href="https://github.com/filippofinke/cad-studio">GitHub</a>
+        <a href="https://github.com/filippofinke/cad-studio#quick-start">Build from source</a>
+        <a href="https://github.com/filippofinke/cad-studio/blob/main/LICENSE">MIT License</a>
+      </div>
+      <div>
+        <h4>Made by</h4>
+        <a href="https://filippofinke.ch">Filippo Finke</a>
+        <a href="https://github.com/filippofinke">GitHub</a>
+      </div>
+    </div>
+    <p class="footer-legal">Copyright © 2026 Filippo Finke. MIT licensed.</p>
+  </div>
+  <p class="footer-mark" aria-hidden="true">CAD Studio</p>
+</footer>
+
+<dialog class="film" data-film aria-label="CAD Studio film">
+  <button class="film-close" type="button" data-film-close aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+  <video controls playsinline preload="none" data-film-video>
+    <source src="assets/film.mp4" type="video/mp4">
+  </video>
+</dialog>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
