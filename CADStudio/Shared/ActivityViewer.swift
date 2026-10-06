@@ -18,6 +18,14 @@ struct ActivityViewer: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .truncationMode(.tail)
+            if let start = project.workStartedAt {
+                TimelineView(.periodic(from: start, by: 1)) { context in
+                    Text(Duration.seconds(max(0, context.date.timeIntervalSince(start))).formatted(.time(pattern: .minuteSecond)))
+                        .font(.system(size: 12).monospacedDigit())
+                        .foregroundStyle(.tertiary)
+                }
+                .fixedSize()
+            }
             Spacer(minLength: 4)
             issueButton(.error, systemImage: "xmark.octagon.fill", color: .red)
             issueButton(.warning, systemImage: "exclamationmark.triangle.fill", color: .yellow)

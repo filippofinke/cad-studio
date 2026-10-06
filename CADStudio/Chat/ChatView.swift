@@ -75,6 +75,8 @@ struct ChatView: View {
         switch message.role {
         case .tool:
             ToolActivityRow(message: message)
+        case .thinking:
+            ThinkingRow(text: message.text, isActive: message.id == chat.activeThinkingID)
         case .summary:
             Text(message.text)
                 .font(.caption)
@@ -148,5 +150,30 @@ private struct ChatEmptyState: View {
         }
         .padding(20)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+private struct ThinkingRow: View {
+    let text: String
+    let isActive: Bool
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "brain")
+                .foregroundStyle(.secondary)
+                .symbolEffect(.pulse, isActive: isActive)
+            Text(text)
+                .foregroundStyle(.secondary)
+                .contentTransition(.numericText())
+            if isActive {
+                ProgressView()
+                    .controlSize(.mini)
+            }
+        }
+        .font(.callout)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 2)
+        .animation(.default, value: text)
+        .accessibilityElement(children: .combine)
     }
 }

@@ -2,9 +2,12 @@ import Foundation
 
 enum StreamEvent {
     case started(sessionID: String)
-    case blockStarted
+    case blockStarted(index: Int, kind: BlockKind)
+    case blockStopped(index: Int)
     case textDelta(String)
+    case toolInputDelta(index: Int, json: String)
     case thinking
+    case thinkingTokens(Int)
     case assistant([AssistantBlock])
     case toolResults([ToolResultBlock])
     case finished(TurnResult)
@@ -23,12 +26,19 @@ enum StreamEvent {
         case "system" where raw.subtype == "init":
             guard let sessionID = raw.sessionID else { return .unknown }
             return .started(sessionID: sessionID)
+        case "system" where raw.subtype == "thinking_tokens":
+            return .thinkingTokens(raw.estimatedTokens ?? 0)
         case "stream_event":
+            let index = raw.event?.index ?? 0
             switch (raw.event?.type, raw.event?.delta?.type) {
             case ("content_block_start", _):
-                return .blockStarted
+                return .blockStarted(index: index, kind: BlockKind(raw.event?.contentBlock))
+            case ("content_block_stop", _):
+                return .blockStopped(index: index)
             case ("content_block_delta", "text_delta"):
                 return .textDelta(raw.event?.delta?.text ?? "")
+            case ("content_block_delta", "input_json_delta"):
+                return .toolInputDelta(index: index, json: raw.event?.delta?.partialJSON ?? "")
             case ("content_block_delta", "thinking_delta"):
                 return .thinking
             default:
@@ -49,6 +59,30 @@ enum StreamEvent {
             ))
         default:
             return .unknown
+        }
+    }
+}
+
+enum BlockKind {
+    case text
+    case thinking
+    case toolUse(id: String, name: String)
+    case other
+
+    fileprivate init(_ block: RawStreamEvent.ContentBlock?) {
+        switch block?.type {
+        case "text":
+            self = .text
+        case "thinking", "redacted_thinking":
+            self = .thinking
+        case "tool_use":
+            if let id = block?.id, let name = block?.name {
+                self = .toolUse(id: id, name: name)
+            } else {
+                self = .other
+            }
+        default:
+            self = .other
         }
     }
 }
@@ -99,11 +133,13 @@ private struct RawEvent: Decodable {
     let event: RawStreamEvent?
     let result: String?
     let isError: Bool?
+    let estimatedTokens: Int?
 
     enum CodingKeys: String, CodingKey {
         case type, subtype, message, event, result
         case sessionID = "session_id"
         case isError = "is_error"
+        case estimatedTokens = "estimated_tokens"
     }
 
     init(from decoder: Decoder) throws {
@@ -115,6 +151,7 @@ private struct RawEvent: Decodable {
         event = try? container.decode(RawStreamEvent.self, forKey: .event)
         result = try? container.decode(String.self, forKey: .result)
         isError = try? container.decode(Bool.self, forKey: .isError)
+        estimatedTokens = try? container.decode(Int.self, forKey: .estimatedTokens)
     }
 }
 
@@ -164,8 +201,27 @@ private struct RawStreamEvent: Decodable {
     struct Delta: Decodable {
         let type: String?
         let text: String?
+        let partialJSON: String?
+
+        enum CodingKeys: String, CodingKey {
+            case type, text
+            case partialJSON = "partial_json"
+        }
+    }
+
+    struct ContentBlock: Decodable {
+        let type: String?
+        let id: String?
+        let name: String?
     }
 
     let type: String?
+    let index: Int?
     let delta: Delta?
+    let contentBlock: ContentBlock?
+
+    enum CodingKeys: String, CodingKey {
+        case type, index, delta
+        case contentBlock = "content_block"
+    }
 }

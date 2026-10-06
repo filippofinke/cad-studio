@@ -42,6 +42,9 @@ enum ClaudeRunner {
         if let model = AppSettings.claudeModel {
             arguments += ["--model", model]
         }
+        if let effort = AppSettings.claudeEffort {
+            arguments += ["--effort", effort]
+        }
         return arguments
     }
 

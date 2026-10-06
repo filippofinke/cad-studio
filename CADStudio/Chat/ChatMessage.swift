@@ -5,6 +5,7 @@ struct ChatMessage: Identifiable, Codable, Equatable {
         case user
         case assistant
         case tool
+        case thinking
         case system
         case summary
     }
@@ -34,7 +35,8 @@ struct ToolActivity: Codable, Equatable {
 
     let toolUseID: String
     let name: String
-    let input: String
+    var input: String
     var output: String?
+    var preview: String?
     var state = State.running
 }

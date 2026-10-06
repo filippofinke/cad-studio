@@ -65,6 +65,7 @@ private struct ClaudeSettingsView: View {
     let locator: ClaudeLocator
     @AppStorage(AppSettings.claudePathKey) private var customPath = ""
     @AppStorage(AppSettings.claudeModelKey) private var model = ""
+    @AppStorage(AppSettings.claudeEffortKey) private var effort = ""
     @AppStorage(AppSettings.restrictedBashKey) private var restrictedBash = false
 
     var body: some View {
@@ -105,6 +106,17 @@ private struct ClaudeSettingsView: View {
                     .fontDesign(.monospaced)
             } footer: {
                 Text("Ad esempio “sonnet” oppure “opus”. Lascia vuoto per usare il modello configurato in Claude Code.")
+                    .foregroundStyle(.secondary)
+            }
+            Section {
+                Picker("Effort:", selection: $effort) {
+                    Text("Predefinito di Claude Code").tag("")
+                    Text("Basso, più veloce").tag("low")
+                    Text("Medio").tag("medium")
+                    Text("Alto, più accurato").tag("high")
+                }
+            } footer: {
+                Text("Un effort più basso fa ragionare meno l’agente prima di agire: le risposte arrivano prima, ma per pezzi complessi potrebbero servire più correzioni.")
                     .foregroundStyle(.secondary)
             }
             Section {

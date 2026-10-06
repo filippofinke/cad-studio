@@ -28,16 +28,31 @@ struct ToolActivityRow: View {
                 .padding(.top, 4)
             }
         } label: {
-            HStack(spacing: 6) {
-                Image(systemName: icon)
-                    .foregroundStyle(.secondary)
-                    .frame(width: 16)
-                Text(message.text)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                Spacer(minLength: 4)
-                stateIcon
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 6) {
+                    Image(systemName: icon)
+                        .foregroundStyle(.secondary)
+                        .frame(width: 16)
+                    Text(message.text)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                        .contentTransition(.numericText())
+                    Spacer(minLength: 4)
+                    stateIcon
+                }
+                if let preview = tool?.preview, !preview.isEmpty, tool?.state == .running {
+                    Text(preview)
+                        .font(.system(size: 10.5))
+                        .fontDesign(.monospaced)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(4)
+                        .truncationMode(.tail)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.leading, 22)
+                        .transition(.opacity)
+                }
             }
+            .animation(.default, value: tool?.preview)
             .contentShape(Rectangle())
             .onTapGesture {
                 isExpanded.toggle()

@@ -7,6 +7,16 @@ final class AgentSession {
     private var unconfirmedTextIDs: [UUID] = []
     private var hasText = false
     private var turnResult: TurnResult?
+    private var liveTools: [Int: LiveTool] = [:]
+    private var thinkingIndex: Int?
+    private var thinkingStart = Date.now
+
+    private struct LiveTool {
+        let id: String
+        let name: String
+        var json = ""
+        var updatedAt = Date.distantPast
+    }
     private var log: FileHandle?
 
     init(project: Project) {
@@ -20,6 +30,8 @@ final class AgentSession {
         unconfirmedTextIDs = []
         hasText = false
         turnResult = nil
+        liveTools = [:]
+        thinkingIndex = nil
 
         guard let claude = await ClaudeLocator.shared.resolve() else {
             chat.append(ChatMessage(
@@ -71,13 +83,20 @@ final class AgentSession {
                 project.metadata.sessionID = sessionID
             }
             project.save()
-        case .blockStarted:
+        case .blockStarted(let index, let kind):
             streamingID = nil
+            startBlock(index, kind: kind)
+        case .blockStopped(let index):
+            stopBlock(index)
         case .textDelta(let text):
             appendStreamingText(text)
             show(.working(String(localized: "Claude sta scrivendo…")))
+        case .toolInputDelta(let index, let json):
+            appendToolInput(json, to: index)
         case .thinking:
             show(.working(String(localized: "Claude sta ragionando…")))
+        case .thinkingTokens(let tokens):
+            updateThinking(tokens: tokens)
         case .assistant(let blocks):
             blocks.forEach(handle)
         case .toolResults(let results):
@@ -92,6 +111,56 @@ final class AgentSession {
         case .unknown:
             break
         }
+    }
+
+    private func startBlock(_ index: Int, kind: BlockKind) {
+        switch kind {
+        case .thinking:
+            thinkingIndex = index
+            thinkingStart = .now
+            chat.activeThinkingID = chat.append(ChatMessage(role: .thinking, text: String(localized: "Claude sta ragionando…")))
+            show(.working(String(localized: "Claude sta ragionando…")))
+        case .toolUse(let id, let name):
+            liveTools[index] = LiveTool(id: id, name: name)
+            let title = liveTitle(name: name, json: "")
+            chat.append(ChatMessage(role: .tool, text: title, tool: ToolActivity(toolUseID: id, name: name, input: "")))
+            show(.working(String(localized: "Claude sta lavorando… · \(title)")))
+        case .text, .other:
+            break
+        }
+    }
+
+    private func stopBlock(_ index: Int) {
+        if index == thinkingIndex, let id = chat.activeThinkingID {
+            let seconds = max(1, Int(Date.now.timeIntervalSince(thinkingStart).rounded()))
+            chat.setText(String(localized: "Ha ragionato per \(seconds) s"), of: id)
+            chat.activeThinkingID = nil
+            thinkingIndex = nil
+        }
+        if let tool = liveTools.removeValue(forKey: index), chat.tool(tool.id)?.state == .running {
+            chat.updateTool(tool.id, title: liveTitle(name: tool.name, json: tool.json), preview: nil)
+        }
+    }
+
+    private func appendToolInput(_ json: String, to index: Int) {
+        guard var tool = liveTools[index] else { return }
+        tool.json += json
+        if Date.now.timeIntervalSince(tool.updatedAt) > 0.15 {
+            tool.updatedAt = .now
+            let title = liveTitle(name: tool.name, json: tool.json)
+            chat.updateTool(tool.id, title: title, preview: ToolSummary.livePreview(name: tool.name, json: tool.json))
+            show(.working(String(localized: "Claude sta lavorando… · \(title)")))
+        }
+        liveTools[index] = tool
+    }
+
+    private func updateThinking(tokens: Int) {
+        guard let id = chat.activeThinkingID else { return }
+        chat.setText(String(localized: "Sta ragionando · circa \(tokens.formatted()) token"), of: id)
+    }
+
+    private func liveTitle(name: String, json: String) -> String {
+        ToolSummary.liveTitle(name: name, json: json, root: project.folder.root, python: PythonEnvironment.shared.interpreter)
     }
 
     private func show(_ activity: Activity) {
@@ -129,17 +198,19 @@ final class AgentSession {
                 root: project.folder.root,
                 python: PythonEnvironment.shared.interpreter
             )
-            chat.append(ChatMessage(
-                role: .tool,
-                text: title,
-                tool: ToolActivity(toolUseID: id, name: name, input: ToolSummary.inputText(name: name, input: input))
-            ))
-            project.activity = .working(String(localized: "Claude sta lavorando… · \(title)"))
+            let inputText = ToolSummary.inputText(name: name, input: input)
+            if chat.containsTool(id) {
+                chat.updateTool(id, title: title, input: inputText, preview: nil)
+            } else {
+                chat.append(ChatMessage(role: .tool, text: title, tool: ToolActivity(toolUseID: id, name: name, input: inputText)))
+            }
+            show(.working(String(localized: "Claude sta lavorando… · \(title)")))
         }
     }
 
     private func finish(_ result: ProcessResult) {
         chat.failRunningTools()
+        chat.activeThinkingID = nil
         if result.wasInterrupted {
             chat.append(ChatMessage(role: .summary, text: String(localized: "Interrotto")))
             project.agentDidFinish(.failed(String(localized: "Interrotto")))

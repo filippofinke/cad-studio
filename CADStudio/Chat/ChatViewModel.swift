@@ -6,6 +6,7 @@ final class ChatViewModel {
     private let file: URL
     private(set) var messages: [ChatMessage]
     var draft = ""
+    var activeThinkingID: UUID?
     private(set) var draftAttachments: [URL] = []
     private(set) var inputFocusRequest = UUID()
 
@@ -60,6 +61,23 @@ final class ChatViewModel {
         messages[index].text = text
     }
 
+    func tool(_ toolUseID: String) -> ToolActivity? {
+        messages.last { $0.tool?.toolUseID == toolUseID }?.tool
+    }
+
+    func containsTool(_ toolUseID: String) -> Bool {
+        messages.contains { $0.tool?.toolUseID == toolUseID }
+    }
+
+    func updateTool(_ toolUseID: String, title: String, input: String? = nil, preview: String?) {
+        guard let index = messages.lastIndex(where: { $0.tool?.toolUseID == toolUseID }) else { return }
+        messages[index].text = title
+        if let input {
+            messages[index].tool?.input = input
+        }
+        messages[index].tool?.preview = preview
+    }
+
     func completeTool(_ toolUseID: String, output: String, failed: Bool) {
         guard let index = messages.lastIndex(where: { $0.tool?.toolUseID == toolUseID }) else { return }
         messages[index].tool?.output = output
@@ -69,6 +87,7 @@ final class ChatViewModel {
     func failRunningTools() {
         for index in messages.indices where messages[index].tool?.state == .running {
             messages[index].tool?.state = .failed
+            messages[index].tool?.preview = nil
         }
     }
 

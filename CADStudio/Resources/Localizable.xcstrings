@@ -29,6 +29,34 @@
         }
       }
     },
+    "%@ · %lld righe": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · %lld Zeilen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · %lld lines"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · %lld lignes"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · %lld righe"
+          }
+        }
+      }
+    },
     "%@ · ΔX %@ · ΔY %@ · ΔZ %@": {
       "localizations": {
         "de": {
@@ -421,6 +449,34 @@
         }
       }
     },
+    "Alto, più accurato": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoch, gründlicher"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High, more thorough"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Élevé, plus approfondi"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alto, più accurato"
+          }
+        }
+      }
+    },
     "Annulla": {
       "localizations": {
         "de": {
@@ -809,6 +865,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bash limitato"
+          }
+        }
+      }
+    },
+    "Basso, più veloce": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niedrig, schneller"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low, faster"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faible, plus rapide"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Basso, più veloce"
           }
         }
       }
@@ -2129,6 +2213,34 @@
         }
       }
     },
+    "Effort:": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aufwand:"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Effort:"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Effort :"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Effort:"
+          }
+        }
+      }
+    },
     "English": {
       "localizations": {
         "de": {
@@ -2825,6 +2937,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "Griglia"
+          }
+        }
+      }
+    },
+    "Ha ragionato per %lld s": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld s nachgedacht"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thought for %lld s"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A réfléchi pendant %lld s"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ha ragionato per %lld s"
           }
         }
       }
@@ -3889,6 +4029,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "L’esecuzione di model.py non riesce con questo errore. Correggi lo script:\n```\n%@\n```"
+          }
+        }
+      }
+    },
+    "Medio": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mittel"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medium"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moyen"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medio"
           }
         }
       }
@@ -5937,6 +6105,34 @@
         }
       }
     },
+    "Sta ragionando · circa %@ token": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denkt nach · etwa %@ Token"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thinking · about %@ tokens"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réfléchit · environ %@ tokens"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sta ragionando · circa %@ token"
+          }
+        }
+      }
+    },
     "Staffa a L": {
       "localizations": {
         "de": {
@@ -6213,6 +6409,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "Trovato %@ in %@"
+          }
+        }
+      }
+    },
+    "Un effort più basso fa ragionare meno l’agente prima di agire: le risposte arrivano prima, ma per pezzi complessi potrebbero servire più correzioni.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weniger Aufwand lässt den Agenten vor dem Handeln weniger nachdenken: Antworten kommen schneller, komplexe Teile brauchen aber eventuell mehr Korrekturen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower effort makes the agent think less before acting: replies arrive sooner, but complex parts may need more fixes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un effort plus faible fait moins réfléchir l’agent avant d’agir : les réponses arrivent plus vite, mais les pièces complexes peuvent demander plus de corrections."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un effort più basso fa ragionare meno l’agente prima di agire: le risposte arrivano prima, ma per pezzi complessi potrebbero servire più correzioni."
           }
         }
       }

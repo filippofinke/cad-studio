@@ -62,7 +62,16 @@ final class Project {
     private(set) var paneDrag: PaneDrag?
     @ObservationIgnored var paneLocator: ((CGPoint) -> (Pane, DropEdge)?)?
     var areParametersVisible = true
-    var activity = Activity.idle
+    var activity = Activity.idle {
+        didSet {
+            if activity.isWorking, !oldValue.isWorking {
+                workStartedAt = .now
+            } else if !activity.isWorking {
+                workStartedAt = nil
+            }
+        }
+    }
+    private(set) var workStartedAt: Date?
     var focusRequest: PaneFocusRequest?
     private(set) var buildError: String?
     private(set) var missingOutputs: [String] = []

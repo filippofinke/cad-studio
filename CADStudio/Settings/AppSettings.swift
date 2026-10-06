@@ -4,6 +4,7 @@ enum AppSettings {
     static let defaultProjectLocationKey = "defaultProjectLocation"
     static let claudePathKey = "claudePath"
     static let claudeModelKey = "claudeModel"
+    static let claudeEffortKey = "claudeEffort"
     static let restrictedBashKey = "restrictedBash"
     static let streamingOutputKey = "streamingOutput"
     static let isolatesClaudeKey = "isolatesClaude"
@@ -26,6 +27,10 @@ enum AppSettings {
 
     static var claudeModel: String? {
         string(claudeModelKey)
+    }
+
+    static var claudeEffort: String? {
+        string(claudeEffortKey)
     }
 
     static var usesRestrictedBash: Bool {
