@@ -7,6 +7,7 @@ final class SchematicViewer {
     static let zoomRange = 0.1...8.0
 
     private(set) var zoom = 1.0
+    var page = 0
     @ObservationIgnored weak var webView: WKWebView?
     @ObservationIgnored private var sheetSize = CGSize.zero
     @ObservationIgnored private var hasLoaded = false

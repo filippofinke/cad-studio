@@ -7,14 +7,23 @@ struct Manifest: Decodable {
         let z: Double
     }
 
+    struct Drawing: Decodable {
+        let file: String
+        let title: String
+    }
+
     let boundingBox: BoundingBox?
     let warnings: [String]
     let parameters: [String: Double]
+    let drawings: [Drawing]
+    let bed: SIMD2<Float>?
 
     enum CodingKeys: String, CodingKey {
         case boundingBox = "bounding_box"
         case warnings
         case parameters
+        case drawings
+        case bed
     }
 
     init(from decoder: Decoder) throws {
@@ -25,5 +34,8 @@ struct Manifest: Decodable {
         parameters = values.compactMapValues { value in
             if case .number(let number) = value { number } else { nil }
         }
+        drawings = (try? container.decode([Drawing].self, forKey: .drawings)) ?? []
+        let size = (try? container.decode([Float].self, forKey: .bed)) ?? []
+        bed = size.count == 2 && size[0] > 0 && size[1] > 0 ? SIMD2(size[0], size[1]) : nil
     }
 }

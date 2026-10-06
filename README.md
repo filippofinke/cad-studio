@@ -21,8 +21,10 @@ Type "an under-desk headphone hook that screws on with two M4 screws" and CAD St
 - [x] Live 3D viewer with orbit, zoom, pan, grid, wireframe and multi-color 3MF parts
 - [x] Measure distances and cut sections through the model
 - [x] Animate mechanisms with a physics simulation (masses, springs, friction) and per-frame collision checks
+- [x] Multi-part models: assembled, exploded or print-plate view, show, hide or keep parts together
+- [x] Print plate with every part oriented and laid out for printing (`plate.3mf`, opened in your slicer)
 - [x] Floating parameter panel with sliders: tweak dimensions without calling Claude
-- [x] ISO technical drawing (first-angle projection) with dimensions and title block
+- [x] ISO technical drawings (first-angle projection): assembly with parts list plus one sheet per part, as a multi-page PDF
 - [x] Version history: jump back to any generation, chat and context included, and compare versions in 3D
 - [x] Attach reference images and sketches to the chat
 - [x] Export STEP, 3MF, STL, PDF drawing and `model.py` as one ZIP
@@ -94,7 +96,9 @@ Every project is a folder. CAD Studio runs the Claude Code installed on your Mac
 │   ├── model.3mf         # main model, with part colors
 │   ├── model.stl
 │   ├── model.step
-│   ├── schematic.svg / .png / .pdf
+│   ├── plate.3mf         # parts laid out ready to print
+│   ├── schematic.svg / .png / .pdf   # page 1 + multi-page PDF
+│   ├── schematic-2.svg …  # one sheet per part
 │   ├── animation.json    # optional: simulated motion, values and collisions
 │   └── manifest.json     # size, volume, parameters, warnings
 └── .cadstudio/           # chat, session, logs and versions

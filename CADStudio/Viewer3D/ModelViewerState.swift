@@ -27,18 +27,27 @@ final class ModelViewerState {
     var compareVersion: Int?
     var isAnimating = false {
         didSet {
-            isPlaying = isAnimating
-            animationTime = 0
+            player.time = 0
+            player.isPlaying = isAnimating
             if isAnimating {
                 isSectioning = false
                 isMeasuring = false
             }
         }
     }
-    var isPlaying = false
-    var animationTime = 0.0
-    var playbackSpeed = 1.0
-    var loopsAnimation = true
+    let player = MotionPlayer()
+    var layout = PartsLayout(rawValue: UserDefaults.standard.string(forKey: "partsLayout") ?? "") ?? .exploded {
+        didSet {
+            UserDefaults.standard.set(layout.rawValue, forKey: "partsLayout")
+            measurePoints = []
+            cameraID = UUID()
+        }
+    }
+    var explodeAmount = 1.0
+    var hiddenParts: Set<String> = []
+    var attachedParts: Set<String> = []
+    @ObservationIgnored private var arrangementKey: String?
+    @ObservationIgnored private var arrangement = TriangleMesh()
     var isMeasuring = false {
         didSet { measurePoints = [] }
     }
@@ -62,28 +71,46 @@ final class ModelViewerState {
         measurePoints.append(point)
     }
 
-    func advanceAnimation(by seconds: Double, duration: Double) {
-        guard duration > 0 else { return }
-        let time = animationTime + seconds * playbackSpeed
-        if time < duration {
-            animationTime = time
-        } else if loopsAnimation {
-            animationTime = time.truncatingRemainder(dividingBy: duration)
-        } else {
-            animationTime = duration
-            isPlaying = false
-        }
-    }
-
-    func togglePlayback(duration: Double) {
-        if !isPlaying, animationTime >= duration {
-            animationTime = 0
-        }
-        isPlaying.toggle()
-    }
-
     func clearMeasurement() {
         measurePoints = []
+    }
+
+    func effectiveLayout(for output: ProjectOutput) -> PartsLayout {
+        if isAnimating || compareVersion != nil {
+            return .assembled
+        }
+        if layout == .exploded, output.parts.count < 2 {
+            return .assembled
+        }
+        return layout
+    }
+
+    func sceneID(for output: ProjectOutput) -> String {
+        let layout = effectiveLayout(for: output)
+        return "\(output.meshID)-\(layout.rawValue)-\(layout == .plate ? output.plateID.uuidString : "")"
+    }
+
+    func arrangementRevision(for output: ProjectOutput) -> String {
+        "\(sceneID(for: output))-\(explodeAmount)-\(hiddenParts.sorted())-\(attachedParts.sorted())"
+    }
+
+    func arrangedMesh(of output: ProjectOutput) -> TriangleMesh {
+        guard let mesh = output.mesh else { return TriangleMesh() }
+        let layout = effectiveLayout(for: output)
+        guard !output.parts.isEmpty, layout != .assembled || !hiddenParts.isEmpty else { return mesh }
+        let key = arrangementRevision(for: output)
+        if key != arrangementKey {
+            arrangementKey = key
+            arrangement = PartArrangement.arrange(
+                parts: output.parts,
+                plateParts: output.plateParts,
+                layout: layout,
+                explode: Float(explodeAmount),
+                hidden: hiddenParts,
+                attached: attachedParts
+            )
+        }
+        return arrangement
     }
 
     func displayedMesh(of mesh: TriangleMesh) -> TriangleMesh {

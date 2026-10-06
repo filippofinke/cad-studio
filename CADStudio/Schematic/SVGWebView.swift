@@ -3,7 +3,7 @@ import WebKit
 
 struct SVGWebView: NSViewRepresentable {
     let file: URL
-    let revision: UUID
+    let revision: String
     let viewer: SchematicViewer
 
     func makeCoordinator() -> Coordinator {
@@ -94,7 +94,7 @@ struct SVGWebView: NSViewRepresentable {
 
     final class Coordinator: NSObject, WKScriptMessageHandler {
         let viewer: SchematicViewer
-        var loadedRevision: UUID?
+        var loadedRevision: String?
 
         init(viewer: SchematicViewer) {
             self.viewer = viewer

@@ -29,10 +29,15 @@ struct TriangleMesh: Sendable {
         }
     }
 
-    mutating func append(_ other: TriangleMesh) {
+    mutating func append(_ other: TriangleMesh, offset: SIMD3<Float> = .zero) {
         for index in 0..<other.triangleCount {
             let base = index * 3
-            addTriangle(other.positions[base], other.positions[base + 1], other.positions[base + 2], color: other.color(ofTriangle: index))
+            addTriangle(
+                other.positions[base] + offset,
+                other.positions[base + 1] + offset,
+                other.positions[base + 2] + offset,
+                color: other.color(ofTriangle: index)
+            )
         }
     }
 

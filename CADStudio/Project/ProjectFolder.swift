@@ -11,6 +11,7 @@ struct ProjectFolder: Hashable, Sendable {
     var output: URL { root.appending(path: "output", directoryHint: .isDirectory) }
     var stl: URL { output.appending(path: "model.stl") }
     var threeMF: URL { output.appending(path: "model.3mf") }
+    var plate: URL { output.appending(path: "plate.3mf") }
     var step: URL { output.appending(path: "model.step") }
     var pdf: URL { output.appending(path: "schematic.pdf") }
     var svg: URL { output.appending(path: "schematic.svg") }

@@ -35,7 +35,7 @@ enum CameraPreset: CaseIterable {
 
 struct ModelViewer: View {
     let mesh: TriangleMesh
-    let meshID: UUID
+    let meshID: String
     let displayedMesh: TriangleMesh
     let displayKey: String
     let ghost: TriangleMesh?
@@ -46,8 +46,11 @@ struct ModelViewer: View {
     let showsGrid: Bool
     let showsWireframe: Bool
     let parts: [NamedMesh]
-    let motion: MotionStudy.State?
-    let movingParts: Set<String>
+    let partsID: UUID
+    let hiddenParts: Set<String>
+    let bed: SIMD2<Float>?
+    let motion: MotionStudy?
+    let player: MotionPlayer
     let onPick: ((SIMD3<Float>) -> Void)?
     @Environment(\.colorScheme) private var colorScheme
     @State private var scene = ModelScene()
@@ -69,7 +72,8 @@ struct ModelViewer: View {
                 showsWireframe: showsWireframe,
                 isDark: colorScheme == .dark
             )
-            scene.animate(parts: parts, movingParts: movingParts, meshID: meshID, motion: motion)
+            scene.showBed(bed)
+            scene.animate(parts: parts, partsID: partsID, hidden: hiddenParts, study: motion, player: player)
             scene.frameIfNeeded(mesh: mesh, preset: preset, cameraID: cameraID)
         }
         .overlay {
@@ -77,6 +81,9 @@ struct ModelViewer: View {
                 guard let onPick, let hit = scene.pick(at: point, in: size, on: displayedMesh) else { return }
                 onPick(hit)
             }
+        }
+        .onDisappear {
+            scene.stopPlayback()
         }
         .background(colorScheme == .dark ? Color(white: 0.13) : Color(white: 0.94))
         .accessibilityLabel(Text("Viewer 3D del modello"))
@@ -98,9 +105,16 @@ final class ModelScene {
     private var animatedAppearance: String?
     private var partEntities: [String: (entity: ModelEntity, materials: [RealityKit.Material], collision: [RealityKit.Material])] = [:]
     private var collidingParts: Set<String> = []
+    private var study: MotionStudy?
+    private var player: MotionPlayer?
+    private var posedTime: Double?
+    private var timer: Timer?
+    private var lastTick: CFTimeInterval = 0
     private let grid = Entity()
     private let camera = PerspectiveCamera()
-    private var meshID: UUID?
+    private var meshID: String?
+    private let bedEntity = Entity()
+    private var bed: SIMD2<Float>?
     private var displayKey: String?
     private var ghostID: UUID?
     private var measurePoints: [SIMD3<Float>] = []
@@ -121,6 +135,7 @@ final class ModelScene {
         content.addChild(ghostEntity)
         content.addChild(markers)
         content.addChild(animatedParts)
+        content.addChild(bedEntity)
         root.addChild(content)
         root.addChild(grid)
         addLights()
@@ -133,7 +148,7 @@ final class ModelScene {
 
     func update(
         mesh: TriangleMesh,
-        meshID: UUID,
+        meshID: String,
         displayedMesh: TriangleMesh,
         displayKey: String,
         ghost: TriangleMesh?,
@@ -169,22 +184,78 @@ final class ModelScene {
         grid.isEnabled = showsGrid
     }
 
-    func animate(parts: [NamedMesh], movingParts: Set<String>, meshID: UUID, motion: MotionStudy.State?) {
-        guard let motion, !parts.isEmpty else {
+    func showBed(_ size: SIMD2<Float>?) {
+        guard size != bed else { return }
+        bed = size
+        bedEntity.children.removeAll()
+        guard let size else { return }
+        let half = size / 2
+        let corners = [SIMD3(-half.x, 0.06, half.y), SIMD3(half.x, 0.06, half.y), SIMD3(half.x, 0.06, -half.y), SIMD3(-half.x, 0.06, -half.y)]
+        var positions: [SIMD3<Float>] = []
+        for index in corners.indices {
+            positions += quad(from: corners[index], to: corners[(index + 1) % corners.count], width: max(size.x, size.y) / 250)
+        }
+        bedEntity.addChild(lineEntity(positions, color: .controlAccentColor))
+    }
+
+    func animate(parts: [NamedMesh], partsID: UUID, hidden: Set<String>, study: MotionStudy?, player: MotionPlayer) {
+        self.player = player
+        guard let study, !parts.isEmpty else {
+            self.study = nil
+            stopPlayback()
             animatedParts.isEnabled = false
             model.isEnabled = true
             interior.isEnabled = !isWireframe
             return
         }
+        self.study = study
         let appearance = "\(isWireframe)-\(isDark)"
-        if animatedMeshID != meshID || animatedAppearance != appearance {
-            animatedMeshID = meshID
+        if animatedMeshID != partsID || animatedAppearance != appearance {
+            animatedMeshID = partsID
             animatedAppearance = appearance
-            buildAnimatedParts(parts, movingParts: movingParts)
+            buildAnimatedParts(parts, movingParts: study.movingParts)
         }
         model.isEnabled = false
         interior.isEnabled = false
         animatedParts.isEnabled = true
+        for (name, part) in partEntities {
+            part.entity.isEnabled = !hidden.contains(name)
+        }
+        posedTime = nil
+        startPlayback()
+    }
+
+    func stopPlayback() {
+        timer?.invalidate()
+        timer = nil
+    }
+
+    private func startPlayback() {
+        guard timer == nil else { return }
+        lastTick = CACurrentMediaTime()
+        let timer = Timer(timeInterval: 1.0 / 60, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                let now = CACurrentMediaTime()
+                self.tick(now - self.lastTick)
+                self.lastTick = now
+            }
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        self.timer = timer
+    }
+
+    private func tick(_ deltaTime: Double) {
+        guard let study, let player else { return }
+        if player.isPlaying {
+            player.advance(by: deltaTime, duration: study.duration)
+        }
+        guard player.time != posedTime else { return }
+        posedTime = player.time
+        pose(study.state(at: player.time))
+    }
+
+    private func pose(_ motion: MotionStudy.State) {
         let colliding = motion.collidingParts
         for (name, part) in partEntities {
             let pose = motion.poses[name] ?? .identity

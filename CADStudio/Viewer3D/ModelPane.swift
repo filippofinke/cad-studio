@@ -23,6 +23,13 @@ struct ModelPane: View {
                         measurementBadge
                     }
                 }
+                .overlay(alignment: .topLeading) {
+                    if output.mesh != nil, output.parts.count > 1 || !output.plateParts.isEmpty {
+                        PartsOverlay(project: project)
+                            .padding(.leading, 10)
+                            .padding(.top, 32)
+                    }
+                }
                 .overlay(alignment: .topTrailing) {
                     if project.areParametersVisible, output.mesh != nil, !project.parameters.isEmpty {
                         ParametersOverlay(project: project)
@@ -31,7 +38,7 @@ struct ModelPane: View {
                 }
                 .overlay(alignment: .bottom) {
                     if viewer.isAnimating, let motionStudy {
-                        MotionControls(viewer: viewer, study: motionStudy)
+                        MotionControls(player: viewer.player, study: motionStudy)
                     } else if viewer.isSectioning, output.mesh != nil {
                         sectionControls
                     }
@@ -64,28 +71,18 @@ struct ModelPane: View {
                 viewer.isAnimating = false
             }
         }
-        .task(id: viewer.isPlaying && viewer.isAnimating) {
-            guard viewer.isPlaying, viewer.isAnimating else { return }
-            let clock = ContinuousClock()
-            var last = clock.now
-            while !Task.isCancelled {
-                try? await Task.sleep(for: .milliseconds(16))
-                let now = clock.now
-                let elapsed = last.duration(to: now)
-                last = now
-                viewer.advanceAnimation(by: elapsed / .seconds(1), duration: motionStudy?.duration ?? 0)
-            }
-        }
     }
 
     @ViewBuilder
     private var content: some View {
-        if let mesh = output.mesh {
+        if let assembled = output.mesh {
+            let arranged = viewer.arrangedMesh(of: output)
+            let mesh = arranged.triangleCount > 0 ? arranged : assembled
             ModelViewer(
                 mesh: mesh,
-                meshID: output.meshID,
-                displayedMesh: viewer.displayedMesh(of: mesh),
-                displayKey: viewer.displayKey,
+                meshID: viewer.sceneID(for: output),
+                displayedMesh: viewer.displayedMesh(of: arranged),
+                displayKey: "\(viewer.arrangementRevision(for: output))-\(viewer.displayKey)",
                 ghost: viewer.compareVersion == nil ? nil : output.comparisonMesh,
                 ghostID: viewer.compareVersion == nil ? nil : output.comparisonID,
                 measurePoints: viewer.measurePoints,
@@ -94,8 +91,11 @@ struct ModelPane: View {
                 showsGrid: viewer.showsGrid,
                 showsWireframe: viewer.showsWireframe,
                 parts: output.parts,
-                motion: viewer.isAnimating ? motionStudy?.state(at: viewer.animationTime) : nil,
-                movingParts: motionStudy?.movingParts ?? [],
+                partsID: output.meshID,
+                hiddenParts: hiddenMembers,
+                bed: viewer.effectiveLayout(for: output) == .plate ? output.manifest?.bed : nil,
+                motion: viewer.isAnimating ? motionStudy : nil,
+                player: viewer.player,
                 onPick: viewer.isMeasuring ? { viewer.addMeasurePoint($0) } : nil
             )
         } else if let error = output.meshError {
@@ -111,6 +111,10 @@ struct ModelPane: View {
                 Text("Descrivi un oggetto nella chat per iniziare")
             }
         }
+    }
+
+    private var hiddenMembers: Set<String> {
+        Set(PartArrangement.groups(of: output.parts).filter { viewer.hiddenParts.contains($0.name) }.flatMap(\.members))
     }
 
     private var controls: some View {

@@ -1,47 +1,47 @@
 import SwiftUI
 
 struct MotionControls: View {
-    let viewer: ModelViewerState
+    let player: MotionPlayer
     let study: MotionStudy
 
     private static let speeds: [Double] = [0.1, 0.25, 0.5, 1, 2]
 
     var body: some View {
-        let state = study.state(at: viewer.animationTime)
+        let state = study.state(at: player.time)
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 10) {
                 Button {
-                    viewer.togglePlayback(duration: study.duration)
+                    player.togglePlayback(duration: study.duration)
                 } label: {
-                    Image(systemName: viewer.isPlaying ? "pause.fill" : "play.fill")
+                    Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
                         .frame(width: 16)
                 }
                 .keyboardShortcut(.space, modifiers: [])
-                .help(viewer.isPlaying ? "Pausa" : "Riproduci")
+                .help(player.isPlaying ? "Pausa" : "Riproduci")
                 Slider(
-                    value: Binding(get: { viewer.animationTime }, set: { viewer.animationTime = $0 }),
+                    value: Binding(get: { player.time }, set: { player.time = $0 }),
                     in: 0...max(study.duration, 0.001),
                     onEditingChanged: { editing in
                         if editing {
-                            viewer.isPlaying = false
+                            player.isPlaying = false
                         }
                     }
                 )
                 .accessibilityLabel(Text("Tempo dell’animazione"))
-                Text("\(viewer.animationTime.formatted(.number.precision(.fractionLength(2)))) / \(study.duration.formatted(.number.precision(.fractionLength(2)))) s")
+                Text("\(player.time.formatted(.number.precision(.fractionLength(2)))) / \(study.duration.formatted(.number.precision(.fractionLength(2)))) s")
                     .font(.caption.monospacedDigit())
                     .foregroundStyle(.secondary)
                     .fixedSize()
                 Menu {
-                    Picker("Velocità", selection: Binding(get: { viewer.playbackSpeed }, set: { viewer.playbackSpeed = $0 })) {
+                    Picker("Velocità", selection: Binding(get: { player.speed }, set: { player.speed = $0 })) {
                         ForEach(Self.speeds, id: \.self) { speed in
                             Text("\(speed.formatted())×").tag(speed)
                         }
                     }
                     .pickerStyle(.inline)
-                    Toggle("Ripeti", isOn: Binding(get: { viewer.loopsAnimation }, set: { viewer.loopsAnimation = $0 }))
+                    Toggle("Ripeti", isOn: Binding(get: { player.loops }, set: { player.loops = $0 }))
                 } label: {
-                    Text("\(viewer.playbackSpeed.formatted())×")
+                    Text("\(player.speed.formatted())×")
                         .font(.caption.monospacedDigit())
                 }
                 .menuStyle(.borderlessButton)

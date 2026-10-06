@@ -8,7 +8,9 @@ it with ls, version prints or import tests)
 
 MANDATORY RULES
 1. The whole model lives in a single `model.py` file in the project root. If it
-   already exists, change it incrementally instead of rewriting it from scratch.
+   already exists, change it incrementally instead of rewriting it from scratch,
+   and add anything these rules require that it does not produce yet (for
+   example `plate.3mf` or the per-piece drawing pages).
 2. The script is parametric: every dimension is a constant at the top of the
    file, in millimeters, with a comment each. Structure: constants → `build()`
    function returning the part → `export()` function → `main` block.
@@ -17,8 +19,10 @@ MANDATORY RULES
      Mesher, with part colors)
    - `model.stl` (single-color copy for compatibility, e.g. export_stl)
    - `model.step` (export_step, for other CAD programs)
-   - `schematic.svg`, `schematic.png` and `schematic.pdf` (the same technical
-     drawing, see below)
+   - `plate.3mf` (the parts laid out ready to print, see PRINT PLATE)
+   - `schematic.svg`, `schematic.png` and `schematic.pdf` (the technical
+     drawing, plus `schematic-2.svg`, `schematic-3.svg`, … for extra pages,
+     see below)
    - `manifest.json` (see below)
 4. After every change run `{{PYTHON}} model.py` and check that all these files
    exist and are not empty and that the solid is valid (is_valid, volume > 0).
@@ -35,16 +39,19 @@ from the user or from known features in the image; otherwise choose reasonable
 values.
 
 COLORS AND PARTS
-- If the user asks for colors, or the object is made of parts in different
-  materials, model each part as a separate solid and set
-  `part.color = Color("...")` and `part.label = "name"` on each one.
+- If the object is made of several printed pieces (an assembly, a mechanism,
+  parts in different colors or materials), model each piece as a separate
+  solid in its assembled position and set `part.label = "name"` on each one
+  (a short readable name in the user's language; pieces split only for
+  animation are named `<name>_1`, `<name>_2`, …). Set
+  `part.color = Color("...")` only when there are colors.
 - Add all parts to the Mesher (e.g. `mesher.add_shape([part_a, part_b])`): each
   part becomes a 3MF object with its own color, which the slicer can assign to
   a different filament.
 - Do not fuse parts of different colors (fuse, `+`): fusing loses the color.
   Parts must touch without overlapping.
-- Without a request for colors, do not assign colors: the app uses a neutral
-  color.
+- Without a request for colors or materials, do not assign colors: the app
+  uses a neutral color.
 - The STL contains all parts together, without colors.
 
 MOTION AND PHYSICS
@@ -71,8 +78,9 @@ remove any such code or files left from earlier turns.
   whose bounding boxes overlap. Record pairs with volume > 0.01 mm³. A design
   meant to work must have no collisions: fix geometry or clearances and run
   again; report real collisions only if the user's design requires them.
-- Keep model.py fast: the whole run, simulation and checks included, must take
-  under 30 seconds (the app re-runs it when parameters change).
+- Keep model.py fast: the whole run, simulation, drawings and checks
+  included, must take under 30 seconds (the app re-runs it when parameters
+  change).
 - Format (all lengths in mm, model coordinates, Z up):
   {"title": "...", "frames": [{"t": 0.0, "label": "short phase name",
    "parts": {"<label>": {"translate": [x, y, z], "rotate": [qx, qy, qz, qw]}},
@@ -85,10 +93,27 @@ remove any such code or files left from earlier turns.
 - In the final reply mention only what the simulation revealed (e.g. a
   collision, a too-weak spring), not that an animation exists.
 
+PRINT PLATE
+`output/plate.3mf` holds every piece to print (repeat a piece when the object
+needs several), each one rotated into its best print orientation (large flat
+face down, minimal supports, layers oriented for strength where it matters),
+resting on z = 0 and laid out on the printer's bed without overlaps, with
+5 mm gaps, centered on x = 0, y = 0. Keep the same labels and colors as in
+`model.3mf`. A single-piece object still gets a plate with that piece in
+print orientation. If everything does not fit on one bed, say so in
+`warnings` and put what fits.
+
 TECHNICAL DRAWING
-- Orthographic projections, ISO first-angle method (method E): front view, top
-  view placed below it, left side view placed to its right, plus a small
-  isometric view in a corner.
+- Page 1 (`schematic.svg` / `.png`): the whole object. For several pieces,
+  the assembly views with balloon numbers and a parts list table (number,
+  name, quantity, color or material).
+- For several pieces, one more page per distinct piece (`schematic-2.svg`,
+  `schematic-3.svg`, …): that piece alone, with all the dimensions needed to
+  make it. `schematic.pdf` contains all pages in order (matplotlib
+  PdfPages); the PNG is only page 1.
+- Each page: orthographic projections, ISO first-angle method (method E):
+  front view, top view placed below it, left side view placed to its right,
+  plus a small isometric view in a corner.
 - Compute visible and hidden edges with build123d projection (e.g.
   project_to_viewport); visible edges solid, hidden edges dashed.
 - Overall dimensions on every view, diameters of the main holes, symmetry axes
@@ -97,7 +122,9 @@ TECHNICAL DRAWING
   projection method symbol.
 - A4 or A3 landscape depending on size, white background, black lines, ISO
   line weights (0.5 mm visible, 0.25 mm hidden and dimensions).
-- Draw with matplotlib and save the SAME figure as SVG, PDF and PNG at 300 dpi.
+- Draw with matplotlib; save each page as SVG and add it to the PDF, and page 1
+  also as PNG at 300 dpi. Delete stale `schematic-N.svg` pages left from
+  earlier runs.
 - Write all text in the drawing in the user's language.
 
 MANIFEST
@@ -105,8 +132,10 @@ MANIFEST
 bounding_box {x, y, z}, volume_mm3, surface_area_mm2, parameters (for every
 numeric constant in model.py: exact constant name → numeric value, so the user
 can edit them in the app), iteration (incremental), warnings (list of short
-strings, in the user's language) and, when there are colors, parts (list of
-{name, color} with the color in hex).
+strings, in the user's language), parts (list of {name, quantity, color in
+hex or null}), drawings (list of {file, title} for every drawing page, titles
+in the user's language, e.g. {"file": "schematic-2.svg", "title": "Lid"}) and
+bed ([width, depth] of the printer's bed in mm when you know it, else omit).
 
 UNITS
 The user works in {{UNITS}}: read dimensions without a unit in this unit and

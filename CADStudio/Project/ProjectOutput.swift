@@ -6,11 +6,15 @@ final class ProjectOutput {
     private let folder: ProjectFolder
     private(set) var mesh: TriangleMesh?
     private(set) var parts: [NamedMesh] = []
+    private(set) var plateParts: [NamedMesh] = []
+    private(set) var plateID = UUID()
+    private(set) var drawingPages: [DrawingPage] = []
     private(set) var motionStudy: MotionStudy?
     private(set) var motionError: String?
     private(set) var meshID = UUID()
     private(set) var meshError: String?
     private(set) var manifest: Manifest?
+    private(set) var parameters: [ModelParameter] = []
     private(set) var hasSVG = false
     private(set) var hasPNG = false
     private(set) var hasThreeMF = false
@@ -35,13 +39,25 @@ final class ProjectOutput {
         hasSVG = FileManager.default.fileExists(atPath: folder.svg.path)
         hasPNG = FileManager.default.fileExists(atPath: folder.png.path)
         hasThreeMF = FileManager.default.fileExists(atPath: folder.threeMF.path)
-        let svgChanged = hasChanged(folder.svg)
+        let pages = discoverDrawingPages()
+        let pagesChanged = pages.map(hasChanged).contains(true) || pages.map(\.self) != drawingPages.map(\.file)
         let pngChanged = hasChanged(folder.png)
-        if svgChanged || pngChanged {
+        if pagesChanged || pngChanged {
             schematicRevision = UUID()
         }
         if hasChanged(folder.manifest) {
             manifest = try? ProjectStore.read(Manifest.self, from: folder.manifest)
+            parameters = orderedParameters()
+        }
+        let titledPages = pages.enumerated().map { index, file in
+            let title = manifest?.drawings.first { $0.file == file.lastPathComponent }?.title
+            return DrawingPage(file: file, title: title ?? String(localized: "Pagina \(index + 1)"))
+        }
+        if titledPages != drawingPages {
+            drawingPages = titledPages
+        }
+        if hasChanged(folder.plate) {
+            loadPlate()
         }
         if hasChanged(folder.animation) {
             loadMotionStudy()
@@ -58,6 +74,49 @@ final class ProjectOutput {
         let previous = modificationDates[url]
         modificationDates[url] = date
         return date != previous
+    }
+
+    private func discoverDrawingPages() -> [URL] {
+        let files = (try? FileManager.default.contentsOfDirectory(at: folder.output, includingPropertiesForKeys: nil)) ?? []
+        let extra = files
+            .compactMap { file -> (Int, URL)? in
+                let name = file.deletingPathExtension().lastPathComponent
+                guard file.pathExtension == "svg", name.hasPrefix("schematic-"), let number = Int(name.dropFirst("schematic-".count)) else {
+                    return nil
+                }
+                return (number, file)
+            }
+            .sorted { $0.0 < $1.0 }
+            .map(\.1)
+        return (FileManager.default.fileExists(atPath: folder.svg.path) ? [folder.svg] : []) + extra
+    }
+
+    private func loadPlate() {
+        let plate = folder.plate
+        guard FileManager.default.fileExists(atPath: plate.path) else {
+            plateParts = []
+            plateID = UUID()
+            return
+        }
+        Task {
+            let model = await Task.detached(priority: .userInitiated) {
+                try? ThreeMFParser.parse(plate)
+            }.value
+            plateParts = model?.parts ?? []
+            plateID = UUID()
+        }
+    }
+
+    private func orderedParameters() -> [ModelParameter] {
+        let values = manifest?.parameters ?? [:]
+        let script = (try? String(contentsOf: folder.modelScript, encoding: .utf8)) ?? ""
+        return values
+            .map { ModelParameter(name: $0.key, value: $0.value) }
+            .sorted { first, second in
+                let firstIndex = script.range(of: first.name)?.lowerBound ?? script.endIndex
+                let secondIndex = script.range(of: second.name)?.lowerBound ?? script.endIndex
+                return firstIndex == secondIndex ? first.name < second.name : firstIndex < secondIndex
+            }
     }
 
     private func loadMotionStudy() {
@@ -126,4 +185,9 @@ final class ProjectOutput {
         }
         return Result { LoadedModel(mesh: try STLParser.parse(stl), parts: []) }
     }
+}
+
+struct DrawingPage: Equatable {
+    let file: URL
+    let title: String
 }

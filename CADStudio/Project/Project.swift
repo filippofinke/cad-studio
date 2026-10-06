@@ -1,3 +1,4 @@
+import PDFKit
 import AppKit
 
 enum Pane: String, Codable, Sendable {
@@ -186,7 +187,7 @@ final class Project {
         chat.save()
         buildError = nil
         activity = .working(String(localized: "Claude sta lavorando…"))
-        let prompt = Self.prompt(text, references: references)
+        let prompt = Self.prompt(text, references: references, missing: missingRequirements)
         task = Task {
             await agent?.run(prompt)
         }
@@ -203,11 +204,41 @@ final class Project {
         }
     }
 
-    private static func prompt(_ text: String, references: [String]) -> String {
-        guard !references.isEmpty else { return text }
-        let request = text.isEmpty ? "Create a model based on the attached images." : text
-        let list = references.map { "- \($0)" }.joined(separator: "\n")
-        return "\(request)\n\nAttached reference images (open them with the Read tool):\n\(list)"
+    private var missingRequirements: [String] {
+        let manager = FileManager.default
+        guard manager.fileExists(atPath: folder.modelScript.path) else { return [] }
+        var missing = folder.expectedOutputs.filter { !manager.fileExists(atPath: $0.path) }.map(\.lastPathComponent)
+        if !manager.fileExists(atPath: folder.plate.path) {
+            missing.append("plate.3mf (print plate)")
+        }
+        if output.parts.count > 1, !manager.fileExists(atPath: folder.output.appending(path: "schematic-2.svg").path) {
+            missing.append("one drawing page per piece (schematic-2.svg, …) with the parts list on page 1")
+        }
+        if let manifest = output.manifest {
+            if output.drawingPages.count > 1, manifest.drawings.isEmpty {
+                missing.append("`drawings` in manifest.json (page titles)")
+            }
+            if manifest.bed == nil, AppSettings.printerModel != nil {
+                missing.append("`bed` in manifest.json (bed size of the user's printer)")
+            }
+        }
+        if output.drawingPages.count > 1, (PDFDocument(url: folder.pdf)?.pageCount ?? 0) < output.drawingPages.count {
+            missing.append("schematic.pdf with all drawing pages in one file (PdfPages)")
+        }
+        return missing
+    }
+
+    private static func prompt(_ text: String, references: [String], missing: [String]) -> String {
+        var prompt = text.isEmpty && !references.isEmpty ? "Create a model based on the attached images." : text
+        if !references.isEmpty {
+            let list = references.map { "- \($0)" }.joined(separator: "\n")
+            prompt += "\n\nAttached reference images (open them with the Read tool):\n\(list)"
+        }
+        if !missing.isEmpty {
+            let list = missing.map { "- \($0)" }.joined(separator: "\n")
+            prompt += "\n\nNote from CAD Studio: model.py does not produce these required outputs yet. Add them in this turn as well, following your instructions:\n\(list)"
+        }
+        return prompt
     }
 
     func askClaudeToFix(_ traceback: String) {
@@ -261,15 +292,7 @@ final class Project {
     }
 
     var parameters: [ModelParameter] {
-        let values = output.manifest?.parameters ?? [:]
-        let script = (try? String(contentsOf: folder.modelScript, encoding: .utf8)) ?? ""
-        return values
-            .map { ModelParameter(name: $0.key, value: $0.value) }
-            .sorted { first, second in
-                let firstIndex = script.range(of: first.name)?.lowerBound ?? script.endIndex
-                let secondIndex = script.range(of: second.name)?.lowerBound ?? script.endIndex
-                return firstIndex == secondIndex ? first.name < second.name : firstIndex < secondIndex
-            }
+        output.parameters
     }
 
     func setParameter(_ name: String, to value: Double) {
@@ -364,7 +387,8 @@ final class Project {
 
     func exportPackage() {
         guard let destination = ProjectPanels.chooseExportDestination(for: name) else { return }
-        let files = ([folder.modelScript] + folder.expectedOutputs + [folder.animation])
+        let outputs = (try? FileManager.default.contentsOfDirectory(at: folder.output, includingPropertiesForKeys: nil)) ?? []
+        let files = ([folder.modelScript] + outputs.filter { !$0.lastPathComponent.hasPrefix(".") })
             .filter { FileManager.default.fileExists(atPath: $0.path) }
             .map(\.path)
         try? FileManager.default.removeItem(at: destination)
@@ -384,6 +408,6 @@ final class Project {
     }
 
     func openInSlicer() {
-        NSWorkspace.shared.open(folder.threeMF)
+        NSWorkspace.shared.open(FileManager.default.fileExists(atPath: folder.plate.path) ? folder.plate : folder.threeMF)
     }
 }
