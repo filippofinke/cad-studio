@@ -29,6 +29,13 @@ struct TriangleMesh: Sendable {
         }
     }
 
+    mutating func append(_ other: TriangleMesh) {
+        for index in 0..<other.triangleCount {
+            let base = index * 3
+            addTriangle(other.positions[base], other.positions[base + 1], other.positions[base + 2], color: other.color(ofTriangle: index))
+        }
+    }
+
     private mutating func materialIndex(for color: SIMD4<Float>) -> UInt32 {
         if let index = colors.firstIndex(of: color) {
             return UInt32(index + 1)

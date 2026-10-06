@@ -25,6 +25,20 @@ final class ModelViewerState {
     var sectionAxis = SectionAxis.x
     var sectionPosition = 0.5
     var compareVersion: Int?
+    var isAnimating = false {
+        didSet {
+            isPlaying = isAnimating
+            animationTime = 0
+            if isAnimating {
+                isSectioning = false
+                isMeasuring = false
+            }
+        }
+    }
+    var isPlaying = false
+    var animationTime = 0.0
+    var playbackSpeed = 1.0
+    var loopsAnimation = true
     var isMeasuring = false {
         didSet { measurePoints = [] }
     }
@@ -46,6 +60,26 @@ final class ModelViewerState {
             measurePoints = []
         }
         measurePoints.append(point)
+    }
+
+    func advanceAnimation(by seconds: Double, duration: Double) {
+        guard duration > 0 else { return }
+        let time = animationTime + seconds * playbackSpeed
+        if time < duration {
+            animationTime = time
+        } else if loopsAnimation {
+            animationTime = time.truncatingRemainder(dividingBy: duration)
+        } else {
+            animationTime = duration
+            isPlaying = false
+        }
+    }
+
+    func togglePlayback(duration: Double) {
+        if !isPlaying, animationTime >= duration {
+            animationTime = 0
+        }
+        isPlaying.toggle()
     }
 
     func clearMeasurement() {

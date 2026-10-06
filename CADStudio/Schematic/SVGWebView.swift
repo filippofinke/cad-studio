@@ -17,7 +17,7 @@ struct SVGWebView: NSViewRepresentable {
         webView.setValue(false, forKey: "drawsBackground")
         webView.allowsMagnification = false
         webView.allowsBackForwardNavigationGestures = false
-        webView.onMagnify = { [weak viewer] amount in viewer?.magnify(by: amount) }
+        webView.onMagnify = { [weak viewer] amount, point in viewer?.magnify(by: amount, at: point) }
         webView.onResize = { [weak viewer] in viewer?.viewDidResize() }
         viewer.webView = webView
         return webView
@@ -49,9 +49,16 @@ struct SVGWebView: NSViewRepresentable {
         const sheet = document.getElementById('sheet');
         let sheetWidth = 1123;
         let sheetHeight = 794;
-        function setZoom(zoom) {
+        function setZoom(zoom, x, y) {
+            const anchorX = x ?? window.innerWidth / 2;
+            const anchorY = y ?? window.innerHeight / 2;
+            const before = sheet.getBoundingClientRect();
+            const fractionX = before.width > 0 ? (anchorX - before.left) / before.width : 0.5;
+            const fractionY = before.height > 0 ? (anchorY - before.top) / before.height : 0.5;
             sheet.style.width = (sheetWidth * zoom) + 'px';
             sheet.style.height = (sheetHeight * zoom) + 'px';
+            const after = sheet.getBoundingClientRect();
+            window.scrollBy(after.left + fractionX * after.width - anchorX, after.top + fractionY * after.height - anchorY);
         }
         function report() {
             sheetWidth = sheet.naturalWidth || sheetWidth;
@@ -72,6 +79,13 @@ struct SVGWebView: NSViewRepresentable {
             document.addEventListener('mouseup', stop);
             event.preventDefault();
         });
+        document.addEventListener('wheel', event => {
+            if (event.shiftKey || event.altKey) { return; }
+            event.preventDefault();
+            const pixels = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaY;
+            const step = Math.max(-0.2, Math.min(0.2, -pixels * 0.0025));
+            window.webkit.messageHandlers.sheet.postMessage({ zoom: Math.exp(step), x: event.clientX, y: event.clientY });
+        }, { passive: false });
         document.addEventListener('dblclick', () => window.webkit.messageHandlers.sheet.postMessage('fit'));
         </script>
         </body></html>
@@ -87,7 +101,9 @@ struct SVGWebView: NSViewRepresentable {
         }
 
         func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
-            if let size = message.body as? [String: Double], let width = size["width"], let height = size["height"] {
+            if let body = message.body as? [String: Double], let factor = body["zoom"], let x = body["x"], let y = body["y"] {
+                viewer.zoom(by: factor, at: CGPoint(x: x, y: y))
+            } else if let size = message.body as? [String: Double], let width = size["width"], let height = size["height"] {
                 viewer.sheetDidLoad(size: CGSize(width: width, height: height))
             } else if message.body as? String == "fit" {
                 viewer.fit()
@@ -97,7 +113,7 @@ struct SVGWebView: NSViewRepresentable {
 }
 
 final class SheetWebView: WKWebView {
-    var onMagnify: ((Double) -> Void)?
+    var onMagnify: ((Double, CGPoint) -> Void)?
     var onResize: (() -> Void)?
 
     override func setFrameSize(_ newSize: NSSize) {
@@ -106,7 +122,8 @@ final class SheetWebView: WKWebView {
     }
 
     override func magnify(with event: NSEvent) {
-        onMagnify?(event.magnification)
+        let point = convert(event.locationInWindow, from: nil)
+        onMagnify?(event.magnification, CGPoint(x: point.x, y: isFlipped ? point.y : bounds.height - point.y))
     }
 
     override func willOpenMenu(_ menu: NSMenu, with event: NSEvent) {

@@ -49,7 +49,8 @@ final class AgentSession {
             prompt: prompt,
             sessionID: sessionID,
             projectName: project.name,
-            python: PythonEnvironment.shared.interpreter
+            python: PythonEnvironment.shared.interpreter,
+            environment: environmentSummary()
         )
         openLog()
         defer { closeLog() }
@@ -161,6 +162,28 @@ final class AgentSession {
 
     private func liveTitle(name: String, json: String) -> String {
         ToolSummary.liveTitle(name: name, json: json, root: project.folder.root, python: PythonEnvironment.shared.interpreter)
+    }
+
+    private func environmentSummary() -> String {
+        let folder = project.folder
+        let manager = FileManager.default
+        func names(in directory: URL) -> String {
+            let files = ((try? manager.contentsOfDirectory(atPath: directory.path)) ?? [])
+                .filter { !$0.hasPrefix(".") }
+                .sorted()
+            return files.isEmpty ? "empty" : files.joined(separator: ", ")
+        }
+        var lines = ["- Python packages: \(PythonEnvironment.shared.versions.isEmpty ? "build123d, matplotlib, numpy" : PythonEnvironment.shared.versions)"]
+        if let script = try? String(contentsOf: folder.modelScript, encoding: .utf8) {
+            lines.append("- model.py exists (\(script.split(separator: "\n", omittingEmptySubsequences: false).count) lines)")
+        } else {
+            lines.append("- model.py does not exist yet: create it")
+        }
+        lines.append("- output/: \(names(in: folder.output))")
+        if manager.fileExists(atPath: folder.references.path) {
+            lines.append("- references/: \(names(in: folder.references))")
+        }
+        return lines.joined(separator: "\n")
     }
 
     private func show(_ activity: Activity) {

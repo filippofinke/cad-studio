@@ -20,6 +20,7 @@ Type "an under-desk headphone hook that screws on with two M4 screws" and CAD St
 - [x] Chat with an agent that writes and fixes parametric build123d scripts for you
 - [x] Live 3D viewer with orbit, zoom, pan, grid, wireframe and multi-color 3MF parts
 - [x] Measure distances and cut sections through the model
+- [x] Animate mechanisms with a physics simulation (masses, springs, friction) and per-frame collision checks
 - [x] Floating parameter panel with sliders: tweak dimensions without calling Claude
 - [x] ISO technical drawing (first-angle projection) with dimensions and title block
 - [x] Version history: jump back to any generation, chat and context included, and compare versions in 3D
@@ -94,6 +95,7 @@ Every project is a folder. CAD Studio runs the Claude Code installed on your Mac
 │   ├── model.stl
 │   ├── model.step
 │   ├── schematic.svg / .png / .pdf
+│   ├── animation.json    # optional: simulated motion, values and collisions
 │   └── manifest.json     # size, volume, parameters, warnings
 └── .cadstudio/           # chat, session, logs and versions
 ```

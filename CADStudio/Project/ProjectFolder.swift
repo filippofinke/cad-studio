@@ -16,6 +16,7 @@ struct ProjectFolder: Hashable, Sendable {
     var svg: URL { output.appending(path: "schematic.svg") }
     var png: URL { output.appending(path: "schematic.png") }
     var manifest: URL { output.appending(path: "manifest.json") }
+    var animation: URL { output.appending(path: "animation.json") }
 
     var expectedOutputs: [URL] { [threeMF, stl, step, svg, png, pdf, manifest] }
 

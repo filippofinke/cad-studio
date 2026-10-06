@@ -13,15 +13,29 @@ enum ThreeMFError: LocalizedError {
     }
 }
 
+struct NamedMesh: Sendable {
+    let name: String
+    let mesh: TriangleMesh
+}
+
+struct LoadedModel: Sendable {
+    let mesh: TriangleMesh
+    let parts: [NamedMesh]
+}
+
 enum ThreeMFParser {
-    static func parse(_ url: URL) throws -> TriangleMesh {
+    static func parse(_ url: URL) throws -> LoadedModel {
         let document = ThreeMFDocument()
         let parser = XMLParser(data: try modelData(from: url))
         parser.delegate = document
         guard parser.parse() else { throw ThreeMFError.unreadable }
-        let mesh = document.mesh()
+        let parts = document.parts()
+        var mesh = TriangleMesh()
+        for part in parts {
+            mesh.append(part.mesh)
+        }
         guard mesh.triangleCount > 0 else { throw ThreeMFError.empty }
-        return mesh
+        return LoadedModel(mesh: mesh, parts: parts)
     }
 
     private static func modelData(from url: URL) throws -> Data {
@@ -59,6 +73,7 @@ private final class ThreeMFDocument: NSObject, XMLParserDelegate {
         var vertices: [SIMD3<Float>] = []
         var triangles: [Triangle] = []
         var components: [Placement] = []
+        let name: String?
         let material: MaterialReference?
     }
 
@@ -70,15 +85,23 @@ private final class ThreeMFDocument: NSObject, XMLParserDelegate {
     private var currentObjectID: String?
     private var currentObject: MeshObject?
 
-    func mesh() -> TriangleMesh {
-        var mesh = TriangleMesh()
+    func parts() -> [NamedMesh] {
         let roots = buildItems.isEmpty
             ? objects.keys.sorted().map { Placement(objectID: $0, transform: matrix_identity_float4x4) }
             : buildItems
-        for root in roots {
+        return roots.enumerated().map { index, root in
+            var mesh = TriangleMesh()
             append(root.objectID, transform: root.transform, to: &mesh, depth: 0)
+            return NamedMesh(name: name(of: root.objectID, depth: 0) ?? "part \(index + 1)", mesh: mesh)
         }
-        return mesh
+    }
+
+    private func name(of objectID: String, depth: Int) -> String? {
+        guard depth < 16, let object = objects[objectID] else { return nil }
+        if let name = object.name, !name.isEmpty {
+            return name
+        }
+        return object.components.lazy.compactMap { self.name(of: $0.objectID, depth: depth + 1) }.first
     }
 
     private func append(_ objectID: String, transform: simd_float4x4, to mesh: inout TriangleMesh, depth: Int) {
@@ -122,7 +145,7 @@ private final class ThreeMFDocument: NSObject, XMLParserDelegate {
             appendColor(attributes["color"])
         case "object":
             currentObjectID = attributes["id"]
-            currentObject = MeshObject(material: reference(attributes["pid"], attributes["pindex"]))
+            currentObject = MeshObject(name: attributes["name"], material: reference(attributes["pid"], attributes["pindex"]))
         case "vertex":
             currentObject?.vertices.append(SIMD3(
                 Float(attributes["x"] ?? "") ?? 0,

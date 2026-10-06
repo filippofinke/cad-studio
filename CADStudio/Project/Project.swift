@@ -111,6 +111,12 @@ final class Project {
             issues.append(Issue(kind: .warning, message: String(localized: "File di output mancanti: \(files)")))
         }
         issues += (output.manifest?.warnings ?? []).map { Issue(kind: .warning, message: $0) }
+        if let motionError = output.motionError {
+            issues.append(Issue(kind: .warning, message: motionError))
+        }
+        if let study = output.motionStudy, study.collisionCount > 0 {
+            issues.append(Issue(kind: .warning, message: String(localized: "L’animazione ha collisioni tra parti in \(study.collisionCount) fotogrammi")))
+        }
         return issues
     }
 
@@ -358,7 +364,7 @@ final class Project {
 
     func exportPackage() {
         guard let destination = ProjectPanels.chooseExportDestination(for: name) else { return }
-        let files = ([folder.modelScript] + folder.expectedOutputs)
+        let files = ([folder.modelScript] + folder.expectedOutputs + [folder.animation])
             .filter { FileManager.default.fileExists(atPath: $0.path) }
             .map(\.path)
         try? FileManager.default.removeItem(at: destination)

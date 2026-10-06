@@ -19,6 +19,7 @@ final class PythonEnvironment {
     var state = State.unknown
     var isSetupSheetPresented = false
     private(set) var log = ""
+    private(set) var versions = ""
     private(set) var progress = 0.0
     private(set) var step = ""
 
@@ -131,11 +132,17 @@ final class PythonEnvironment {
     }
 
     private func build123dVersion() async -> String? {
-        let script = "import build123d, matplotlib; print(build123d.__version__)"
+        let script = """
+        import sys, build123d, matplotlib, numpy
+        print(build123d.__version__)
+        print(f"Python {sys.version.split()[0]}, build123d {build123d.__version__}, matplotlib {matplotlib.__version__}, numpy {numpy.__version__}")
+        """
         guard let result = try? await ProcessRunner.run(interpreter, arguments: ["-c", script]), result.status == 0 else {
             return nil
         }
-        return result.output.trimmingCharacters(in: .whitespacesAndNewlines)
+        let lines = result.output.split(separator: "\n").map { $0.trimmingCharacters(in: .whitespaces) }
+        versions = lines.count > 1 ? lines[1] : ""
+        return lines.first
     }
 
     private func advance(to value: Double, step: String) {

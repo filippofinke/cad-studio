@@ -5,6 +5,9 @@ import Foundation
 final class ProjectOutput {
     private let folder: ProjectFolder
     private(set) var mesh: TriangleMesh?
+    private(set) var parts: [NamedMesh] = []
+    private(set) var motionStudy: MotionStudy?
+    private(set) var motionError: String?
     private(set) var meshID = UUID()
     private(set) var meshError: String?
     private(set) var manifest: Manifest?
@@ -40,6 +43,9 @@ final class ProjectOutput {
         if hasChanged(folder.manifest) {
             manifest = try? ProjectStore.read(Manifest.self, from: folder.manifest)
         }
+        if hasChanged(folder.animation) {
+            loadMotionStudy()
+        }
         let threeMFChanged = hasChanged(folder.threeMF)
         let stlChanged = hasChanged(folder.stl)
         if threeMFChanged || stlChanged {
@@ -52,6 +58,22 @@ final class ProjectOutput {
         let previous = modificationDates[url]
         modificationDates[url] = date
         return date != previous
+    }
+
+    private func loadMotionStudy() {
+        guard FileManager.default.fileExists(atPath: folder.animation.path) else {
+            motionStudy = nil
+            motionError = nil
+            return
+        }
+        do {
+            let study = try JSONDecoder().decode(MotionStudy.self, from: Data(contentsOf: folder.animation))
+            motionStudy = study.frames.count > 1 ? study : nil
+            motionError = nil
+        } catch {
+            motionStudy = nil
+            motionError = String(localized: "animation.json non è valido: \(error.localizedDescription)")
+        }
     }
 
     private func loadMesh() {
@@ -70,7 +92,8 @@ final class ProjectOutput {
             guard !Task.isCancelled else { return }
             switch result {
             case .success(let loaded):
-                mesh = loaded
+                mesh = loaded.mesh
+                parts = loaded.parts
                 meshID = UUID()
                 meshError = nil
             case .failure(let error):
@@ -92,15 +115,15 @@ final class ProjectOutput {
             let result = await Task.detached(priority: .userInitiated) {
                 Self.parseMesh(threeMF: output.appending(path: "model.3mf"), stl: output.appending(path: "model.stl"))
             }.value
-            comparisonMesh = try? result.get()
+            comparisonMesh = try? result.get().mesh
             comparisonID = UUID()
         }
     }
 
-    private nonisolated static func parseMesh(threeMF: URL, stl: URL) -> Result<TriangleMesh, Error> {
-        if let mesh = try? ThreeMFParser.parse(threeMF) {
-            return .success(mesh)
+    private nonisolated static func parseMesh(threeMF: URL, stl: URL) -> Result<LoadedModel, Error> {
+        if let model = try? ThreeMFParser.parse(threeMF) {
+            return .success(model)
         }
-        return Result { try STLParser.parse(stl) }
+        return Result { LoadedModel(mesh: try STLParser.parse(stl), parts: []) }
     }
 }

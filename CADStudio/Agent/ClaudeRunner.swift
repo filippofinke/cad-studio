@@ -5,6 +5,7 @@ struct ClaudeRequest {
     let sessionID: String?
     let projectName: String
     let python: URL
+    let environment: String
 }
 
 enum ClaudeRunner {
@@ -73,6 +74,7 @@ enum ClaudeRunner {
             .replacingOccurrences(of: "{{UNITS}}", with: AppSettings.measurementUnit.promptName)
             .replacingOccurrences(of: "{{PRINTER}}", with: printerDescription())
             .replacingOccurrences(of: "{{PRINTING_GUIDELINES}}", with: AppSettings.printerType.promptGuidelines)
+            .replacingOccurrences(of: "{{ENVIRONMENT}}", with: request.environment)
     }
 
     private static func printerDescription() -> String {

@@ -45,6 +45,9 @@ struct ModelViewer: View {
     let cameraID: UUID
     let showsGrid: Bool
     let showsWireframe: Bool
+    let parts: [NamedMesh]
+    let motion: MotionStudy.State?
+    let movingParts: Set<String>
     let onPick: ((SIMD3<Float>) -> Void)?
     @Environment(\.colorScheme) private var colorScheme
     @State private var scene = ModelScene()
@@ -66,6 +69,7 @@ struct ModelViewer: View {
                 showsWireframe: showsWireframe,
                 isDark: colorScheme == .dark
             )
+            scene.animate(parts: parts, movingParts: movingParts, meshID: meshID, motion: motion)
             scene.frameIfNeeded(mesh: mesh, preset: preset, cameraID: cameraID)
         }
         .overlay {
@@ -89,6 +93,11 @@ final class ModelScene {
     private let interior = ModelEntity()
     private let ghostEntity = ModelEntity()
     private let markers = Entity()
+    private let animatedParts = Entity()
+    private var animatedMeshID: UUID?
+    private var animatedAppearance: String?
+    private var partEntities: [String: (entity: ModelEntity, materials: [RealityKit.Material], collision: [RealityKit.Material])] = [:]
+    private var collidingParts: Set<String> = []
     private let grid = Entity()
     private let camera = PerspectiveCamera()
     private var meshID: UUID?
@@ -111,6 +120,7 @@ final class ModelScene {
         content.addChild(interior)
         content.addChild(ghostEntity)
         content.addChild(markers)
+        content.addChild(animatedParts)
         root.addChild(content)
         root.addChild(grid)
         addLights()
@@ -157,6 +167,54 @@ final class ModelScene {
             showMarkers(measurePoints)
         }
         grid.isEnabled = showsGrid
+    }
+
+    func animate(parts: [NamedMesh], movingParts: Set<String>, meshID: UUID, motion: MotionStudy.State?) {
+        guard let motion, !parts.isEmpty else {
+            animatedParts.isEnabled = false
+            model.isEnabled = true
+            interior.isEnabled = !isWireframe
+            return
+        }
+        let appearance = "\(isWireframe)-\(isDark)"
+        if animatedMeshID != meshID || animatedAppearance != appearance {
+            animatedMeshID = meshID
+            animatedAppearance = appearance
+            buildAnimatedParts(parts, movingParts: movingParts)
+        }
+        model.isEnabled = false
+        interior.isEnabled = false
+        animatedParts.isEnabled = true
+        let colliding = motion.collidingParts
+        for (name, part) in partEntities {
+            let pose = motion.poses[name] ?? .identity
+            part.entity.position = Self.sceneVector(pose.translate)
+            part.entity.orientation = simd_quatf(vector: SIMD4(Self.sceneVector(pose.rotate.imag), pose.rotate.real))
+            if colliding.contains(name) != collidingParts.contains(name) {
+                part.entity.model?.materials = colliding.contains(name) ? part.collision : part.materials
+            }
+        }
+        collidingParts = colliding
+    }
+
+    private func buildAnimatedParts(_ parts: [NamedMesh], movingParts: Set<String>) {
+        animatedParts.children.removeAll()
+        partEntities = [:]
+        collidingParts = []
+        var collisionMaterial = PhysicallyBasedMaterial()
+        collisionMaterial.baseColor = .init(tint: .systemRed)
+        collisionMaterial.emissiveColor = .init(color: .systemRed)
+        collisionMaterial.emissiveIntensity = 0.6
+        collisionMaterial.faceCulling = .none
+        for part in parts {
+            guard let resource = Self.resource(for: part.mesh) else { continue }
+            let materials = movingParts.contains(part.name)
+                ? surfaceMaterials(for: part.mesh.colors)
+                : surfaceMaterials(for: part.mesh.colors).map(Self.translucent)
+            let entity = ModelEntity(mesh: resource, materials: materials)
+            animatedParts.addChild(entity)
+            partEntities[part.name] = (entity, materials, Array(repeating: collisionMaterial, count: materials.count))
+        }
     }
 
     func pick(at point: CGPoint, in size: CGSize, on mesh: TriangleMesh) -> SIMD3<Float>? {
@@ -230,7 +288,7 @@ final class ModelScene {
             interior.model = nil
             return
         }
-        model.model = ModelComponent(mesh: resource, materials: surfaceMaterials())
+        model.model = ModelComponent(mesh: resource, materials: surfaceMaterials(for: colors))
         var cut = UnlitMaterial(color: NSColor.systemRed.blended(withFraction: 0.15, of: .black) ?? .systemRed)
         cut.faceCulling = .front
         interior.model = ModelComponent(mesh: resource, materials: Array(repeating: cut, count: colors.count + 1))
@@ -270,12 +328,19 @@ final class ModelScene {
         markers.addChild(line)
     }
 
-    private func surfaceMaterials() -> [RealityKit.Material] {
+    private func surfaceMaterials(for colors: [SIMD4<Float>]) -> [RealityKit.Material] {
         let neutral = isDark
             ? NSColor(red: 0.62, green: 0.70, blue: 0.80, alpha: 1)
             : NSColor(red: 0.55, green: 0.64, blue: 0.75, alpha: 1)
         let partColors = colors.map { NSColor(red: CGFloat($0.x), green: CGFloat($0.y), blue: CGFloat($0.z), alpha: 1) }
         return ([neutral] + partColors).map(surfaceMaterial)
+    }
+
+    private static func translucent(_ material: RealityKit.Material) -> RealityKit.Material {
+        guard var material = material as? PhysicallyBasedMaterial else { return material }
+        material.blending = .transparent(opacity: 0.22)
+        material.faceCulling = .none
+        return material
     }
 
     private func surfaceMaterial(_ color: NSColor) -> RealityKit.Material {

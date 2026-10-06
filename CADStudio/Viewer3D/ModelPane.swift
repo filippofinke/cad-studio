@@ -10,6 +10,10 @@ struct ModelPane: View {
     private var output: ProjectOutput { project.output }
     private var viewer: ModelViewerState { project.viewer }
 
+    private var motionStudy: MotionStudy? {
+        output.parts.count > 1 ? output.motionStudy : nil
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             content
@@ -26,7 +30,9 @@ struct ModelPane: View {
                     }
                 }
                 .overlay(alignment: .bottom) {
-                    if viewer.isSectioning, output.mesh != nil {
+                    if viewer.isAnimating, let motionStudy {
+                        MotionControls(viewer: viewer, study: motionStudy)
+                    } else if viewer.isSectioning, output.mesh != nil {
                         sectionControls
                     }
                 }
@@ -53,6 +59,23 @@ struct ModelPane: View {
                 viewer.meshDidChange(size: mesh.size)
             }
         }
+        .onChange(of: motionStudy == nil) { _, isMissing in
+            if isMissing, viewer.isAnimating {
+                viewer.isAnimating = false
+            }
+        }
+        .task(id: viewer.isPlaying && viewer.isAnimating) {
+            guard viewer.isPlaying, viewer.isAnimating else { return }
+            let clock = ContinuousClock()
+            var last = clock.now
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(16))
+                let now = clock.now
+                let elapsed = last.duration(to: now)
+                last = now
+                viewer.advanceAnimation(by: elapsed / .seconds(1), duration: motionStudy?.duration ?? 0)
+            }
+        }
     }
 
     @ViewBuilder
@@ -70,6 +93,9 @@ struct ModelPane: View {
                 cameraID: viewer.cameraID,
                 showsGrid: viewer.showsGrid,
                 showsWireframe: viewer.showsWireframe,
+                parts: output.parts,
+                motion: viewer.isAnimating ? motionStudy?.state(at: viewer.animationTime) : nil,
+                movingParts: motionStudy?.movingParts ?? [],
                 onPick: viewer.isMeasuring ? { viewer.addMeasurePoint($0) } : nil
             )
         } else if let error = output.meshError {
@@ -100,7 +126,21 @@ struct ModelPane: View {
             toggle(isOn: Binding(get: { viewer.showsGrid }, set: { viewer.showsGrid = $0 }), systemImage: "grid", title: "Griglia", help: "Mostra la griglia")
             toggle(isOn: Binding(get: { viewer.showsWireframe }, set: { viewer.showsWireframe = $0 }), systemImage: "cube.transparent", title: "Wireframe", help: "Mostra il wireframe")
             toggle(isOn: Binding(get: { viewer.isMeasuring }, set: { viewer.isMeasuring = $0 }), systemImage: "ruler", title: "Misura", help: "Misura la distanza tra due punti")
+                .disabled(viewer.isAnimating)
             toggle(isOn: Binding(get: { viewer.isSectioning }, set: { viewer.isSectioning = $0 }), systemImage: "square.split.diagonal", title: "Sezione", help: "Mostra una sezione del modello")
+                .disabled(viewer.isAnimating)
+            if motionStudy != nil {
+                toggle(isOn: Binding(get: { viewer.isAnimating }, set: { viewer.isAnimating = $0 }), systemImage: "play.circle", title: "Animazione", help: "Riproduci l’animazione con la simulazione fisica")
+            } else if output.parts.count > 1 {
+                Button {
+                    project.send(String(localized: "Anima il movimento di questo meccanismo con una simulazione fisica."))
+                } label: {
+                    Image(systemName: "play.circle")
+                }
+                .disabled(project.isBusy)
+                .help("Chiedi a Claude di simulare e animare il meccanismo")
+                .accessibilityLabel(Text("Crea animazione"))
+            }
             colorLegend
         }
         .buttonStyle(.borderless)

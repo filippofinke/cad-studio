@@ -22,9 +22,13 @@ final class SchematicViewer {
         setZoom(zoom / 1.25)
     }
 
-    func magnify(by amount: Double) {
+    func magnify(by amount: Double, at point: CGPoint) {
+        zoom(by: 1 + amount, at: point)
+    }
+
+    func zoom(by factor: Double, at point: CGPoint) {
         isFitted = false
-        setZoom(zoom * (1 + amount))
+        setZoom(zoom * factor, anchor: point)
     }
 
     func viewDidResize() {
@@ -50,8 +54,12 @@ final class SchematicViewer {
         }
     }
 
-    private func setZoom(_ value: Double) {
+    private func setZoom(_ value: Double, anchor: CGPoint? = nil) {
         zoom = min(max(value, Self.zoomRange.lowerBound), Self.zoomRange.upperBound)
-        webView?.evaluateJavaScript("setZoom(\(zoom))")
+        if let anchor {
+            webView?.evaluateJavaScript("setZoom(\(zoom), \(anchor.x), \(anchor.y))")
+        } else {
+            webView?.evaluateJavaScript("setZoom(\(zoom))")
+        }
     }
 }
