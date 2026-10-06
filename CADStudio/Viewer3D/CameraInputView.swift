@@ -61,12 +61,13 @@ final class CameraInputNSView: NSView {
     }
 
     override func scrollWheel(with event: NSEvent) {
-        if event.hasPreciseScrollingDeltas, !event.modifierFlags.contains(.command) {
+        if event.modifierFlags.contains(.shift) || event.modifierFlags.contains(.option) {
             scene.pan(by: CGSize(width: event.scrollingDeltaX, height: event.scrollingDeltaY), viewHeight: bounds.height)
-        } else {
-            let lines = event.hasPreciseScrollingDeltas ? event.scrollingDeltaY / 10 : event.scrollingDeltaY
-            scene.zoom(by: pow(0.9, Float(lines)))
+            return
         }
+        let delta = event.scrollingDeltaY != 0 ? event.scrollingDeltaY : event.scrollingDeltaX
+        let steps = event.hasPreciseScrollingDeltas ? Float(delta) / 12 : Float(delta)
+        scene.zoom(by: pow(0.9, steps))
     }
 
     override func magnify(with event: NSEvent) {

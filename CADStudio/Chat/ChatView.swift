@@ -77,6 +77,8 @@ struct ChatView: View {
             ToolActivityRow(message: message)
         case .thinking:
             ThinkingRow(text: message.text, isActive: message.id == chat.activeThinkingID)
+        case .summary where VersionMarker.number(of: message) != nil:
+            VersionMarker(project: project, message: message)
         case .summary:
             Text(message.text)
                 .font(.caption)
@@ -175,5 +177,47 @@ private struct ThinkingRow: View {
         .padding(.vertical, 2)
         .animation(.default, value: text)
         .accessibilityElement(children: .combine)
+    }
+}
+
+private struct VersionMarker: View {
+    let project: Project
+    let message: ChatMessage
+
+    static func number(of message: ChatMessage) -> Int? {
+        if let detail = message.detail.flatMap(Int.init) {
+            return detail
+        }
+        let words = message.text.split(separator: " ")
+        guard words.count == 2, let number = Int(words[1]) else { return nil }
+        return number
+    }
+
+    private var version: ProjectVersion? {
+        let number = Self.number(of: message)
+        return project.history.versions.first { $0.number == number }
+    }
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "clock.arrow.circlepath")
+            Text(message.text)
+                .fontDesign(.monospaced)
+            Spacer()
+            if let version {
+                if project.metadata.currentVersion == version.number {
+                    Text("Attuale")
+                } else {
+                    Button("Ripristina") {
+                        project.restore(version)
+                    }
+                    .buttonStyle(.link)
+                    .disabled(project.isBusy)
+                }
+            }
+        }
+        .font(.caption)
+        .foregroundStyle(.secondary)
+        .padding(.bottom, 6)
     }
 }

@@ -95,7 +95,15 @@ struct ParametersOverlay: View {
                 .disabled(project.history.versions.isEmpty)
             }
             .padding(.horizontal, 12)
-            .padding(.vertical, 8)
+            .padding(.top, 8)
+            .padding(.bottom, project.viewer.compareVersion == nil ? 8 : 4)
+            if project.viewer.compareVersion != nil {
+                Text("In arancione la forma della versione scelta. Per vederne i colori, ripristinala dal menu Versioni.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding([.horizontal, .bottom], 12)
+            }
         }
         .controlSize(.small)
         .frame(width: 280)

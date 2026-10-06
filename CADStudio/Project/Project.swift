@@ -243,7 +243,7 @@ final class Project {
 
     private func recordVersion(prompt: String) {
         guard history.hasChanges(since: metadata.currentVersion) else { return }
-        chat.append(ChatMessage(role: .summary, text: String(localized: "Versione \(history.nextNumber)")))
+        chat.append(ChatMessage(role: .summary, text: String(localized: "Versione \(history.nextNumber)"), detail: String(history.nextNumber)))
         chat.save()
         do {
             let version = try history.record(prompt: prompt, sessionID: metadata.sessionID)

@@ -7,21 +7,34 @@ struct VersionMenu: View {
         Menu {
             if project.history.versions.isEmpty {
                 Text("Nessuna versione salvata")
-            }
-            ForEach(project.history.versions.reversed()) { version in
-                Toggle(isOn: Binding(
-                    get: { project.metadata.currentVersion == version.number },
-                    set: { _ in project.restore(version) }
-                )) {
-                    Text("Versione \(version.number) · \(summary(of: version.prompt))")
-                    Text("\(version.createdAt.formatted(.relative(presentation: .named))) · \(version.createdAt.formatted(date: .abbreviated, time: .shortened))")
+            } else {
+                Section(project.isBusy ? "Disponibili al termine della generazione" : "Torna a una versione") {
+                    ForEach(project.history.versions.reversed()) { version in
+                        Button {
+                            project.restore(version)
+                        } label: {
+                            if project.metadata.currentVersion == version.number {
+                                Label("Versione \(version.number) · \(summary(of: version.prompt))", systemImage: "checkmark")
+                            } else {
+                                Text("Versione \(version.number) · \(summary(of: version.prompt))")
+                            }
+                            Text("\(version.createdAt.formatted(.relative(presentation: .named))) · \(version.createdAt.formatted(date: .abbreviated, time: .shortened))")
+                        }
+                        .disabled(project.isBusy)
+                    }
                 }
             }
         } label: {
-            Label("Versioni", systemImage: "clock.arrow.circlepath")
+            HStack(spacing: 4) {
+                Image(systemName: "clock.arrow.circlepath")
+                if let current = project.metadata.currentVersion {
+                    Text("v\(current)")
+                        .monospacedDigit()
+                }
+            }
+            .accessibilityLabel(Text("Versioni"))
         }
         .help("Storico delle versioni")
-        .disabled(project.isBusy)
     }
 
     private func summary(of prompt: String) -> String {

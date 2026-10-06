@@ -757,6 +757,34 @@
         }
       }
     },
+    "Attuale": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktuell"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actuelle"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attuale"
+          }
+        }
+      }
+    },
     "Automatico": {
       "localizations": {
         "de": {
@@ -2185,6 +2213,34 @@
         }
       }
     },
+    "Disponibili al termine della generazione": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verfügbar, sobald die Generierung fertig ist"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Available when generation finishes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disponibles à la fin de la génération"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disponibili al termine della generazione"
+          }
+        }
+      }
+    },
     "Distanziale cilindrico Ø 12 mm, alto 15 mm, con foro M3": {
       "localizations": {
         "de": {
@@ -3273,6 +3329,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "Impossibile ripristinare la versione %lld"
+          }
+        }
+      }
+    },
+    "In arancione la forma della versione scelta. Per vederne i colori, ripristinala dal menu Versioni.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orange zeigt die Form der gewählten Version. Um ihre Farben zu sehen, stelle sie im Menü Versionen wieder her."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orange shows the shape of the chosen version. To see its colors, restore it from the Versions menu."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’orange montre la forme de la version choisie. Pour voir ses couleurs, restaurez-la depuis le menu Versions."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In arancione la forma della versione scelta. Per vederne i colori, ripristinala dal menu Versioni."
           }
         }
       }
@@ -5741,6 +5825,34 @@
         }
       }
     },
+    "Ripristina": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wiederherstellen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ripristina"
+          }
+        }
+      }
+    },
     "Risposta completata": {
       "localizations": {
         "de": {
@@ -6325,6 +6437,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tipo di stampante:"
+          }
+        }
+      }
+    },
+    "Torna a una versione": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zu einer Version zurück"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Go back to a version"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revenir à une version"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Torna a una versione"
           }
         }
       }
@@ -7221,6 +7361,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "stream-json (in tempo reale)"
+          }
+        }
+      }
+    },
+    "v%lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "v%lld"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "v%lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "v%lld"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "v%lld"
           }
         }
       }
