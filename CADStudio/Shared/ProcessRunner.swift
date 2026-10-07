@@ -130,14 +130,18 @@ final class RunningProcesses: Sendable {
             set.insert(pid)
             return set
         }
+        ProcessInfo.processInfo.disableSuddenTermination()
+        ProcessInfo.processInfo.disableAutomaticTermination("A child process is running")
         persist(all)
     }
 
     func remove(_ pid: pid_t) {
-        let all = identifiers.withLock { set -> Set<pid_t> in
-            set.remove(pid)
-            return set
+        let removed = identifiers.withLock { set -> Set<pid_t>? in
+            set.remove(pid) == nil ? nil : set
         }
+        guard let all = removed else { return }
+        ProcessInfo.processInfo.enableSuddenTermination()
+        ProcessInfo.processInfo.enableAutomaticTermination("A child process is running")
         persist(all)
     }
 
