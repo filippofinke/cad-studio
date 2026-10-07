@@ -13,7 +13,7 @@ Type "an under-desk headphone hook that screws on with two M4 screws" and CAD St
   <img src=".github/demo.gif" alt="CAD Studio demo" width="900" />
 </p>
 
-<p align="center"><a href=".github/demo.mp4">▶︎ Watch the narrated demo (MP4, with sound)</a></p>
+<p align="center"><a href="https://filippofinke.github.io/cad-studio/">Website</a> · <a href=".github/demo.mp4">▶︎ Watch the narrated demo (MP4, with sound)</a></p>
 
 ## Features
 

@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAD Studio · Describe a part. Print it.</title>
+<meta name="description" content="A native macOS app that turns a sentence into a parametric build123d model, ISO drawings and a print plate, written and run by the Claude Code on your Mac. Free and MIT licensed.">
+<meta name="theme-color" content="#010102">
+<meta property="og:title" content="CAD Studio">
+<meta property="og:description" content="Describe a part. Print it. Parametric CAD written by the Claude Code on your Mac.">
+<meta property="og:image" content="assets/model.webp">
+<link rel="icon" type="image/png" href="assets/icon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preload" href="fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#top" aria-label="CAD Studio home">
+      <img src="assets/logo.webp" alt="" width="24" height="24">
+      <span>CAD Studio</span>
+    </a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#parameters">Parameters</a>
+      <a href="#drawings">Drawings</a>
+      <a href="#motion">Motion</a>
+      <a href="#start">Get started</a>
+    </nav>
+    <div class="nav-actions">
+      <a class="btn btn-tertiary nav-github" href="https://github.com/filippofinke/cad-studio">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </a>
+      <a class="btn btn-primary" href="https://github.com/filippofinke/cad-studio/releases/latest">Download</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+<section class="hero" id="top">
+  <div class="wrap">
+    <h1>Describe a part.<br>Print it.</h1>
+    <div class="hero-row">
+      <p class="lead">CAD Studio turns a sentence into a parametric build123d model, ISO drawings and a print plate, written and run by the Claude Code already on your Mac.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary btn-lg" href="https://github.com/filippofinke/cad-studio/releases/latest">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5v8.2m0 0L4.8 6.5M8 9.7l3.2-3.2M2.5 11v2.2c0 .7.6 1.3 1.3 1.3h8.4c.7 0 1.3-.6 1.3-1.3V11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Download for macOS
+        </a>
+        <a class="btn btn-secondary btn-lg" href="https://github.com/filippofinke/cad-studio">View source</a>
+        <p class="hero-meta">Free and MIT licensed · macOS 15 or later · uses your Claude Code plan</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap session-wrap">
+    <figure class="session" id="session" aria-label="Replay of a real CAD Studio session">
+      <div class="dim dim-top" aria-hidden="true">
+        <div class="dim-seg dim-chat"><span>1 sentence</span></div>
+        <div class="dim-seg dim-out"><span>7 files · model.py, 3MF, STEP, STL, drawing, manifest</span></div>
+      </div>
+      <div class="window">
+        <div class="titlebar">
+          <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+          <div class="activity">
+            <svg class="cube" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.6l5.6 3.1v6.6L8 14.4l-5.6-3.1V4.7L8 1.6zm0 0v6.3m0 0l5.6-3.2M8 7.9L2.4 4.7" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></svg>
+            <b>Desk Hook</b>
+            <span class="chev" aria-hidden="true">›</span>
+            <span class="status" data-status><span class="spinner" aria-hidden="true"></span><span data-status-text>Ready</span></span>
+            <span class="timer" data-timer>0:00</span>
+          </div>
+          <span class="tb-version" aria-hidden="true">v1</span>
+        </div>
+        <div class="panes">
+          <div class="chat" data-chat>
+            <div class="msg-user" data-prompt><span data-typed></span><span class="caret" aria-hidden="true"></span></div>
+            <div class="feed" data-feed></div>
+            <div class="composer" aria-hidden="true">
+              <svg viewBox="0 0 16 16"><path d="M10.6 4.2L5.4 9.4a1.3 1.3 0 001.8 1.8l5.6-5.6a2.6 2.6 0 00-3.7-3.7L3.4 7.6a3.9 3.9 0 005.5 5.5l4.3-4.3" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+              <span>Describe the object or the change…</span>
+            </div>
+          </div>
+          <div class="output">
+            <div class="output-empty" data-empty>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l8.5 4.8v9.4L12 21.5l-8.5-4.8V7.3L12 2.5zm0 0v9.5m0 0l8.5-4.7M12 12L3.5 7.3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-dasharray="2.5 2"/></svg>
+              <span>No model yet</span>
+            </div>
+            <img class="output-img" data-output src="assets/hero-output.webp" alt="The generated headphone hook in the 3D viewer with its parameter sliders, and its ISO drawing below" width="1054" height="908">
+          </div>
+        </div>
+      </div>
+      <figcaption class="session-cap">
+        <span>A real session: 2 min 44 s, replayed at 15×.</span>
+        <button class="replay" type="button" data-replay>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.8 8a5.2 5.2 0 109-3.6M11.8 1.6v2.8H9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Replay
+        </button>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="section params" id="parameters">
+  <div class="wrap">
+    <div class="split-head">
+      <h2>Real code. Every number is yours.</h2>
+      <p>Claude writes a parametric build123d script, not a mesh. Each dimension is a named constant, and the app turns them into sliders: drag one and the model rebuilds in seconds, without asking Claude again.</p>
+    </div>
+    <div class="params-stage">
+      <div class="drawing-panel">
+        <svg class="profile" data-profile viewBox="0 0 200 130" role="img" aria-label="Side view of the headphone hook with live dimensions"></svg>
+        <p class="panel-foot"><span>Side view · first-angle projection</span><span data-total>Overall height 47.0 mm</span></p>
+      </div>
+      <div class="code-panel">
+        <div class="code-head"><span>model.py</span><span>lines 22–28 of 303</span></div>
+        <pre class="code" data-code aria-live="polite"></pre>
+        <div class="sliders">
+          <label class="slider"><span class="slider-row"><code>HOOK_GAP</code><output data-out="HOOK_GAP">35</output></span><input type="range" min="20" max="60" step="1" value="35" data-param="HOOK_GAP"></label>
+          <label class="slider"><span class="slider-row"><code>ARM_LEN</code><output data-out="ARM_LEN">55</output></span><input type="range" min="35" max="90" step="1" value="55" data-param="ARM_LEN"></label>
+          <label class="slider"><span class="slider-row"><code>LIP_H</code><output data-out="LIP_H">10</output></span><input type="range" min="4" max="20" step="1" value="10" data-param="LIP_H"></label>
+          <label class="slider"><span class="slider-row"><code>THICKNESS</code><output data-out="THICKNESS">6</output></span><input type="range" min="4" max="10" step="0.5" value="6" data-param="THICKNESS"></label>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section drawings" id="drawings">
+  <div class="wrap drawings-grid">
+    <div class="drawings-copy">
+      <h2>Drawings you can hand to someone.</h2>
+      <p>Every model comes with an ISO first-angle drawing: dimensioned views, hidden edges, a title block. Assemblies get a parts list on the first sheet and one detail sheet per part, all in a single multi-page PDF.</p>
+      <ul class="sheet-list" data-sheet-list>
+        <li><button type="button" data-sheet="0" aria-pressed="true"><span>1</span>Assembly and parts list</button></li>
+        <li><button type="button" data-sheet="1" aria-pressed="false"><span>2</span>Housing</button></li>
+        <li><button type="button" data-sheet="2" aria-pressed="false"><span>4</span>Plunger with cam groove</button></li>
+      </ul>
+      <p class="fine">Sheets from a push-to-open drawer latch made in CAD Studio, six sheets in all.</p>
+    </div>
+    <div class="sheets" data-sheets>
+      <img src="assets/latch-sheet-1.webp" alt="Sheet 1: latch assembly in three views with an isometric view and a parts list" width="1600" height="1132" loading="lazy">
+      <img src="assets/latch-sheet-2.webp" alt="Sheet 2: housing with all dimensions and four 4.4 mm holes" width="1600" height="1132" loading="lazy">
+      <img src="assets/latch-sheet-4.webp" alt="Sheet 4: plunger with its heart-shaped cam groove" width="1600" height="1132" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<section class="section motion" id="motion">
+  <div class="wrap">
+    <div class="split-head">
+      <h2>See how it moves before you print it.</h2>
+      <p>Ask for an animation and Claude simulates the mechanism in Python: masses from volume and density, spring stiffness from beam theory, friction and your push. It checks the real solids for collisions along the way, and the app plays the result.</p>
+    </div>
+    <div class="motion-stage">
+      <video class="motion-video" autoplay muted loop playsinline preload="metadata" poster="assets/latch-physics.webp" aria-label="Simulated push-to-open cycle of the drawer latch: the pin follows the groove, latches, then releases">
+        <source src="assets/latch-physics.mp4" type="video/mp4">
+      </video>
+      <dl class="readout">
+        <div><dt>Latches at</dt><dd>11.3 mm</dd></div>
+        <div><dt>Releases at</dt><dd>20.0 mm</dd></div>
+        <div><dt>Spring force, latched</dt><dd>2.85 N</dd></div>
+        <div><dt>Collisions</dt><dd>0 of 97 frames</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section class="section views" id="views">
+  <div class="wrap views-grid">
+    <div class="views-copy">
+      <h2>Assembled, exploded, on the plate.</h2>
+      <p>Models with several parts open into their pieces. Hide a part, keep two together, or switch to the print plate: every part turned to its best orientation and laid out on your printer's bed, ready for the slicer.</p>
+      <div class="segmented" role="tablist" aria-label="Parts view">
+        <button type="button" role="tab" aria-selected="false" data-view="0">Assembled</button>
+        <button type="button" role="tab" aria-selected="true" data-view="1">Exploded</button>
+        <button type="button" role="tab" aria-selected="false" data-view="2">Plate</button>
+      </div>
+    </div>
+    <div class="views-stage" data-views>
+      <img src="assets/latch-assembled.webp" alt="The latch assembled" width="1400" height="760" loading="lazy">
+      <img src="assets/latch-exploded.webp" alt="The latch exploded: lid lifted, plunger and pin pulled forward, spring out the side" width="1400" height="760" loading="lazy" class="is-on">
+      <img src="assets/latch-plate.webp" alt="The latch parts laid flat on the print bed" width="1400" height="760" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<section class="section versions">
+  <div class="wrap">
+    <div class="split-head">
+      <h2>Every change is a version.</h2>
+      <p>Ask for a change and you get version 2. Compare it against version 1 in 3D, measure and section it, or jump back: the chat and what Claude remembers come back with it.</p>
+    </div>
+    <figure class="shot">
+      <img src="assets/compare.webp" alt="CAD Studio comparing version 2 of the hook with version 1, shown as an orange outline" width="1800" height="1125" loading="lazy">
+    </figure>
+    <ul class="facts">
+      <li><b>Live progress.</b> Tool calls, the code being written and Claude's thinking stream into the chat as they happen.</li>
+      <li><b>Your printer, your units.</b> Design rules for FDM, multi-material, resin or SLS, in mm, cm, m or inches.</li>
+      <li><b>Everything exportable.</b> STEP, 3MF, STL, the PDF drawing and model.py in one ZIP.</li>
+      <li><b>Local.</b> It runs your own Claude Code in a folder on your Mac. The app has no servers.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section start" id="start">
+  <div class="wrap">
+    <h2>Three steps to your first part.</h2>
+    <ol class="steps">
+      <li>
+        <h3>Sign in to Claude Code</h3>
+        <p>Install <a href="https://claude.com/claude-code">Claude Code</a> and run <code>claude</code> once in Terminal. CAD Studio uses it as is.</p>
+      </li>
+      <li>
+        <h3>Install CAD Studio</h3>
+        <p>Drag the app from the DMG into Applications. It isn't notarized, so allow it in System Settings → Privacy &amp; Security, or run:</p>
+        <pre class="cmd"><code>xattr -dr com.apple.quarantine "/Applications/CAD Studio.app"</code><button type="button" class="copy" data-copy aria-label="Copy command"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="5" width="8.5" height="8.5" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M10.5 3.2V3A1.5 1.5 0 009 1.5H3A1.5 1.5 0 001.5 3v6A1.5 1.5 0 003 10.5h.2" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></button></pre>
+      </li>
+      <li>
+        <h3>Describe a part</h3>
+        <p>Pick your printer and units, create a project and say what you need. On first launch the app sets up Python and build123d for you with uv or Python 3.10–3.13.</p>
+      </li>
+    </ol>
+    <div class="close">
+      <h2>Your next part is one sentence away.</h2>
+      <div class="close-cta">
+        <a class="btn btn-primary btn-lg" href="https://github.com/filippofinke/cad-studio/releases/latest">Download for macOS</a>
+        <pre class="cmd cmd-inline"><code>git clone https://github.com/filippofinke/cad-studio && ./build.sh --install</code><button type="button" class="copy" data-copy aria-label="Copy build command"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="5" width="8.5" height="8.5" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M10.5 3.2V3A1.5 1.5 0 009 1.5H3A1.5 1.5 0 001.5 3v6A1.5 1.5 0 003 10.5h.2" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></button></pre>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <a class="brand" href="#top"><img src="assets/logo.webp" alt="" width="20" height="20"><span>CAD Studio</span></a>
+    <p>MIT licensed. Made by <a href="https://filippofinke.ch">Filippo Finke</a>. Not affiliated with Anthropic.</p>
+    <nav aria-label="Footer">
+      <a href="https://github.com/filippofinke/cad-studio">GitHub</a>
+      <a href="https://github.com/filippofinke/cad-studio/releases">Releases</a>
+      <a href="https://github.com/filippofinke/cad-studio/blob/main/CHANGELOG.md">Changelog</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="main.js" defer></script>
+</body>
+</html>
