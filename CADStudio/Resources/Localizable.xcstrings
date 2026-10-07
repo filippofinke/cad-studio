@@ -4483,6 +4483,24 @@
     },
     "La sessione precedente è ancora in uso da un altro processo: il contesto della conversazione è ripartito, ma il model.py esistente resta la base del lavoro.": {
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die vorherige Sitzung wird noch von einem anderen Prozess verwendet: Der Gesprächskontext beginnt neu, aber die vorhandene model.py bleibt die Arbeitsgrundlage."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The previous session is still in use by another process: the conversation context started over, but the existing model.py is still the basis for the work."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La session précédente est encore utilisée par un autre processus : le contexte de la conversation repart de zéro, mais le model.py existant reste la base du travail."
+          }
+        },
         "it": {
           "stringUnit": {
             "state": "translated",
