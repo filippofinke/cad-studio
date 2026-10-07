@@ -302,10 +302,84 @@ function explodedOffsets(model) {
   return result;
 }
 
-function printBed(stage) {
+function plateLayout(parts) {
+  const items = [];
+  for (const [, part] of parts) {
+    for (const mesh of part.meshes) {
+      const box = new THREE.Box3().setFromBufferAttribute(mesh.geometry.attributes.position).applyMatrix4(mesh.matrix);
+      const floor = box.min.z;
+      const flip = isTopHeavy(mesh.geometry.attributes.position, box, mesh.position);
+      if (flip) {
+        box.set(
+          new THREE.Vector3(box.min.x, 2 * mesh.position.y - box.max.y, 2 * mesh.position.z - box.max.z),
+          new THREE.Vector3(box.max.x, 2 * mesh.position.y - box.min.y, 2 * mesh.position.z - box.min.z)
+        );
+      }
+      items.push({ mesh, box, flip, floor, size: box.getSize(new THREE.Vector3()) });
+    }
+  }
+  const floor = Math.min(...items.map((item) => item.floor));
+  const gap = Math.max(...items.map((item) => item.size.x)) * 0.12;
+  const rowWidth = Math.max(...items.map((item) => item.size.x)) * 2.3;
+  items.sort((a, b) => b.size.x * b.size.y - a.size.x * a.size.y);
+  let x = 0;
+  let y = 0;
+  let rowHeight = 0;
+  const placed = [];
+  for (const item of items) {
+    if (x > 0 && x + item.size.x > rowWidth) {
+      x = 0;
+      y += rowHeight + gap;
+      rowHeight = 0;
+    }
+    placed.push({ item, x: x + item.size.x / 2, y: y + item.size.y / 2 });
+    x += item.size.x + gap;
+    rowHeight = Math.max(rowHeight, item.size.y);
+  }
+  const extent = new THREE.Box2();
+  for (const { item, x, y } of placed) {
+    extent.expandByPoint(new THREE.Vector2(x - item.size.x / 2, y - item.size.y / 2));
+    extent.expandByPoint(new THREE.Vector2(x + item.size.x / 2, y + item.size.y / 2));
+  }
+  const middle = extent.getCenter(new THREE.Vector2());
+  const offsets = new Map();
+  const flips = new Set();
+  for (const { item, x, y } of placed) {
+    const center = item.box.getCenter(new THREE.Vector3());
+    offsets.set(item.mesh, new THREE.Vector3(x - middle.x - center.x, y - middle.y - center.y, floor - item.box.min.z));
+    if (item.flip) flips.add(item.mesh);
+  }
+  const size = extent.getSize(new THREE.Vector2());
+  return { offsets, flips, radius: Math.hypot(size.x, size.y) / 2, span: Math.max(size.x, size.y) };
+}
+
+function isTopHeavy(positions, box, origin) {
+  const band = (box.max.z - box.min.z) * 0.05;
+  const a = new THREE.Vector3();
+  const b = new THREE.Vector3();
+  const c = new THREE.Vector3();
+  const normal = new THREE.Vector3();
+  let top = 0;
+  let bottom = 0;
+  for (let index = 0; index + 2 < positions.count; index += 3) {
+    a.fromBufferAttribute(positions, index);
+    b.fromBufferAttribute(positions, index + 1);
+    c.fromBufferAttribute(positions, index + 2);
+    normal.crossVectors(b.clone().sub(a), c.clone().sub(a));
+    const area = normal.length() / 2;
+    if (!area) continue;
+    const z = (a.z + b.z + c.z) / 3 + origin.z;
+    const facing = normal.z / (area * 2);
+    if (facing > 0.95 && z > box.max.z - band) top += area;
+    if (facing < -0.95 && z < box.min.z + band) bottom += area;
+  }
+  return top > bottom * 2;
+}
+
+function printBed(stage, footprint) {
   const box = new THREE.Box3().setFromObject(stage.model);
   const size = box.getSize(new THREE.Vector3());
-  const span = Math.ceil(Math.max(size.x, size.z) * 2.6 / 10) * 10;
+  const span = Math.ceil(footprint * 1.3 / 10) * 10;
   const y = box.min.y - 0.05;
   const group = new THREE.Group();
   const materials = [];
@@ -367,22 +441,26 @@ function setupPartsStage(canvas) {
       for (const mesh of part.meshes) origins.set(mesh, mesh.position.clone());
     }
     const projected = new THREE.Vector3();
-    const bed = printBed(stage);
+    const layout = plateLayout(parts);
+    const bed = printBed(stage, layout.span);
+    const zoom = layout.radius / stage.radius;
     return () => {
       if (!stage.visible) return;
       const progress = sectionProgress(section);
-      const amount = smooth((progress - 0.14) / 0.26) * (1 - smooth((progress - 0.5) / 0.18));
-      const settle = smooth((progress - 0.58) / 0.24);
-      const index = progress < 0.16 ? 0 : progress < 0.6 ? 1 : 2;
+      const amount = smooth((progress - 0.14) / 0.26);
+      const settle = smooth((progress - 0.5) / 0.3);
+      const index = progress < 0.16 ? 0 : progress < 0.55 ? 1 : 2;
       bed.show(settle);
       lines.forEach((line, lineIndex) => line.classList.toggle("is-on", lineIndex === index));
       for (const [, part] of parts) {
         for (const mesh of part.meshes) {
-          mesh.position.copy(origins.get(mesh)).addScaledVector(part.offset, amount);
+          mesh.position.copy(origins.get(mesh)).addScaledVector(part.offset, amount * (1 - settle)).addScaledVector(layout.offsets.get(mesh), settle);
+          if (layout.flips.has(mesh)) mesh.rotation.x = Math.PI * settle;
         }
       }
       stage.pivot.rotation.y = -0.4 + progress * 0.8;
-      stage.frame(0.95 + amount * 0.55 + settle * 1.05, 0.62 - progress * 0.2 + settle * 0.38);
+      const spread = 0.95 + amount * 0.55;
+      stage.frame(spread + (zoom * 1.25 - spread) * settle, 0.62 - progress * 0.2 + settle * 0.5);
       stage.render();
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
@@ -391,7 +469,7 @@ function setupPartsStage(canvas) {
       for (const [name, part] of parts) {
         const label = labels.get(name);
         if (!label) continue;
-        const center = part.box.getCenter(new THREE.Vector3()).addScaledVector(part.offset, amount);
+        const center = part.box.getCenter(new THREE.Vector3()).addScaledVector(part.offset, amount * (1 - settle)).addScaledVector(layout.offsets.get(part.meshes[0]), settle);
         projected.copy(center).applyMatrix4(stage.model.matrixWorld).project(stage.camera);
         const x = (projected.x * 0.5 + 0.5) * width + canvasRect.left - listRect.left;
         const y = (-projected.y * 0.5 + 0.5) * height + canvasRect.top - listRect.top;
