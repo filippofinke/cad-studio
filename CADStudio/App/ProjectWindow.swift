@@ -4,6 +4,8 @@ struct ProjectWindow: View {
     let url: URL?
     @Environment(RecentProjects.self) private var recents
     @Environment(\.dismissWindow) private var dismissWindow
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismiss) private var dismiss
     @State private var project: Project?
     @State private var loadError: String?
 
@@ -29,7 +31,8 @@ struct ProjectWindow: View {
     private func load() {
         guard project == nil else { return }
         guard let url else {
-            loadError = String(localized: "Nessuna cartella di progetto indicata.")
+            openWindow(id: WelcomeWindow.id)
+            dismiss()
             return
         }
         do {
