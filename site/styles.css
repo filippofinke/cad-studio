@@ -1346,8 +1346,19 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   color: #d2d2d7;
   font-size: 12px;
   line-height: 1.55;
-  white-space: pre-wrap;
-  word-break: break-all;
+  white-space: pre;
+}
+
+.cmd code {
+  display: block;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent);
+  mask-image: linear-gradient(90deg, #000 85%, transparent);
+}
+
+.cmd code::-webkit-scrollbar {
+  display: none;
 }
 
 .copy {
@@ -1414,6 +1425,26 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
 
 .footer-legal {
   padding-top: 16px;
+}
+
+.footer {
+  overflow: hidden;
+}
+
+.footer-mark {
+  margin: clamp(8px, 2vw, 24px) 0 0;
+  font: 700 clamp(72px, 19.5vw, 340px)/0.8 var(--display);
+  letter-spacing: -0.055em;
+  text-align: center;
+  white-space: nowrap;
+  color: transparent;
+  background: linear-gradient(180deg, rgba(29, 29, 31, 0.16) 0%, rgba(29, 29, 31, 0.07) 45%, rgba(245, 245, 247, 0) 88%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  transform: translateY(14%);
+  margin-bottom: -0.1em;
+  user-select: none;
+  pointer-events: none;
 }
 
 .film {
@@ -1606,6 +1637,12 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
 
   .param-win .appwin-version {
     display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .footer-mark {
+    transform: translateY(6%);
   }
 }
 
