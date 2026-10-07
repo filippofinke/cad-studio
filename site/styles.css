@@ -1373,18 +1373,40 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .appwin {
+    border-radius: 18px;
+  }
+
   .appwin-body {
     grid-template-columns: minmax(0, 1fr);
     height: auto;
   }
 
   .appwin-chat {
-    max-height: 360px;
+    gap: 10px;
+    padding: 16px 14px 20px;
     border-right: 0;
+    mask-image: none;
+    -webkit-mask-image: none;
+    font-size: 14px;
   }
 
-  .appwin-panes {
-    grid-template-rows: 240px 220px;
+  .appwin-panes,
+  .cw-text,
+  .appwin-version {
+    display: none;
+  }
+
+  .appwin-status {
+    margin-inline: 0 auto;
+  }
+
+  .app-shot {
+    transform: none;
+  }
+
+  .appwin-cap {
+    text-align: center;
   }
 
   .card-wide,
