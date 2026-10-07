@@ -90,13 +90,17 @@ class Stage {
       child.geometry = geometry;
       const name = groupName(child.name || child.parent?.name || "");
       child.userData.part = name;
+      const source = child.material?.color;
+      const own = source && source.getHex() !== 0xffffff ? source.clone().convertSRGBToLinear() : null;
+      const vertexColors = Boolean(geometry.attributes.color);
       child.material = new THREE.MeshPhysicalMaterial({
-        color: partColors[name] || "#e4e6ea",
+        color: vertexColors ? "#ffffff" : partColors[name] || own || "#e4e6ea",
+        vertexColors,
         roughness: name === "spring" ? 0.55 : 0.42,
         metalness: 0.02,
         clearcoat: 0.35,
         clearcoatRoughness: 0.5,
-        sheen: 0.3,
+        sheen: 0.1,
         sheenColor: new THREE.Color("#ffffff")
       });
     });
@@ -130,9 +134,42 @@ class Stage {
   }
 }
 
-function setupHookStage(canvas) {
-  const stage = new Stage(canvas, { url: "models/hook.3mf" });
+function motionPlayer(study) {
+  const frames = [...study.frames].sort((a, b) => a.t - b.t);
+  const duration = frames.at(-1)?.t || 0;
+  const quaternion = (pose) => {
+    const r = pose?.rotate;
+    return r && r.length === 4 ? new THREE.Quaternion(r[0], r[1], r[2], r[3]).normalize() : new THREE.Quaternion();
+  };
+  const vector = (pose) => {
+    const t = pose?.translate;
+    return t && t.length === 3 ? new THREE.Vector3(t[0], t[1], t[2]) : new THREE.Vector3();
+  };
+  return {
+    duration,
+    names: [...new Set(frames.flatMap((frame) => Object.keys(frame.parts || {})))],
+    pose(name, time) {
+      const t = duration > 0 ? ((time % duration) + duration) % duration : 0;
+      const upper = Math.max(1, frames.findIndex((frame) => frame.t >= t));
+      const next = frames[Math.min(upper, frames.length - 1)];
+      const previous = frames[upper - 1] || next;
+      const span = next.t - previous.t;
+      const f = span > 0 ? clamp((t - previous.t) / span) : 0;
+      const a = previous.parts?.[name] || next.parts?.[name];
+      const b = next.parts?.[name] || a;
+      const q = quaternion(a).slerp(quaternion(b), f);
+      const v = vector(a).lerp(vector(b), f);
+      return new THREE.Matrix4().compose(v, q, new THREE.Vector3(1, 1, 1));
+    }
+  };
+}
+
+function setupHeroStage(canvas) {
+  const stage = new Stage(canvas, { url: canvas.dataset.model });
   const hero = canvas.closest(".hero");
+  const animation = canvas.dataset.animation
+    ? fetch(canvas.dataset.animation).then((response) => (response.ok ? response.json() : null)).catch(() => null)
+    : Promise.resolve(null);
   let pointerX = 0;
   let pointerY = 0;
   let smoothX = 0;
@@ -141,16 +178,36 @@ function setupHookStage(canvas) {
     pointerX = event.clientX / window.innerWidth - 0.5;
     pointerY = event.clientY / window.innerHeight - 0.5;
   }, { passive: true });
-  return stage.ready.then(() => (time) => {
-    if (!stage.visible) return;
-    const scroll = clamp(-hero.getBoundingClientRect().top / hero.offsetHeight);
-    smoothX += (pointerX - smoothX) * 0.05;
-    smoothY += (pointerY - smoothY) * 0.05;
-    const intro = reducedMotion ? 1 : ease(time / 1800);
-    stage.pivot.rotation.y = -0.9 + intro * 0.55 + (reducedMotion ? 0 : time * 0.00012) + scroll * 1.6 + smoothX * 0.5;
-    stage.pivot.rotation.x = smoothY * 0.12;
-    stage.frame(1.12 - scroll * 0.22 + (1 - intro) * 0.35, 0.3 + scroll * 0.25);
-    stage.render();
+  return Promise.all([stage.ready, animation]).then(([, study]) => {
+    const player = study?.frames?.length > 1 ? motionPlayer(study) : null;
+    const meshes = [];
+    const height = new THREE.Box3().setFromObject(stage.model).getSize(new THREE.Vector3()).y;
+    const lifted = canvas.dataset.lift || "";
+    const lift = new THREE.Matrix4();
+    stage.model.traverse((child) => {
+      if (!child.isMesh) return;
+      child.matrixAutoUpdate = false;
+      child.updateMatrix();
+      meshes.push({ mesh: child, base: child.matrix.clone(), name: child.name || child.parent?.name || "" });
+    });
+    return (time) => {
+      if (!stage.visible) return;
+      const scroll = clamp(-hero.getBoundingClientRect().top / hero.offsetHeight);
+      smoothX += (pointerX - smoothX) * 0.05;
+      smoothY += (pointerY - smoothY) * 0.05;
+      const intro = reducedMotion ? 1 : ease(time / 2200);
+      const seconds = reducedMotion ? 0 : time / 1000;
+      const raise = height * (0.25 + 0.75 * intro) * (1 + scroll * 1.2);
+      for (const { mesh, base, name } of meshes) {
+        const pose = player ? player.pose(name, seconds) : new THREE.Matrix4();
+        lift.makeTranslation(0, 0, name === lifted ? raise : 0);
+        mesh.matrix.multiplyMatrices(lift, pose).multiply(base);
+      }
+      stage.pivot.rotation.y = -0.5 + intro * 0.35 + (reducedMotion ? 0 : time * 0.00005) + scroll * 0.9 + smoothX * 0.45;
+      stage.pivot.rotation.x = smoothY * 0.1;
+      stage.frame(0.9 - scroll * 0.12 + (1 - intro) * 0.4, 0.42 + scroll * 0.25);
+      stage.render();
+    };
   });
 }
 
@@ -263,10 +320,10 @@ async function setupStages() {
     return;
   }
   const loops = [];
-  const hookCanvas = document.querySelector('[data-stage="hook"]');
+  const heroCanvas = document.querySelector('[data-stage="hero"]');
   const latchCanvas = document.querySelector('[data-stage="latch"]');
   const tasks = [];
-  if (hookCanvas) tasks.push(setupHookStage(hookCanvas).then((loop) => loops.push(loop)));
+  if (heroCanvas) tasks.push(setupHeroStage(heroCanvas).then((loop) => loops.push(loop)));
   if (latchCanvas) tasks.push(setupLatchStage(latchCanvas).then((loop) => loops.push(loop)));
   const start = performance.now();
   const tick = (now) => {
