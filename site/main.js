@@ -245,3 +245,182 @@ function setupAnimatedStage(canvas, mode) {
     };
   });
 }
+
+function explodedOffsets(model) {
+  const groups = new Map();
+  model.updateMatrixWorld(true);
+  model.traverse((child) => {
+    if (!child.isMesh) return;
+    const name = child.userData.part || child.name;
+    const box = new THREE.Box3().setFromBufferAttribute(child.geometry.attributes.position);
+    box.applyMatrix4(child.matrix);
+    if (!groups.has(name)) groups.set(name, { box: box.clone(), meshes: [] });
+    groups.get(name).box.union(box);
+    groups.get(name).meshes.push(child);
+  });
+  const entries = [...groups.entries()];
+  const volume = (box) => {
+    const size = box.getSize(new THREE.Vector3());
+    return size.x * size.y * size.z;
+  };
+  const largest = Math.max(...entries.map(([, group]) => volume(group.box)));
+  const [anchorName, anchor] = entries
+    .filter(([, group]) => volume(group.box) >= largest * 0.6)
+    .reduce((best, entry) => (entry[1].box.min.z < best[1].box.min.z ? entry : best));
+  const anchorCenter = anchor.box.getCenter(new THREE.Vector3());
+  const overall = entries.reduce((box, [, group]) => box.union(group.box), anchor.box.clone());
+  const gap = Math.max(overall.getSize(new THREE.Vector3()).length() * 0.06, 2);
+  const placed = [anchor.box.clone()];
+  const others = entries
+    .filter(([name]) => name !== anchorName)
+    .sort((a, b) => a[1].box.getCenter(new THREE.Vector3()).distanceTo(anchorCenter) - b[1].box.getCenter(new THREE.Vector3()).distanceTo(anchorCenter));
+  const result = new Map([[anchorName, { meshes: anchor.meshes, offset: new THREE.Vector3(), box: anchor.box }]]);
+  for (const [name, group] of others) {
+    const delta = group.box.getCenter(new THREE.Vector3()).sub(anchorCenter);
+    const magnitude = new THREE.Vector3(Math.abs(delta.x), Math.abs(delta.y), Math.abs(delta.z));
+    let direction = new THREE.Vector3(0, 0, 1);
+    if (Math.max(magnitude.x, magnitude.y, magnitude.z) > 0.01) {
+      if (magnitude.z >= magnitude.x && magnitude.z >= magnitude.y) direction.set(0, 0, Math.sign(delta.z));
+      else if (magnitude.x >= magnitude.y) direction.set(Math.sign(delta.x), 0, 0);
+      else direction.set(0, Math.sign(delta.y), 0);
+    }
+    const step = Math.max(group.box.getSize(new THREE.Vector3()).length() * 0.05, 0.5);
+    let travel = 0;
+    const moved = group.box.clone();
+    const overlaps = () => placed.some((other) => moved.clone().expandByScalar(gap * 0.25).intersectsBox(other));
+    while (travel < 10000 && overlaps()) {
+      travel += step;
+      moved.copy(group.box).translate(direction.clone().multiplyScalar(travel));
+    }
+    const offset = direction.clone().multiplyScalar(travel + gap);
+    placed.push(group.box.clone().translate(offset));
+    result.set(name, { meshes: group.meshes, offset, box: group.box });
+  }
+  return result;
+}
+
+function plateLayout(parts) {
+  const items = [];
+  for (const [, part] of parts) {
+    const box = new THREE.Box3();
+    for (const mesh of part.meshes) {
+      box.union(new THREE.Box3().setFromBufferAttribute(mesh.geometry.attributes.position).applyMatrix4(mesh.matrix));
+    }
+    const floor = box.min.z;
+    const flip = part.meshes.length === 1 && isTopHeavy(part.meshes[0].geometry.attributes.position, box, part.meshes[0].position);
+    if (flip) {
+      const origin = part.meshes[0].position;
+      box.set(
+        new THREE.Vector3(box.min.x, 2 * origin.y - box.max.y, 2 * origin.z - box.max.z),
+        new THREE.Vector3(box.max.x, 2 * origin.y - box.min.y, 2 * origin.z - box.min.z)
+      );
+    }
+    items.push({ meshes: part.meshes, box, flip, floor, size: box.getSize(new THREE.Vector3()) });
+  }
+  const floor = Math.min(...items.map((item) => item.floor));
+  const gap = Math.max(...items.map((item) => item.size.x)) * 0.12;
+  const rowWidth = Math.max(...items.map((item) => item.size.x)) * 2.3;
+  items.sort((a, b) => b.size.x * b.size.y - a.size.x * a.size.y);
+  let x = 0;
+  let y = 0;
+  let rowHeight = 0;
+  const placed = [];
+  for (const item of items) {
+    if (x > 0 && x + item.size.x > rowWidth) {
+      x = 0;
+      y += rowHeight + gap;
+      rowHeight = 0;
+    }
+    placed.push({ item, x: x + item.size.x / 2, y: y + item.size.y / 2 });
+    x += item.size.x + gap;
+    rowHeight = Math.max(rowHeight, item.size.y);
+  }
+  const extent = new THREE.Box2();
+  for (const { item, x, y } of placed) {
+    extent.expandByPoint(new THREE.Vector2(x - item.size.x / 2, y - item.size.y / 2));
+    extent.expandByPoint(new THREE.Vector2(x + item.size.x / 2, y + item.size.y / 2));
+  }
+  const overall = items.reduce((box, item) => box.union(item.box.clone()), new THREE.Box3());
+  const home = overall.getCenter(new THREE.Vector3());
+  const middle = extent.getCenter(new THREE.Vector2()).sub(new THREE.Vector2(home.x, home.y));
+  const offsets = new Map();
+  const flips = new Set();
+  for (const { item, x, y } of placed) {
+    const center = item.box.getCenter(new THREE.Vector3());
+    const offset = new THREE.Vector3(x - middle.x - center.x, y - middle.y - center.y, floor - item.box.min.z);
+    for (const mesh of item.meshes) {
+      offsets.set(mesh, offset);
+      if (item.flip) flips.add(mesh);
+    }
+  }
+  const size = extent.getSize(new THREE.Vector2());
+  return { offsets, flips, radius: Math.hypot(size.x, size.y) / 2, span: Math.max(size.x, size.y) };
+}
+
+function isTopHeavy(positions, box, origin) {
+  const band = (box.max.z - box.min.z) * 0.05;
+  const a = new THREE.Vector3();
+  const b = new THREE.Vector3();
+  const c = new THREE.Vector3();
+  const normal = new THREE.Vector3();
+  let top = 0;
+  let bottom = 0;
+  for (let index = 0; index + 2 < positions.count; index += 3) {
+    a.fromBufferAttribute(positions, index);
+    b.fromBufferAttribute(positions, index + 1);
+    c.fromBufferAttribute(positions, index + 2);
+    normal.crossVectors(b.clone().sub(a), c.clone().sub(a));
+    const area = normal.length() / 2;
+    if (!area) continue;
+    const z = (a.z + b.z + c.z) / 3 + origin.z;
+    const facing = normal.z / (area * 2);
+    if (facing > 0.95 && z > box.max.z - band) top += area;
+    if (facing < -0.95 && z < box.min.z + band) bottom += area;
+  }
+  return top > bottom * 2;
+}
+
+function printBed(stage, footprint) {
+  const box = new THREE.Box3().setFromObject(stage.model);
+  const size = box.getSize(new THREE.Vector3());
+  const span = Math.ceil(footprint * 1.3 / 10) * 10;
+  const y = box.min.y - 0.05;
+  const group = new THREE.Group();
+  const materials = [];
+  const fade = (material, opacity) => {
+    material.transparent = true;
+    material.depthWrite = false;
+    material.userData.opacity = opacity;
+    materials.push(material);
+    return material;
+  };
+  const plate = new THREE.Mesh(
+    new THREE.PlaneGeometry(span, span),
+    fade(new THREE.MeshBasicMaterial({ color: "#141416" }), 1)
+  );
+  plate.rotation.x = -Math.PI / 2;
+  plate.renderOrder = -2;
+  const grid = new THREE.GridHelper(span, span / 10, "#5a5a5e", "#3a3a3c");
+  grid.position.y = 0.05;
+  grid.renderOrder = -1;
+  fade(grid.material, 1);
+  const half = span / 2;
+  const outline = new THREE.LineLoop(
+    new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(-half, 0.1, -half), new THREE.Vector3(half, 0.1, -half),
+      new THREE.Vector3(half, 0.1, half), new THREE.Vector3(-half, 0.1, half)
+    ]),
+    fade(new THREE.LineBasicMaterial({ color: "#2997ff" }), 1)
+  );
+  group.add(plate, grid, outline);
+  group.position.y = y;
+  group.visible = false;
+  stage.pivot.add(group);
+  return {
+    show(amount) {
+      group.visible = amount > 0.001;
+      group.position.y = y - (1 - amount) * size.y * 0.6;
+      for (const material of materials) material.opacity = material.userData.opacity * amount;
+    }
+  };
+}
