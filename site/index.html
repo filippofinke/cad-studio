@@ -81,11 +81,11 @@
       <div class="appwin-body">
         <div class="appwin-chat">
           <p class="cw-user">A print-in-place planetary gearbox fidget toy, about 70 mm across: a sun gear with a knob on top, four planet gears, a ring gear with a knurled outer rim, and a carrier. Give it four colors (sun, planets, ring, carrier) so it looks great. Animate it turning with real gear ratios.</p>
-          <p class="cw-tool">Creates model.py · 786 lines</p>
+          <p class="cw-tool">Writes the model · 786 lines</p>
           <p class="cw-text">The model builds and all parts are valid. The collision checks in the motion simulation are too slow right now, so I'm speeding them up.</p>
-          <p class="cw-tool">Runs python model.py</p>
+          <p class="cw-tool">Builds the model</p>
           <p class="cw-text">The full run now takes about 20 s with no collisions found. Next I'm checking the drawings.</p>
-          <p class="cw-tool">Reads output/schematic.png</p>
+          <p class="cw-tool">Checks the drawing</p>
           <p class="cw-reply">I built the print-in-place planetary gearbox, about 70 mm across and 20 mm tall. It has a 12-tooth sun with a fluted knob, four 12-tooth planets and a 36-tooth ring with a knurled rim. The gears are herringbone, which locks everything together vertically, and they print assembled on the bed.</p>
           <p class="cw-reply"><b>Gear ratio:</b> with the ring held, the knob turns the carrier at 1/4 speed and the planets at −1/2 speed. In the motion simulation of two knob turns, nothing collides at any checked moment.</p>
         </div>
@@ -313,8 +313,8 @@
       <ul>
         <li>Design rules for FDM, multi-material, resin and SLS</li>
         <li>Print plate with every part oriented and laid out</li>
-        <li><code>plate.3mf</code> opened straight in your slicer</li>
-        <li>STEP, 3MF, STL, the PDF and <code>model.py</code> in one ZIP</li>
+        <li>The print plate opened straight in your slicer</li>
+        <li>STEP, 3MF, STL, the PDF drawing and the source script in one ZIP</li>
       </ul>
     </div>
     <div class="feature-group">
@@ -337,24 +337,20 @@
   </div>
   <ol class="flow">
     <li>
-      <span class="flow-file">prompt</span>
       <h3>You describe it.</h3>
       <p>In words, with pictures or with the file it has to fit. In millimeters or inches.</p>
     </li>
     <li>
-      <span class="flow-file">model.py</span>
       <h3>The agent writes the code.</h3>
-      <p>A build123d script with every dimension as a named parameter, plus the drawing and the simulation.</p>
+      <p>A parametric script with every dimension as a named parameter, plus the drawing and the simulation.</p>
     </li>
     <li>
-      <span class="flow-file">python model.py</span>
       <h3>It runs and checks.</h3>
       <p>The script runs in a local Python. The agent looks at the drawings it produced and fixes what is wrong.</p>
     </li>
     <li>
-      <span class="flow-file">output/</span>
       <h3>You get files.</h3>
-      <p>3MF, STEP, STL, the print plate and the PDF, in a folder you own. Nothing leaves your Mac through the app.</p>
+      <p>Ready for your slicer, your CAD app and your workshop, in a folder you own. Nothing leaves your Mac through the app.</p>
     </li>
   </ol>
   <div class="agents">

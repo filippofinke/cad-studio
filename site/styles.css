@@ -1609,15 +1609,20 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   transform: rotate(45deg);
 }
 
-.flow-file {
-  display: inline-block;
+.flow {
+  counter-reset: flow;
+}
+
+.flow li {
+  counter-increment: flow;
+}
+
+.flow li > h3::before {
+  content: counter(flow);
+  display: block;
   margin-bottom: 20px;
-  padding: 4px 10px;
-  border-radius: 6px;
-  background: #000;
-  font: 500 13px/1.4 var(--mono);
-  letter-spacing: 0;
-  color: var(--blue-dark);
+  font: 600 40px/1 var(--display);
+  color: #48484a;
 }
 
 .flow h3 {
