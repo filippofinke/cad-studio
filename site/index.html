@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CAD Studio · Describe a part. Print it.</title>
-<meta name="description" content="A native macOS app that turns a sentence into a parametric build123d model, ISO drawings and a print plate, written and run by the coding agent on your Mac. Free and MIT licensed.">
+<meta name="description" content="A native macOS app that turns a sentence into a parametric 3D model, ISO drawings and a print plate, written and run by the coding agent on your Mac. Free and MIT licensed.">
 <meta name="theme-color" content="#000000">
 <meta property="og:title" content="CAD Studio">
 <meta property="og:description" content="Describe a part. Print it. Parametric CAD, written by the coding agent on your Mac.">
@@ -101,21 +101,39 @@
 
 <section class="tile tile-black code" id="code">
   <div class="tile-head">
-    <h2>Real code.<br>Every number is yours.</h2>
-    <p>The agent writes a parametric build123d script, not a mesh. Tooth counts, module and planets are named constants, and CAD Studio turns them into sliders. Change one and the gearbox rebuilds in seconds, without asking the agent again.</p>
+    <h2>Every number<br>is a slider.</h2>
+    <p>The model is a real parametric script, not a frozen mesh. Tooth counts, module and the number of planets show up in the Parameters panel. Drag one and the gearbox rebuilds on your Mac in seconds, with no new request.</p>
   </div>
-  <div class="code-stage">
-    <div class="drawing-card gear-card">
-      <svg class="gears" data-gears viewBox="-60 -60 120 120" role="img" aria-label="Top view of the planetary gearbox, turning, redrawn from the parameters"></svg>
-      <p class="drawing-foot"><span data-gear-ratio>Ratio 4 : 1 · ring 36 teeth</span><span data-gear-check>Planets assemble evenly</span></p>
+  <div class="appwin param-win">
+    <div class="appwin-bar">
+      <span class="appwin-lights" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="appwin-status"><b>Planetary Gearbox</b> <span class="appwin-chev">›</span> <span class="appwin-ok"></span> Model generated</span>
+      <span class="appwin-version">v1</span>
     </div>
-    <div class="code-side">
-      <pre class="code-block" data-code aria-live="polite"></pre>
-      <div class="sliders">
-        <label class="slider"><span class="slider-row"><span>Sun teeth</span><output data-out="SUN_TEETH">12</output></span><input type="range" min="8" max="24" step="1" value="12" data-param="SUN_TEETH"></label>
-        <label class="slider"><span class="slider-row"><span>Planet teeth</span><output data-out="PLANET_TEETH">12</output></span><input type="range" min="8" max="24" step="1" value="12" data-param="PLANET_TEETH"></label>
-        <label class="slider"><span class="slider-row"><span>Planets</span><output data-out="NUM_PLANETS">4</output></span><input type="range" min="2" max="6" step="1" value="4" data-param="NUM_PLANETS"></label>
-        <label class="slider"><span class="slider-row"><span>Module</span><output data-out="MODULE">1.5 mm</output></span><input type="range" min="1" max="2.5" step="0.05" value="1.5" data-param="MODULE"></label>
+    <div class="param-body">
+      <div class="viewport">
+        <p class="vp-readout"><span data-gear-ratio>Ratio 4 : 1 · ring 36 teeth</span><span data-gear-check>Planets assemble evenly</span></p>
+        <svg class="gears" data-gears viewBox="-60 -60 120 120" role="img" aria-label="Top view of the planetary gearbox, turning, redrawn from the parameters"></svg>
+        <div class="vp-bar" aria-hidden="true">
+          <span class="vp-seg"><i>Iso</i><i>Front</i><i class="is-on">Top</i><i>Right</i></span>
+          <span class="vp-dots"><b style="background:#f4a63a"></b><b style="background:#3fbfb0"></b><b style="background:#4b5378"></b><b style="background:#ef5b5b"></b></span>
+          <span class="vp-dims" data-gear-dims>70.0 × 70.0 mm</span>
+        </div>
+      </div>
+      <div class="params-panel">
+        <div class="pp-title">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h7M12 4h2M2 8h2M7 8h7M2 12h8M13 12h1"/><circle cx="10.5" cy="4" r="1.5"/><circle cx="5.5" cy="8" r="1.5"/><circle cx="11.5" cy="12" r="1.5"/></svg>
+          <b>Parameters</b>
+          <svg class="pp-chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 10l3.5-3.5 3.5 3.5"/></svg>
+          <svg class="pp-close" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 5l6 6M11 5l-6 6"/></svg>
+        </div>
+        <div class="pp-rows">
+          <label class="pp-row"><span class="pp-head"><span>MODULE</span><output data-out="MODULE">1.5</output></span><input type="range" min="1" max="2.5" step="0.05" value="1.5" data-param="MODULE"></label>
+          <label class="pp-row"><span class="pp-head"><span>SUN_TEETH</span><output data-out="SUN_TEETH">12</output></span><input type="range" min="8" max="24" step="1" value="12" data-param="SUN_TEETH"></label>
+          <label class="pp-row"><span class="pp-head"><span>PLANET_TEETH</span><output data-out="PLANET_TEETH">12</output></span><input type="range" min="8" max="24" step="1" value="12" data-param="PLANET_TEETH"></label>
+          <label class="pp-row"><span class="pp-head"><span>NUM_PLANETS</span><output data-out="NUM_PLANETS">4</output></span><input type="range" min="2" max="6" step="1" value="4" data-param="NUM_PLANETS"></label>
+        </div>
+        <div class="pp-foot"><span>Compare with</span><span class="pp-select">None</span></div>
       </div>
     </div>
   </div>
@@ -138,7 +156,7 @@
 <section class="tile tile-black motion" id="motion">
   <div class="tile-head tile-head-center">
     <h2>See how it moves<br>before you print it.</h2>
-    <p>Ask for an animation and the agent simulates the mechanism in Python: masses, friction and the push of your hand. The real solids are checked for collisions in every third frame.</p>
+    <p>Ask for an animation and the agent simulates the mechanism: masses, friction and the push of your hand. The real solids are checked for collisions in every third frame.</p>
   </div>
   <div class="motion-stage">
     <canvas class="stage" data-stage="motion" data-model="models/gearbox.3mf" data-animation="models/gearbox-animation.json" data-ghost="Carrier" aria-label="The gearbox from above, carrier see-through, turning with the simulated speeds"></canvas>
@@ -227,7 +245,7 @@
         <h3>Every file you need.</h3>
         <p>One click exports the lot as a ZIP.</p>
       </div>
-      <ul class="files"><li title="model.py"><svg viewBox="0 0 48 60" role="img" aria-label="model.py"><path class="fi-page" d="M6 2h25l13 13v39a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><path class="fi-fold" d="M31 2v9a4 4 0 0 0 4 4h9"/><rect class="fi-band" x="2" y="36" width="42" height="13" style="fill:#3776ab"/><text x="23" y="45.6" text-anchor="middle">PY</text></svg></li><li title="model.3mf"><svg viewBox="0 0 48 60" role="img" aria-label="model.3mf"><path class="fi-page" d="M6 2h25l13 13v39a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><path class="fi-fold" d="M31 2v9a4 4 0 0 0 4 4h9"/><rect class="fi-band" x="2" y="36" width="42" height="13" style="fill:#00a3a3"/><text x="23" y="45.6" text-anchor="middle">3MF</text></svg></li><li title="model.step"><svg viewBox="0 0 48 60" role="img" aria-label="model.step"><path class="fi-page" d="M6 2h25l13 13v39a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><path class="fi-fold" d="M31 2v9a4 4 0 0 0 4 4h9"/><rect class="fi-band" x="2" y="36" width="42" height="13" style="fill:#2f3b4c"/><text x="23" y="45.6" text-anchor="middle">STEP</text></svg></li><li title="model.stl"><svg viewBox="0 0 48 60" role="img" aria-label="model.stl"><path class="fi-page" d="M6 2h25l13 13v39a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><path class="fi-fold" d="M31 2v9a4 4 0 0 0 4 4h9"/><rect class="fi-band" x="2" y="36" width="42" height="13" style="fill:#8e8e93"/><text x="23" y="45.6" text-anchor="middle">STL</text></svg></li><li title="plate.3mf"><svg viewBox="0 0 48 60" role="img" aria-label="plate.3mf"><path class="fi-page" d="M6 2h25l13 13v39a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><path class="fi-fold" d="M31 2v9a4 4 0 0 0 4 4h9"/><rect class="fi-band" x="2" y="36" width="42" height="13" style="fill:#f4b400"/><text x="23" y="45.6" text-anchor="middle">PLATE</text></svg></li><li title="drawing.pdf"><svg viewBox="0 0 48 60" role="img" aria-label="drawing.pdf"><path class="fi-page" d="M6 2h25l13 13v39a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><path class="fi-fold" d="M31 2v9a4 4 0 0 0 4 4h9"/><rect class="fi-band" x="2" y="36" width="42" height="13" style="fill:#e5533d"/><text x="23" y="45.6" text-anchor="middle">PDF</text></svg></li></ul>
+      <ul class="files"><li title="Source"><svg viewBox="0 0 48 60" role="img" aria-label="Source"><path class="fi-page" d="M6 2h25l13 13v39a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><path class="fi-fold" d="M31 2v9a4 4 0 0 0 4 4h9"/><rect class="fi-band" x="2" y="36" width="42" height="13" style="fill:#5e5ce6"/><text x="23" y="45.6" text-anchor="middle">CODE</text></svg></li><li title="model.3mf"><svg viewBox="0 0 48 60" role="img" aria-label="model.3mf"><path class="fi-page" d="M6 2h25l13 13v39a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><path class="fi-fold" d="M31 2v9a4 4 0 0 0 4 4h9"/><rect class="fi-band" x="2" y="36" width="42" height="13" style="fill:#00a3a3"/><text x="23" y="45.6" text-anchor="middle">3MF</text></svg></li><li title="model.step"><svg viewBox="0 0 48 60" role="img" aria-label="model.step"><path class="fi-page" d="M6 2h25l13 13v39a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><path class="fi-fold" d="M31 2v9a4 4 0 0 0 4 4h9"/><rect class="fi-band" x="2" y="36" width="42" height="13" style="fill:#2f3b4c"/><text x="23" y="45.6" text-anchor="middle">STEP</text></svg></li><li title="model.stl"><svg viewBox="0 0 48 60" role="img" aria-label="model.stl"><path class="fi-page" d="M6 2h25l13 13v39a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><path class="fi-fold" d="M31 2v9a4 4 0 0 0 4 4h9"/><rect class="fi-band" x="2" y="36" width="42" height="13" style="fill:#8e8e93"/><text x="23" y="45.6" text-anchor="middle">STL</text></svg></li><li title="plate.3mf"><svg viewBox="0 0 48 60" role="img" aria-label="plate.3mf"><path class="fi-page" d="M6 2h25l13 13v39a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><path class="fi-fold" d="M31 2v9a4 4 0 0 0 4 4h9"/><rect class="fi-band" x="2" y="36" width="42" height="13" style="fill:#f4b400"/><text x="23" y="45.6" text-anchor="middle">PLATE</text></svg></li><li title="drawing.pdf"><svg viewBox="0 0 48 60" role="img" aria-label="drawing.pdf"><path class="fi-page" d="M6 2h25l13 13v39a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><path class="fi-fold" d="M31 2v9a4 4 0 0 0 4 4h9"/><rect class="fi-band" x="2" y="36" width="42" height="13" style="fill:#e5533d"/><text x="23" y="45.6" text-anchor="middle">PDF</text></svg></li></ul>
     </article>
     <article class="card card-local card-dark">
       <div class="card-copy">
@@ -273,7 +291,7 @@
     <div class="feature-group">
       <h3>Design</h3>
       <ul>
-        <li>Chat that writes and fixes parametric build123d scripts</li>
+        <li>Chat that writes and fixes the parametric model for you</li>
         <li>Named parameters as sliders, rebuilt locally in seconds</li>
         <li>Reference images, sketches, PDFs and STEP or STL files</li>
         <li>Message queue that sends the next request when a version is done</li>
@@ -293,7 +311,7 @@
     <div class="feature-group">
       <h3>Simulate</h3>
       <ul>
-        <li>Mechanisms animated by a physics simulation in Python</li>
+        <li>Mechanisms animated by a physics simulation</li>
         <li>Masses, springs, friction and the force of your hand</li>
         <li>Collision checks on the real solids, frame by frame</li>
         <li>Live readouts of speeds, angles and forces as it plays</li>
@@ -346,7 +364,7 @@
     </li>
     <li>
       <h3>It runs and checks.</h3>
-      <p>The script runs in a local Python. The agent looks at the drawings it produced and fixes what is wrong.</p>
+      <p>The model is built right on your Mac. The agent looks at the drawings it produced and fixes what is wrong.</p>
     </li>
     <li>
       <h3>You get files.</h3>
@@ -384,7 +402,7 @@
     </li>
     <li>
       <h3>Describe a part.</h3>
-      <p>Pick your printer and units, and say what you need. Python and build123d are set up for you on first launch.</p>
+      <p>Pick your printer and units, and say what you need. Everything else is set up for you on first launch.</p>
     </li>
   </ol>
 </section>

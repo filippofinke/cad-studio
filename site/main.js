@@ -462,44 +462,16 @@ function appShot() {
 
 function gearDrawing() {
   const svg = document.querySelector("[data-gears]");
-  const code = document.querySelector("[data-code]");
-  if (!svg || !code) return;
+  if (!svg) return;
   const ratioLabel = document.querySelector("[data-gear-ratio]");
   const check = document.querySelector("[data-gear-check]");
+  const dims = document.querySelector("[data-gear-dims]");
   const inputs = [...document.querySelectorAll("[data-param]")];
   const params = { MODULE: 1.5, SUN_TEETH: 12, PLANET_TEETH: 12, NUM_PLANETS: 4 };
-  const lines = [
-    ["MODULE", "gear module (mm)"],
-    ["SUN_TEETH", "teeth on the sun gear"],
-    ["PLANET_TEETH", "teeth on each planet gear"],
-    ["NUM_PLANETS", "number of planets"],
-    ["GEAR_HEIGHT", "face width of all gears (mm)"],
-    ["HELIX_ANGLE", "herringbone helix angle (deg)"]
-  ];
-  const fixed = { GEAR_HEIGHT: 10, HELIX_ANGLE: 25 };
-  let lastChanged = null;
   let visible = false;
   new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting;
   }).observe(svg);
-
-  const show = (name) => {
-    const value = params[name] ?? fixed[name];
-    return Number.isInteger(value) && name !== "MODULE" && name !== "GEAR_HEIGHT" && name !== "HELIX_ANGLE" ? String(value) : value.toFixed(name === "MODULE" ? 2 : 1);
-  };
-
-  const renderCode = () => {
-    code.innerHTML = lines.map(([name, comment]) => {
-      const left = `${name} = `;
-      const value = show(name);
-      const pad = " ".repeat(Math.max(1, 21 - left.length - value.length));
-      const flash = name === lastChanged ? " is-flash" : "";
-      return `${left}<span class="n${flash}" data-n="${name}">${value}</span>${pad}<span class="c"># ${comment}</span>`;
-    }).join("\n");
-    if (lastChanged) {
-      requestAnimationFrame(() => code.querySelector(`[data-n="${lastChanged}"]`)?.classList.remove("is-flash"));
-    }
-  };
 
   const gearPath = (cx, cy, teeth, module, phase, internal) => {
     const pitch = module * teeth / 2;
@@ -530,10 +502,10 @@ function gearDrawing() {
     const clear = spacing > planetTip + 0.4;
     geometry = { m, zs, zp, zr, n, distance, ringOuter, scale: 52 / ringOuter };
     const ratio = 1 + zr / zs;
-    ratioLabel.textContent = `Ratio ${ratio.toFixed(ratio % 1 === 0 ? 0 : 2)} : 1 · ring ${zr} teeth · ⌀ ${(ringOuter * 2).toFixed(0)} mm`;
+    ratioLabel.textContent = `Ratio ${ratio.toFixed(ratio % 1 === 0 ? 0 : 2)} : 1 · ring ${zr} teeth`;
+    dims.textContent = `${(ringOuter * 2).toFixed(1)} × ${(ringOuter * 2).toFixed(1)} mm`;
     check.textContent = !clear ? "Planets would collide" : even ? "Planets assemble evenly" : "Planets can't be spaced evenly";
     check.classList.toggle("is-bad", !clear || !even);
-    renderCode();
   };
 
   const draw = (time) => {
@@ -565,8 +537,7 @@ function gearDrawing() {
     sync();
     input.addEventListener("input", () => {
       params[input.dataset.param] = Number(input.value);
-      lastChanged = input.dataset.param;
-      document.querySelector(`[data-out="${input.dataset.param}"]`).textContent = input.dataset.param === "MODULE" ? `${Number(input.value).toFixed(2)} mm` : input.value;
+      document.querySelector(`[data-out="${input.dataset.param}"]`).textContent = input.value;
       sync();
       update();
     });
@@ -618,7 +589,7 @@ function copyButtons() {
 
 function reveals() {
   if (reducedMotion) return;
-  const targets = document.querySelectorAll(".tile-head, .shot-copy, .code-stage, .film-frame, .specs, .chips, .sheet-stage, .bento-title, .card, .steps li");
+  const targets = document.querySelectorAll(".tile-head, .shot-copy, .param-win, .film-frame, .specs, .chips, .sheet-stage, .bento-title, .card, .steps li");
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (!entry.isIntersecting) return;
