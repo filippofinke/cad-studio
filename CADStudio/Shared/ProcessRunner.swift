@@ -123,13 +123,46 @@ final class RunningProcesses: Sendable {
     static let shared = RunningProcesses()
 
     private let identifiers = Mutex<Set<pid_t>>([])
+    private let record = URL.applicationSupportDirectory.appending(path: "CAD Studio/running-processes")
 
     func insert(_ pid: pid_t) {
-        identifiers.withLock { _ = $0.insert(pid) }
+        let all = identifiers.withLock { set -> Set<pid_t> in
+            set.insert(pid)
+            return set
+        }
+        persist(all)
     }
 
     func remove(_ pid: pid_t) {
-        identifiers.withLock { _ = $0.remove(pid) }
+        let all = identifiers.withLock { set -> Set<pid_t> in
+            set.remove(pid)
+            return set
+        }
+        persist(all)
+    }
+
+    func reapOrphans() {
+        guard let text = try? String(contentsOf: record, encoding: .utf8) else { return }
+        for line in text.split(separator: "\n") {
+            let fields = line.split(separator: ":")
+            guard fields.count == 2, let pid = pid_t(fields[0]), let started = UInt64(fields[1]),
+                  let info = Self.info(pid), info.pbi_ppid == 1, info.pbi_start_tvsec == started
+            else { continue }
+            kill(pid, SIGTERM)
+        }
+        persist([])
+    }
+
+    private func persist(_ pids: Set<pid_t>) {
+        let lines = pids.compactMap { pid in Self.info(pid).map { "\(pid):\($0.pbi_start_tvsec)" } }
+        try? FileManager.default.createDirectory(at: record.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try? lines.joined(separator: "\n").write(to: record, atomically: true, encoding: .utf8)
+    }
+
+    private static func info(_ pid: pid_t) -> proc_bsdinfo? {
+        var info = proc_bsdinfo()
+        let size = Int32(MemoryLayout<proc_bsdinfo>.size)
+        return proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &info, size) == size ? info : nil
     }
 
     func interrupt(_ pid: pid_t) {

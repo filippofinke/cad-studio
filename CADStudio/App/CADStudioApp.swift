@@ -35,7 +35,18 @@ struct CADStudioApp: App {
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    private var terminationSource: DispatchSourceSignal?
+
     func applicationDidFinishLaunching(_ notification: Notification) {
+        RunningProcesses.shared.reapOrphans()
+        signal(SIGTERM, SIG_IGN)
+        let source = DispatchSource.makeSignalSource(signal: SIGTERM, queue: .main)
+        source.setEventHandler {
+            RunningProcesses.shared.terminateAll()
+            exit(0)
+        }
+        source.resume()
+        terminationSource = source
         Task {
             await PythonEnvironment.shared.check()
             await AgentLocator.current.locate()

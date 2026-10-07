@@ -27,7 +27,7 @@ final class AgentSession {
 
     private var chat: ChatViewModel { project.chat }
 
-    func run(_ prompt: String, images: [URL] = [], allowsResume: Bool = true) async {
+    func run(_ prompt: String, images: [URL] = [], allowsResume: Bool = true, attempt: Int = 0) async {
         engine = AgentEngine.current
         translator = CodexTranslator()
         streamingID = nil
@@ -69,6 +69,21 @@ final class AgentSession {
             let result = engine == .codex
                 ? try await CodexRunner.run(executable, request: request, directory: directory, onLine: onLine)
                 : try await ClaudeRunner.run(executable, request: request, directory: directory, onLine: onLine)
+            if sessionID != nil, !result.wasInterrupted, isBusySession(result) {
+                closeLog()
+                if attempt == 0 {
+                    try? await Task.sleep(for: .seconds(5))
+                    await run(prompt, images: images, allowsResume: true, attempt: 1)
+                } else {
+                    project.metadata.sessionID = nil
+                    chat.append(ChatMessage(
+                        role: .system,
+                        text: String(localized: "La sessione precedente è ancora in uso da un altro processo: il contesto della conversazione è ripartito, ma il model.py esistente resta la base del lavoro.")
+                    ))
+                    await run(prompt, images: images, allowsResume: false)
+                }
+                return
+            }
             if sessionID != nil, !result.wasInterrupted, isMissingSession(result) {
                 project.metadata.sessionID = nil
                 chat.append(ChatMessage(
@@ -285,6 +300,12 @@ final class AgentSession {
             ))
             project.agentDidFinish(.failed(String(localized: "Errore di \(engine.name)")))
         }
+    }
+
+    private func isBusySession(_ result: ProcessResult) -> Bool {
+        guard turnResult == nil || turnResult?.isError == true else { return false }
+        let text = (turnResult?.text ?? "") + result.output + result.errorOutput
+        return text.localizedCaseInsensitiveContains("already has an active writer")
     }
 
     private func isMissingSession(_ result: ProcessResult) -> Bool {
