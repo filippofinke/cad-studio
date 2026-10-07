@@ -1120,20 +1120,16 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   padding: 24px 28px 32px;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px 12px;
+  gap: 24px 12px;
 }
 
 .files li {
   display: grid;
   justify-items: center;
-  gap: 8px;
-  font: 400 12px/1.2 var(--text);
-  color: var(--ink-48);
-  text-align: center;
 }
 
 .files svg {
-  width: 44px;
+  width: 58px;
   height: auto;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
   transition: transform 300ms var(--ease);
@@ -1163,8 +1159,31 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
 }
 
 .card-local {
-  justify-content: flex-end;
+  justify-content: space-between;
   padding-bottom: 32px;
+}
+
+.local-icons {
+  list-style: none;
+  margin: 0;
+  padding: 28px 32px 0;
+  display: flex;
+  gap: 22px;
+  order: -1;
+}
+
+.local-icons svg {
+  width: 60px;
+  height: 60px;
+  fill: none;
+  stroke: #f5f5f7;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.local-icons li:last-child svg path:last-child {
+  stroke: #ff453a;
 }
 
 .card-local .card-copy {
