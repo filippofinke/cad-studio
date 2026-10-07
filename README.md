@@ -7,7 +7,7 @@
 
 > Describe a part, get a printable model. A native macOS CAD studio powered by Claude Code and build123d.
 
-Type "an under-desk headphone hook that screws on with two M4 screws" and CAD Studio has Claude Code write a parametric `model.py`, run it with build123d and hand you a 3D model, an ISO technical drawing and files ready for your slicer. Every change is a new version you can go back to.
+Type "a print-in-place planetary gearbox with four colors, animated with real gear ratios" and CAD Studio has Claude Code write a parametric `model.py`, run it with build123d and hand you a 3D model, an ISO technical drawing and files ready for your slicer. Every change is a new version you can go back to.
 
 <p align="center">
   <img src=".github/demo.gif" alt="CAD Studio demo" width="900" />
@@ -34,29 +34,29 @@ Type "an under-desk headphone hook that screws on with two M4 screws" and CAD St
 
 ## Screenshots
 
+Every screenshot below is from the same project: a print-in-place planetary gearbox, from the first launch to version 2.
+
 **Set up once, then describe your part.** Pick your printer and units on first launch, create a project and type what you need.
 
-| First launch | New project |
+| First launch | Describe the part |
 | :---: | :---: |
-| <img src=".github/screenshots/setup.png" alt="Printer and units setup" /> | <img src=".github/screenshots/new-project.png" alt="New project" /> |
-| **Describe the part** | **Claude Code at work** |
-| <img src=".github/screenshots/prompt.png" alt="Prompt" /> | <img src=".github/screenshots/agent.png" alt="Agent working" /> |
+| <img src=".github/screenshots/setup.png" alt="Printer and units setup" /> | <img src=".github/screenshots/prompt.png" alt="Prompt" /> |
+| **Claude Code at work** | **The finished gearbox** |
+| <img src=".github/screenshots/agent.png" alt="Agent working" /> | <img src=".github/screenshots/model.png" alt="Generated gearbox" /> |
 
-**Model, drawing and parameters.** A live 3D view of the model, the ISO drawing below and a floating parameter panel on top.
+**Parts, motion and drawings.** Explode the assembly, play the simulated motion and flip through the drawing sheets.
 
-<img src=".github/screenshots/model.png" alt="Generated model" />
-
-| Edit parameters without Claude | Measure distances |
+| Exploded view | Simulated motion |
 | :---: | :---: |
+| <img src=".github/screenshots/exploded.png" alt="Exploded view" /> | <img src=".github/screenshots/animation.png" alt="Animation" /> |
+| **Edit parameters without Claude** | **Measure distances** |
 | <img src=".github/screenshots/parameters.png" alt="Parameters" /> | <img src=".github/screenshots/measure.png" alt="Measure" /> |
-| **Section view** | **Ask for a change: version 2** |
-| <img src=".github/screenshots/section.png" alt="Section" /> | <img src=".github/screenshots/version-2.png" alt="Version 2" /> |
-| **Compare with a previous version** | **Jump back to version 1** |
-| <img src=".github/screenshots/compare.png" alt="Compare versions" /> | <img src=".github/screenshots/restore.png" alt="Restore version" /> |
+| **Section view** | **One sheet per part** |
+| <img src=".github/screenshots/section.png" alt="Section" /> | <img src=".github/screenshots/drawings.png" alt="Drawing sheets" /> |
+| **Ask for a change: version 2** | **Compare with version 1** |
+| <img src=".github/screenshots/version-2.png" alt="Version 2" /> | <img src=".github/screenshots/compare.png" alt="Compare versions" /> |
 | **Chat on the right** | **Chat at the bottom** |
 | <img src=".github/screenshots/layout-right.png" alt="Chat on the right" /> | <img src=".github/screenshots/layout-bottom.png" alt="Chat at the bottom" /> |
-| **Light mode** | **Settings** |
-| <img src=".github/screenshots/light.png" alt="Light mode" /> | <img src=".github/screenshots/settings.png" alt="Settings" /> |
 
 ## Quick Start
 
