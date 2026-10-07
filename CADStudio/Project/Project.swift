@@ -29,6 +29,12 @@ enum Activity: Equatable {
     }
 }
 
+struct QueuedMessage: Identifiable {
+    let id = UUID()
+    let text: String
+    let attachments: [URL]
+}
+
 struct ModelParameter: Identifiable {
     let name: String
     let value: Double
@@ -63,6 +69,8 @@ final class Project {
     private(set) var paneDrag: PaneDrag?
     @ObservationIgnored var paneLocator: ((CGPoint) -> (Pane, DropEdge)?)?
     var areParametersVisible = true
+    private(set) var queue: [QueuedMessage] = []
+    private(set) var isQueuePaused = false
     var activity = Activity.idle {
         didSet {
             if activity.isWorking, !oldValue.isWorking {
@@ -167,7 +175,13 @@ final class Project {
     }
 
     func sendDraft() {
-        guard !isBusy, PythonEnvironment.shared.isReady else {
+        if isBusy {
+            if let draft = chat.takeDraft() {
+                queue.append(QueuedMessage(text: draft.text, attachments: draft.attachments))
+            }
+            return
+        }
+        guard PythonEnvironment.shared.isReady else {
             PythonEnvironment.shared.isSetupSheetPresented = !PythonEnvironment.shared.isReady
             return
         }
@@ -258,6 +272,37 @@ final class Project {
         } else {
             activity = .succeeded(String(localized: "Risposta completata"))
         }
+        continueQueue(succeeded: failure == nil)
+    }
+
+    func removeQueued(_ message: QueuedMessage) {
+        queue.removeAll { $0.id == message.id }
+        if queue.isEmpty {
+            isQueuePaused = false
+        }
+    }
+
+    func sendQueuedNow() {
+        isQueuePaused = false
+        sendNextQueued()
+    }
+
+    private func continueQueue(succeeded: Bool) {
+        guard !queue.isEmpty else { return }
+        guard succeeded else {
+            isQueuePaused = true
+            return
+        }
+        Task {
+            try? await Task.sleep(for: .seconds(1))
+            sendNextQueued()
+        }
+    }
+
+    private func sendNextQueued() {
+        guard !isBusy, !isQueuePaused, !queue.isEmpty, PythonEnvironment.shared.isReady else { return }
+        let next = queue.removeFirst()
+        send(next.text, attachments: next.attachments)
     }
 
     func restore(_ version: ProjectVersion) {
@@ -353,11 +398,13 @@ final class Project {
             missingOutputs = output.missingFiles
             activity = .succeeded(String(localized: "Modello generato"))
             recordVersion(prompt: versionPrompt ?? String(localized: "Compilazione manuale di model.py"))
+            continueQueue(succeeded: true)
         } else {
             let traceback = (result.errorOutput.isEmpty ? result.output : result.errorOutput)
                 .trimmingCharacters(in: .whitespacesAndNewlines)
             buildError = traceback.split(separator: "\n").last.map(String.init) ?? String(localized: "Errore nello script")
             activity = .failed(String(localized: "Errore nello script"))
+            continueQueue(succeeded: false)
             chat.append(ChatMessage(
                 role: .system,
                 text: String(localized: "La compilazione di model.py non è riuscita."),

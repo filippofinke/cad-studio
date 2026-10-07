@@ -449,6 +449,16 @@
         }
       }
     },
+    "%lld": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld"
+          }
+        }
+      }
+    },
     "%lld colori": {
       "localizations": {
         "de": {
@@ -473,6 +483,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld colori"
+          }
+        }
+      }
+    },
+    "%lld immagini": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Bilder"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld images"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld images"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld immagini"
           }
         }
       }
@@ -557,62 +595,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Accesso a %@ richiesto"
-          }
-        }
-      }
-    },
-    "Accesso a Claude Code richiesto": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Anmeldung bei Claude Code erforderlich"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code sign-in required"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connexion à Claude Code requise"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Accesso a Claude Code richiesto"
-          }
-        }
-      }
-    },
-    "Ad esempio “sonnet” oppure “opus”. Lascia vuoto per usare il modello configurato in Claude Code.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zum Beispiel „sonnet“ oder „opus“. Leer lassen, um das in Claude Code konfigurierte Modell zu verwenden."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "For example “sonnet” or “opus”. Leave empty to use the model configured in Claude Code."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Par exemple « sonnet » ou « opus ». Laissez vide pour utiliser le modèle configuré dans Claude Code."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ad esempio “sonnet” oppure “opus”. Lascia vuoto per usare il modello configurato in Claude Code."
           }
         }
       }
@@ -809,6 +791,62 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aggiornamento di pip…"
+          }
+        }
+      }
+    },
+    "Aggiungi alla coda": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zur Warteschlange hinzufügen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add to queue"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter à la file"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi alla coda"
+          }
+        }
+      }
+    },
+    "Aggiungi alla coda: partirà al termine (Invio)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zur Warteschlange: wird gesendet, sobald diese fertig ist (Return)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add to queue: it goes out when this one finishes (Return)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter à la file : partira à la fin (Retour)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi alla coda: partirà al termine (Invio)"
           }
         }
       }
@@ -1541,34 +1579,6 @@
         }
       }
     },
-    "CAD Studio usa Claude Code installato su questo Mac. Installalo dal Terminale con uno dei comandi seguenti, poi esegui `claude` una volta per effettuare l’accesso.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CAD Studio verwendet das auf diesem Mac installierte Claude Code. Installiere es im Terminal mit einem der folgenden Befehle und führe dann einmal `claude` aus, um dich anzumelden."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CAD Studio uses the Claude Code installed on this Mac. Install it from Terminal with one of the following commands, then run `claude` once to sign in."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CAD Studio utilise Claude Code installé sur ce Mac. Installez-le depuis le Terminal avec l’une des commandes suivantes, puis exécutez `claude` une fois pour vous connecter."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CAD Studio usa Claude Code installato su questo Mac. Installalo dal Terminale con uno dei comandi seguenti, poi esegui `claude` una volta per effettuare l’accesso."
-          }
-        }
-      }
-    },
     "CAD Studio usa l’agente installato su questo Mac e il tuo piano. Puoi cambiarlo in qualsiasi momento: i progetti esistenti continuano con l’agente scelto qui.": {
       "localizations": {
         "de": {
@@ -1821,62 +1831,6 @@
         }
       }
     },
-    "Chiedi a Claude di correggere": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude um Korrektur bitten"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ask Claude to Fix"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Demander à Claude de corriger"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chiedi a Claude di correggere"
-          }
-        }
-      }
-    },
-    "Chiedi a Claude di simulare e animare il meccanismo": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude bitten, den Mechanismus zu simulieren und zu animieren"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ask Claude to simulate and animate the mechanism"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Demander à Claude de simuler et d’animer le mécanisme"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chiedi a Claude di simulare e animare il meccanismo"
-          }
-        }
-      }
-    },
     "Chiedi all’agente di correggere": {
       "localizations": {
         "de": {
@@ -1957,314 +1911,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Chiudi"
-          }
-        }
-      }
-    },
-    "Claude Code": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code"
-          }
-        }
-      }
-    },
-    "Claude Code ha terminato con un errore (codice %d).": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code wurde mit einem Fehler beendet (Code %d)."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code exited with an error (code %d)."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code s’est terminé avec une erreur (code %d)."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code ha terminato con un errore (codice %d)."
-          }
-        }
-      }
-    },
-    "Claude Code non trovato": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code nicht gefunden"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code not found"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code introuvable"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code non trovato"
-          }
-        }
-      }
-    },
-    "Claude Code non è autenticato. Apri il Terminale ed esegui `claude` una volta per effettuare l’accesso.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code ist nicht angemeldet. Öffne das Terminal und führe einmal `claude` aus, um dich anzumelden."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code is not signed in. Open Terminal and run `claude` once to sign in."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code n’est pas connecté. Ouvrez le Terminal et exécutez `claude` une fois pour vous connecter."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code non è autenticato. Apri il Terminale ed esegui `claude` una volta per effettuare l’accesso."
-          }
-        }
-      }
-    },
-    "Claude Code non è installato oppure non è stato trovato. Installalo o indica il percorso dell’eseguibile.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code ist nicht installiert oder wurde nicht gefunden. Installiere es oder gib den Pfad zur ausführbaren Datei an."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code is not installed or could not be found. Install it or enter the path to the executable."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code n’est pas installé ou est introuvable. Installez-le ou indiquez le chemin de l’exécutable."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code non è installato oppure non è stato trovato. Installalo o indica il percorso dell’eseguibile."
-          }
-        }
-      }
-    },
-    "Claude Code scrive lo script CAD, genera il modello 3D e la tavola tecnica.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code schreibt das CAD-Skript und erzeugt das 3D-Modell und die technische Zeichnung."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code writes the CAD script and generates the 3D model and the technical drawing."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code écrit le script CAO et génère le modèle 3D et le dessin technique."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code scrive lo script CAD, genera il modello 3D e la tavola tecnica."
-          }
-        }
-      }
-    },
-    "Claude non ha ancora preparato il piatto di stampa: le parti sono affiancate senza ruotarle. Chiedi di prepararlo nella chat.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude hat die Druckplatte noch nicht vorbereitet: Die Teile liegen unrotiert nebeneinander. Bitte im Chat darum."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude hasn't prepared the print plate yet: the parts are placed side by side without rotating them. Ask for it in the chat."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude n’a pas encore préparé le plateau d’impression : les pièces sont posées côte à côte sans rotation. Demandez-le dans le chat."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude non ha ancora preparato il piatto di stampa: le parti sono affiancate senza ruotarle. Chiedi di prepararlo nella chat."
-          }
-        }
-      }
-    },
-    "Claude sta lavorando…": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude arbeitet …"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude is working…"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude travaille…"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude sta lavorando…"
-          }
-        }
-      }
-    },
-    "Claude sta lavorando… · %@": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude arbeitet … · %@"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude is working… · %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude travaille… · %@"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude sta lavorando… · %@"
-          }
-        }
-      }
-    },
-    "Claude sta ragionando…": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude denkt nach …"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude is thinking…"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude réfléchit…"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude sta ragionando…"
-          }
-        }
-      }
-    },
-    "Claude sta scrivendo…": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude schreibt …"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude is writing…"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude écrit…"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude sta scrivendo…"
           }
         }
       }
@@ -2517,34 +2163,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Con Bash limitato l’agente può eseguire solo l’interprete Python dell’ambiente di CAD Studio e alcuni comandi di sola lettura (ls, cat, head…). È più sicuro, ma l’agente ha meno autonomia per diagnosticare i problemi e alcuni tentativi potrebbero essere rifiutati."
-          }
-        }
-      }
-    },
-    "Configura Claude Code…": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code konfigurieren …"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Configure Claude Code…"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Configurer Claude Code…"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Configura Claude Code…"
           }
         }
       }
@@ -3161,34 +2779,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Errore di %@"
-          }
-        }
-      }
-    },
-    "Errore di Claude Code": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude-Code-Fehler"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code error"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Erreur de Claude Code"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Errore di Claude Code"
           }
         }
       }
@@ -3893,34 +3483,6 @@
         }
       }
     },
-    "Ignora hook, plugin e server MCP personali": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Persönliche Hooks, Plug-ins und MCP-Server ignorieren"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ignore personal hooks, plugins and MCP servers"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ignorer les hooks, plug-ins et serveurs MCP personnels"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ignora hook, plugin e server MCP personali"
-          }
-        }
-      }
-    },
     "Ignora le configurazioni personali dell’agente": {
       "localizations": {
         "de": {
@@ -4089,34 +3651,6 @@
         }
       }
     },
-    "Il formato json non mostra il testo in streaming né le singole attività, ma può essere utile con versioni di Claude Code che non supportano lo streaming.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Das json-Format zeigt weder Text in Echtzeit noch einzelne Aktivitäten, kann aber bei Claude-Code-Versionen ohne Streaming-Unterstützung nützlich sein."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The json format doesn’t stream text or show individual activities, but it can be useful with Claude Code versions that don’t support streaming."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Le format json n’affiche ni le texte en continu ni les activités, mais peut être utile avec les versions de Claude Code qui ne prennent pas en charge le streaming."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Il formato json non mostra il testo in streaming né le singole attività, ma può essere utile con versioni di Claude Code che non supportano lo streaming."
-          }
-        }
-      }
-    },
     "Impossibile aprire il progetto": {
       "localizations": {
         "de": {
@@ -4169,34 +3703,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Impossibile avviare %@."
-          }
-        }
-      }
-    },
-    "Impossibile avviare Claude Code.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code kann nicht gestartet werden."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Can’t start Claude Code."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Impossible de lancer Claude Code."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Impossibile avviare Claude Code."
           }
         }
       }
@@ -4281,6 +3787,62 @@
           "stringUnit": {
             "state": "translated",
             "value": "In arancione la forma della versione scelta. Per vederne i colori, ripristinala dal menu Versioni."
+          }
+        }
+      }
+    },
+    "In coda, in pausa dopo l’ultimo errore": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In der Warteschlange, nach dem letzten Fehler pausiert"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Queued, paused after the last error"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En file, en pause après la dernière erreur"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In coda, in pausa dopo l’ultimo errore"
+          }
+        }
+      }
+    },
+    "In coda, partiranno uno alla volta": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In der Warteschlange, einzeln gesendet"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Queued, sent one at a time"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En file, envoyés un par un"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In coda, partiranno uno alla volta"
           }
         }
       }
@@ -4677,6 +4239,34 @@
         }
       }
     },
+    "Invia ora": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jetzt senden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send now"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyer maintenant"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invia ora"
+          }
+        }
+      }
+    },
     "Iso": {
       "localizations": {
         "de": {
@@ -4925,34 +4515,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lingua:"
-          }
-        }
-      }
-    },
-    "L’agente CAD non carica le impostazioni utente di Claude Code (hook, plugin) né i server MCP configurati, così parte più velocemente e risponde in modo prevedibile. Disattiva se la tua autenticazione dipende da impostazioni utente, ad esempio apiKeyHelper.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Der CAD-Agent lädt weder deine Claude-Code-Benutzereinstellungen (Hooks, Plug-ins) noch konfigurierte MCP-Server. So startet er schneller und antwortet vorhersehbar. Deaktiviere diese Option, wenn deine Authentifizierung von Benutzereinstellungen wie apiKeyHelper abhängt."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The CAD agent doesn’t load your Claude Code user settings (hooks, plugins) or configured MCP servers, so it starts faster and responds predictably. Turn this off if your authentication depends on user settings, such as apiKeyHelper."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "L’agent CAO ne charge pas vos réglages utilisateur de Claude Code (hooks, plug-ins) ni les serveurs MCP configurés : il démarre plus vite et répond de façon prévisible. Désactivez cette option si votre authentification dépend de réglages utilisateur, comme apiKeyHelper."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "L’agente CAD non carica le impostazioni utente di Claude Code (hook, plugin) né i server MCP configurati, così parte più velocemente e risponde in modo prevedibile. Disattiva se la tua autenticazione dipende da impostazioni utente, ad esempio apiKeyHelper."
           }
         }
       }
@@ -6973,34 +6535,6 @@
         }
       }
     },
-    "Predefinito di Claude Code": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude-Code-Standard"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code default"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Par défaut de Claude Code"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Predefinito di Claude Code"
-          }
-        }
-      }
-    },
     "Pronto": {
       "localizations": {
         "de": {
@@ -7221,6 +6755,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "Rimuovi"
+          }
+        }
+      }
+    },
+    "Rimuovi dalla coda": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus der Warteschlange entfernen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from queue"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retirer de la file"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rimuovi dalla coda"
           }
         }
       }
@@ -7645,6 +7207,34 @@
         }
       }
     },
+    "Scrivi il prossimo messaggio: partirà al termine…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schreib die nächste Nachricht: Sie wird gesendet, sobald diese fertig ist…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write the next message: it goes out when this one finishes…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Écrivez le message suivant : il partira à la fin…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scrivi il prossimo messaggio: partirà al termine…"
+          }
+        }
+      }
+    },
     "Scrivi un messaggio": {
       "localizations": {
         "de": {
@@ -7781,6 +7371,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "Software open source rilasciato con licenza MIT.\nSviluppato da Filippo Finke."
+          }
+        }
+      }
+    },
+    "Solo immagini": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur Bilder"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Images only"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Images uniquement"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo immagini"
           }
         }
       }
@@ -9237,34 +8855,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "~/.local/bin/%@"
-          }
-        }
-      }
-    },
-    "~/.local/bin/claude": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "~/.local/bin/claude"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "~/.local/bin/claude"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "~/.local/bin/claude"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "~/.local/bin/claude"
           }
         }
       }
