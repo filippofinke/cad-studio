@@ -4,20 +4,20 @@ Scope: CAD Studio landing page, Persuade mode, static HTML/CSS/JS on GitHub Page
 Audience: makers and 3D-printing hobbyists on a Mac with (or willing to install) Claude Code.
 Action: download the DMG from the latest GitHub release; GitHub repo secondary.
 Proof on hand: real screenshots, real latch and hook outputs (drawings, renders, simulation), real model.py constants. No testimonials, counts or claims beyond PRODUCT.md.
-World: pinned by site/DESIGN.md (Linear-inspired dark canvas, surface ladder, single lavender accent).
+World: pinned by site/DESIGN.md (Apple-inspired: alternating black, white and parchment full-bleed tiles, one blue pill action, system SF Pro type).
 
 ## Direction contract
 
-THESIS: The page is a CAD Studio session, not a brochure: a sentence becomes a part in front of the visitor. Refuses the centred headline over a static screenshot and a row of equal feature cards.
+THESIS: The product itself is the hero: the real parts CAD Studio generated, rendered live in WebGL and driven by scroll, the way a product page lets the object speak. Refuses static screenshots as the protagonist.
 
-OWN-WORLD: #010102 canvas, charcoal surface ladder, hairlines, one lavender accent only on the CTA and focus. Engineering-drawing dimension lines (thin, arrowheaded, mono measurement labels) annotate the product the way an ISO sheet annotates a part.
+OWN-WORLD: Apple-style tiles alternating black, white and parchment; SF Pro display at 600 with tight tracking; one blue pill CTA; the only shadow under resting imagery; studio-lit 3D parts with real part colors.
 
-STORY: Visitor sees a prompt typed, the agent work live, and a real model land; then slides real parameters, flips through real drawing sheets, watches a simulated mechanism, switches assembled/exploded/plate, and downloads.
+STORY: See the hook turn, read the sentence that made it light up word by word, watch the app, drag real parameters, watch the latch separate into its five labelled parts, see it move, flip drawing sheets, scan the bento of capabilities, download.
 
-FIRST VIEWPORT: 56px nav; headline left-aligned at display-xl over the top third with download primary and GitHub secondary beside the requirement line; below, spanning the content width, the live app window replica with dimension lines measuring its run (prompt → files, elapsed time). Primary action visible without scrolling.
+FIRST VIEWPORT: Global nav; centered "CAD Studio" headline, "Describe a part. Print it.", one line of subcopy, Download pill and Watch the film link; the real hook in 3D filling the rest of the viewport.
 
-FORM: own-world product replay; code-led (no image generation); seed key: none (launcher not run).
+FORM: Apple product page with scroll-driven 3D scenes; code-led; seed key: none (launcher not run).
 
-SIGNATURE INTERACTION: the parameter sliders redraw a real orthographic hook profile with live dimensions and the matching model.py constants.
+SIGNATURE INTERACTION: scroll-scrubbed exploded view of the real latch model with floating part labels; parameter sliders redrawing the hook profile.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
