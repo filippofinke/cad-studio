@@ -424,3 +424,185 @@ function printBed(stage, footprint) {
     }
   };
 }
+
+function setupPartsStage(canvas) {
+  const stage = new Stage(canvas, { url: canvas.dataset.model, fov: 24 });
+  const section = canvas.closest(".parts");
+  const lines = [...section.querySelectorAll("[data-line]")];
+  const labelList = section.querySelector("[data-part-labels]");
+  return stage.ready.then(() => {
+    const parts = explodedOffsets(stage.model);
+    const labels = new Map();
+    for (const [name] of parts) {
+      if (!partLabels[name]) continue;
+      const item = document.createElement("li");
+      item.textContent = partLabels[name];
+      labelList.appendChild(item);
+      labels.set(name, item);
+    }
+    const origins = new Map();
+    for (const [, part] of parts) {
+      for (const mesh of part.meshes) origins.set(mesh, mesh.position.clone());
+    }
+    const projected = new THREE.Vector3();
+    const layout = plateLayout(parts);
+    const bed = printBed(stage, layout.span);
+    const zoom = layout.radius / stage.radius;
+    return () => {
+      if (!stage.visible) return;
+      const progress = sectionProgress(section);
+      const amount = smooth((progress - 0.14) / 0.26);
+      const settle = smooth((progress - 0.5) / 0.3);
+      const index = progress < 0.16 ? 0 : progress < 0.55 ? 1 : 2;
+      bed.show(settle);
+      lines.forEach((line, lineIndex) => line.classList.toggle("is-on", lineIndex === index));
+      for (const [, part] of parts) {
+        for (const mesh of part.meshes) {
+          mesh.position.copy(origins.get(mesh)).addScaledVector(part.offset, amount * (1 - settle)).addScaledVector(layout.offsets.get(mesh), settle);
+          if (layout.flips.has(mesh)) mesh.rotation.x = Math.PI * settle;
+        }
+      }
+      stage.pivot.rotation.y = -0.4 + progress * 0.8;
+      const spread = 0.95 + amount * 0.55;
+      stage.frame(spread + (zoom * 1.25 - spread) * settle, 0.62 - progress * 0.2 + settle * 0.5);
+      stage.render();
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      const canvasRect = canvas.getBoundingClientRect();
+      const listRect = labelList.getBoundingClientRect();
+      for (const [name, part] of parts) {
+        const label = labels.get(name);
+        if (!label) continue;
+        const center = part.box.getCenter(new THREE.Vector3()).addScaledVector(part.offset, amount * (1 - settle)).addScaledVector(layout.offsets.get(part.meshes[0]), settle);
+        projected.copy(center).applyMatrix4(stage.model.matrixWorld).project(stage.camera);
+        const x = (projected.x * 0.5 + 0.5) * width + canvasRect.left - listRect.left;
+        const y = (-projected.y * 0.5 + 0.5) * height + canvasRect.top - listRect.top;
+        label.style.transform = `translate(${x}px, ${y}px) translate(-50%, -150%)`;
+        label.classList.toggle("is-on", amount > 0.85);
+      }
+    };
+  });
+}
+
+async function setupStages() {
+  if (!webglAvailable()) {
+    document.documentElement.classList.add("no-webgl");
+    return;
+  }
+  const loops = [];
+  const tasks = [];
+  const add = (selector, setup) => {
+    const canvas = document.querySelector(selector);
+    if (canvas) tasks.push(setup(canvas).then((loop) => loops.push(loop)));
+  };
+  add('[data-stage="hero"]', (canvas) => setupAnimatedStage(canvas, "hero"));
+  add('[data-stage="parts"]', setupPartsStage);
+  add('[data-stage="motion"]', (canvas) => setupAnimatedStage(canvas, "motion"));
+  const start = performance.now();
+  const tick = (now) => {
+    loops.forEach((loop) => loop(now - start));
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+  try {
+    await Promise.all(tasks);
+  } catch {
+    document.documentElement.classList.add("no-webgl");
+  }
+}
+
+function sentence() {
+  const text = document.querySelector("[data-words]");
+  const after = document.querySelector("[data-after]");
+  if (!text) return;
+  const section = text.closest(".sentence");
+  const words = text.textContent.split(" ");
+  text.innerHTML = words.map((word) => `<span class="w">${word}</span>`).join(" ");
+  const spans = [...text.querySelectorAll(".w")];
+  const update = () => {
+    const progress = reducedMotion ? 1 : sectionProgress(section);
+    const lit = Math.round(smooth(progress / 0.72) * spans.length);
+    spans.forEach((span, index) => span.classList.toggle("is-lit", index < lit));
+    after.classList.toggle("is-on", progress > 0.78);
+  };
+  window.addEventListener("scroll", update, { passive: true });
+  update();
+}
+
+function appShot() {
+  const shot = document.querySelector(".app-shot");
+  if (!shot || reducedMotion) return;
+  const update = () => {
+    const rect = shot.getBoundingClientRect();
+    const t = ease(clamp((window.innerHeight - rect.top) / (window.innerHeight * 0.9)));
+    shot.style.setProperty("--rise", `${(1 - t) * 120}px`);
+    shot.style.setProperty("--grow", String(0.9 + t * 0.1));
+  };
+  window.addEventListener("scroll", update, { passive: true });
+  update();
+}
+
+function sheets() {
+  const stage = document.querySelector("[data-sheets]");
+  if (!stage) return;
+  const images = [...stage.querySelectorAll("img")];
+  const chips = [...document.querySelectorAll("[data-sheet]")];
+  const select = (index) => {
+    images.forEach((image, imageIndex) => image.classList.toggle("is-on", imageIndex === index));
+    chips.forEach((chip) => chip.setAttribute("aria-selected", String(Number(chip.dataset.sheet) === index)));
+  };
+  chips.forEach((chip) => chip.addEventListener("click", () => select(Number(chip.dataset.sheet))));
+}
+
+function film() {
+  const dialog = document.querySelector("[data-film]");
+  const video = dialog?.querySelector("[data-film-video]");
+  if (!dialog) return;
+  document.querySelector("[data-film-open]")?.addEventListener("click", () => {
+    dialog.showModal();
+    video.play().catch(() => {});
+  });
+  dialog.querySelector("[data-film-close]").addEventListener("click", () => dialog.close());
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+  dialog.addEventListener("close", () => video.pause());
+}
+
+function copyButtons() {
+  document.querySelectorAll("[data-copy]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(button.parentElement.querySelector("code").textContent);
+        button.classList.add("is-copied");
+        setTimeout(() => button.classList.remove("is-copied"), 1400);
+      } catch {
+        button.classList.remove("is-copied");
+      }
+    });
+  });
+}
+
+function reveals() {
+  if (reducedMotion) return;
+  const targets = document.querySelectorAll(".tile-head, .shot-copy, .film-frame, .specs, .chips, .sheet-stage, .bento-title, .card, .steps li");
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add("is-in");
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: 0.15 });
+  targets.forEach((target) => {
+    target.classList.add("rise");
+    observer.observe(target);
+  });
+}
+
+setupStages();
+sentence();
+appShot();
+sheets();
+film();
+copyButtons();
+reveals();
