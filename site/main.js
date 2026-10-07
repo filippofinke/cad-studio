@@ -302,6 +302,51 @@ function explodedOffsets(model) {
   return result;
 }
 
+function printBed(stage) {
+  const box = new THREE.Box3().setFromObject(stage.model);
+  const size = box.getSize(new THREE.Vector3());
+  const span = Math.ceil(Math.max(size.x, size.z) * 2.6 / 10) * 10;
+  const y = box.min.y - 0.05;
+  const group = new THREE.Group();
+  const materials = [];
+  const fade = (material, opacity) => {
+    material.transparent = true;
+    material.depthWrite = false;
+    material.userData.opacity = opacity;
+    materials.push(material);
+    return material;
+  };
+  const plate = new THREE.Mesh(
+    new THREE.PlaneGeometry(span, span),
+    fade(new THREE.MeshBasicMaterial({ color: "#141416" }), 1)
+  );
+  plate.rotation.x = -Math.PI / 2;
+  plate.renderOrder = -2;
+  const grid = new THREE.GridHelper(span, span / 10, "#5a5a5e", "#3a3a3c");
+  grid.position.y = 0.05;
+  grid.renderOrder = -1;
+  fade(grid.material, 1);
+  const half = span / 2;
+  const outline = new THREE.LineLoop(
+    new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(-half, 0.1, -half), new THREE.Vector3(half, 0.1, -half),
+      new THREE.Vector3(half, 0.1, half), new THREE.Vector3(-half, 0.1, half)
+    ]),
+    fade(new THREE.LineBasicMaterial({ color: "#2997ff" }), 1)
+  );
+  group.add(plate, grid, outline);
+  group.position.y = y;
+  group.visible = false;
+  stage.pivot.add(group);
+  return {
+    show(amount) {
+      group.visible = amount > 0.001;
+      group.position.y = y - (1 - amount) * size.y * 0.6;
+      for (const material of materials) material.opacity = material.userData.opacity * amount;
+    }
+  };
+}
+
 function setupPartsStage(canvas) {
   const stage = new Stage(canvas, { url: canvas.dataset.model, fov: 24 });
   const section = canvas.closest(".parts");
@@ -322,11 +367,14 @@ function setupPartsStage(canvas) {
       for (const mesh of part.meshes) origins.set(mesh, mesh.position.clone());
     }
     const projected = new THREE.Vector3();
+    const bed = printBed(stage);
     return () => {
       if (!stage.visible) return;
       const progress = sectionProgress(section);
-      const amount = smooth((progress - 0.22) / 0.42);
-      const index = progress < 0.22 ? 0 : progress < 0.66 ? 1 : 2;
+      const amount = smooth((progress - 0.14) / 0.26) * (1 - smooth((progress - 0.5) / 0.18));
+      const settle = smooth((progress - 0.58) / 0.24);
+      const index = progress < 0.16 ? 0 : progress < 0.6 ? 1 : 2;
+      bed.show(settle);
       lines.forEach((line, lineIndex) => line.classList.toggle("is-on", lineIndex === index));
       for (const [, part] of parts) {
         for (const mesh of part.meshes) {
@@ -334,7 +382,7 @@ function setupPartsStage(canvas) {
         }
       }
       stage.pivot.rotation.y = -0.4 + progress * 0.8;
-      stage.frame(0.95 + amount * 0.55, 0.62 - progress * 0.2);
+      stage.frame(0.95 + amount * 0.55 + settle * 1.05, 0.62 - progress * 0.2 + settle * 0.38);
       stage.render();
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
