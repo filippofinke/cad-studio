@@ -26,11 +26,10 @@ const partColors = {
 };
 
 const partLabels = {
-  housing: "Housing",
-  lid: "Lid",
-  plunger: "Plunger with cam groove",
-  follower: "Follower pin",
-  spring: "Serpentine spring"
+  Sun: "Sun gear",
+  "Planet 1": "Planets ×4",
+  Ring: "Ring gear",
+  Carrier: "Carrier"
 };
 
 const groupName = (name) => {
@@ -148,6 +147,20 @@ function motionPlayer(study) {
   return {
     duration,
     names: [...new Set(frames.flatMap((frame) => Object.keys(frame.parts || {})))],
+    sample(time) {
+      const t = duration > 0 ? ((time % duration) + duration) % duration : 0;
+      const upper = Math.max(1, frames.findIndex((frame) => frame.t >= t));
+      const next = frames[Math.min(upper, frames.length - 1)];
+      const previous = frames[upper - 1] || next;
+      const span = next.t - previous.t;
+      const f = span > 0 ? clamp((t - previous.t) / span) : 0;
+      const values = {};
+      for (const key of Object.keys(next.values || {})) {
+        const a = previous.values?.[key] ?? next.values[key];
+        values[key] = a + (next.values[key] - a) * f;
+      }
+      return { values, label: (f < 0.5 ? previous : next).label };
+    },
     pose(name, time) {
       const t = duration > 0 ? ((time % duration) + duration) % duration : 0;
       const upper = Math.max(1, frames.findIndex((frame) => frame.t >= t));
@@ -164,9 +177,13 @@ function motionPlayer(study) {
   };
 }
 
-function setupHeroStage(canvas) {
+function setupAnimatedStage(canvas, mode) {
   const stage = new Stage(canvas, { url: canvas.dataset.model });
-  const hero = canvas.closest(".hero");
+  const section = canvas.closest("section");
+  const ghost = canvas.dataset.ghost || "";
+  const lifted = canvas.dataset.lift || "";
+  const readout = mode === "motion" ? document.querySelector("[data-readout]") : null;
+  const phase = mode === "motion" ? document.querySelector("[data-phase]") : null;
   const animation = canvas.dataset.animation
     ? fetch(canvas.dataset.animation).then((response) => (response.ok ? response.json() : null)).catch(() => null)
     : Promise.resolve(null);
@@ -174,6 +191,7 @@ function setupHeroStage(canvas) {
   let pointerY = 0;
   let smoothX = 0;
   let smoothY = 0;
+  let lastReadout = 0;
   window.addEventListener("pointermove", (event) => {
     pointerX = event.clientX / window.innerWidth - 0.5;
     pointerY = event.clientY / window.innerHeight - 0.5;
@@ -182,31 +200,51 @@ function setupHeroStage(canvas) {
     const player = study?.frames?.length > 1 ? motionPlayer(study) : null;
     const meshes = [];
     const height = new THREE.Box3().setFromObject(stage.model).getSize(new THREE.Vector3()).y;
-    const lifted = canvas.dataset.lift || "";
     const lift = new THREE.Matrix4();
     stage.model.traverse((child) => {
       if (!child.isMesh) return;
       child.matrixAutoUpdate = false;
       child.updateMatrix();
-      meshes.push({ mesh: child, base: child.matrix.clone(), name: child.name || child.parent?.name || "" });
+      const name = child.name || child.parent?.name || "";
+      if (name === ghost) {
+        child.material.transparent = true;
+        child.material.opacity = 0.22;
+        child.material.depthWrite = false;
+      }
+      meshes.push({ mesh: child, base: child.matrix.clone(), name });
     });
     return (time) => {
       if (!stage.visible) return;
-      const scroll = clamp(-hero.getBoundingClientRect().top / hero.offsetHeight);
       smoothX += (pointerX - smoothX) * 0.05;
       smoothY += (pointerY - smoothY) * 0.05;
-      const intro = reducedMotion ? 1 : ease(time / 2200);
-      const seconds = reducedMotion ? 0 : time / 1000;
+      const seconds = reducedMotion ? 1.5 : time / 1000;
+      const scroll = mode === "hero" ? clamp(-section.getBoundingClientRect().top / section.offsetHeight) : 0;
+      const intro = reducedMotion || mode !== "hero" ? 1 : ease(time / 2200);
       const raise = height * (0.25 + 0.75 * intro) * (1 + scroll * 1.2);
       for (const { mesh, base, name } of meshes) {
         const pose = player ? player.pose(name, seconds) : new THREE.Matrix4();
         lift.makeTranslation(0, 0, name === lifted ? raise : 0);
         mesh.matrix.multiplyMatrices(lift, pose).multiply(base);
       }
-      stage.pivot.rotation.y = -0.5 + intro * 0.35 + (reducedMotion ? 0 : time * 0.00005) + scroll * 0.9 + smoothX * 0.45;
-      stage.pivot.rotation.x = smoothY * 0.1;
-      stage.frame(0.9 - scroll * 0.12 + (1 - intro) * 0.4, 0.42 + scroll * 0.25);
+      if (mode === "hero") {
+        stage.pivot.rotation.y = -0.5 + intro * 0.35 + (reducedMotion ? 0 : time * 0.00005) + scroll * 0.9 + smoothX * 0.45;
+        stage.pivot.rotation.x = smoothY * 0.1;
+        stage.frame(0.9 - scroll * 0.12 + (1 - intro) * 0.4, 0.42 + scroll * 0.25);
+      } else {
+        stage.pivot.rotation.y = smoothX * 0.3;
+        stage.pivot.rotation.x = 0;
+        stage.frame(1.25, 0.95 + smoothY * 0.2);
+      }
       stage.render();
+      if (readout && player && time - lastReadout > 120) {
+        lastReadout = time;
+        const sample = player.sample(seconds);
+        readout.querySelectorAll("[data-value]").forEach((element) => {
+          const value = sample.values[element.dataset.value];
+          if (value !== undefined) element.textContent = Math.round(value).toString().replace("-", "−");
+        });
+        if (phase && sample.label) phase.textContent = sample.label;
+      }
     };
   });
 }
@@ -216,7 +254,7 @@ function explodedOffsets(model) {
   model.updateMatrixWorld(true);
   model.traverse((child) => {
     if (!child.isMesh) return;
-    const name = child.userData.part;
+    const name = child.name || child.userData.part;
     const box = new THREE.Box3().setFromBufferAttribute(child.geometry.attributes.position);
     box.applyMatrix4(child.matrix);
     if (!groups.has(name)) groups.set(name, { box: box.clone(), meshes: [] });
@@ -264,8 +302,8 @@ function explodedOffsets(model) {
   return result;
 }
 
-function setupLatchStage(canvas) {
-  const stage = new Stage(canvas, { url: "models/latch.3mf", fov: 24 });
+function setupPartsStage(canvas) {
+  const stage = new Stage(canvas, { url: canvas.dataset.model, fov: 24 });
   const section = canvas.closest(".parts");
   const lines = [...section.querySelectorAll("[data-line]")];
   const labelList = section.querySelector("[data-part-labels]");
@@ -273,8 +311,9 @@ function setupLatchStage(canvas) {
     const parts = explodedOffsets(stage.model);
     const labels = new Map();
     for (const [name] of parts) {
+      if (!partLabels[name]) continue;
       const item = document.createElement("li");
-      item.textContent = partLabels[name] || name;
+      item.textContent = partLabels[name];
       labelList.appendChild(item);
       labels.set(name, item);
     }
@@ -294,8 +333,8 @@ function setupLatchStage(canvas) {
           mesh.position.copy(origins.get(mesh)).addScaledVector(part.offset, amount);
         }
       }
-      stage.pivot.rotation.y = -0.65 + progress * 0.9;
-      stage.frame(1.15 + amount * 0.38, 0.42 - progress * 0.12);
+      stage.pivot.rotation.y = -0.4 + progress * 0.8;
+      stage.frame(0.95 + amount * 0.55, 0.62 - progress * 0.2);
       stage.render();
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
@@ -303,6 +342,7 @@ function setupLatchStage(canvas) {
       const listRect = labelList.getBoundingClientRect();
       for (const [name, part] of parts) {
         const label = labels.get(name);
+        if (!label) continue;
         const center = part.box.getCenter(new THREE.Vector3()).addScaledVector(part.offset, amount);
         projected.copy(center).applyMatrix4(stage.model.matrixWorld).project(stage.camera);
         const x = (projected.x * 0.5 + 0.5) * width + canvasRect.left - listRect.left;
@@ -320,11 +360,14 @@ async function setupStages() {
     return;
   }
   const loops = [];
-  const heroCanvas = document.querySelector('[data-stage="hero"]');
-  const latchCanvas = document.querySelector('[data-stage="latch"]');
   const tasks = [];
-  if (heroCanvas) tasks.push(setupHeroStage(heroCanvas).then((loop) => loops.push(loop)));
-  if (latchCanvas) tasks.push(setupLatchStage(latchCanvas).then((loop) => loops.push(loop)));
+  const add = (selector, setup) => {
+    const canvas = document.querySelector(selector);
+    if (canvas) tasks.push(setup(canvas).then((loop) => loops.push(loop)));
+  };
+  add('[data-stage="hero"]', (canvas) => setupAnimatedStage(canvas, "hero"));
+  add('[data-stage="parts"]', setupPartsStage);
+  add('[data-stage="motion"]', (canvas) => setupAnimatedStage(canvas, "motion"));
   const start = performance.now();
   const tick = (now) => {
     loops.forEach((loop) => loop(now - start));
@@ -369,117 +412,119 @@ function appShot() {
   update();
 }
 
-function parameterDrawing() {
-  const svg = document.querySelector("[data-profile]");
+function gearDrawing() {
+  const svg = document.querySelector("[data-gears]");
   const code = document.querySelector("[data-code]");
   if (!svg || !code) return;
-  const total = document.querySelector("[data-total]");
+  const ratioLabel = document.querySelector("[data-gear-ratio]");
+  const check = document.querySelector("[data-gear-check]");
   const inputs = [...document.querySelectorAll("[data-param]")];
-  const params = { WIDTH: 25, THICKNESS: 6, PLATE_LEN: 45, HOOK_GAP: 35, ARM_LEN: 55, LIP_H: 10 };
-  const comments = {
-    WIDTH: "hook width (Y), mm",
-    THICKNESS: "plate, stem, arm and lip, mm",
-    PLATE_LEN: "screw plate behind the stem, mm",
-    HOOK_GAP: "arm top to desk underside, mm",
-    ARM_LEN: "hook arm from the stem, mm",
-    LIP_H: "retaining lip above the arm, mm"
-  };
-  const order = ["WIDTH", "THICKNESS", "PLATE_LEN", "HOOK_GAP", "ARM_LEN", "LIP_H"];
+  const params = { MODULE: 1.5, SUN_TEETH: 12, PLANET_TEETH: 12, NUM_PLANETS: 4 };
+  const lines = [
+    ["MODULE", "gear module (mm)"],
+    ["SUN_TEETH", "teeth on the sun gear"],
+    ["PLANET_TEETH", "teeth on each planet gear"],
+    ["NUM_PLANETS", "number of planets"],
+    ["GEAR_HEIGHT", "face width of all gears (mm)"],
+    ["HELIX_ANGLE", "herringbone helix angle (deg)"]
+  ];
+  const fixed = { GEAR_HEIGHT: 10, HELIX_ANGLE: 25 };
   let lastChanged = null;
-  const format = (value) => Number(value).toFixed(1);
+  let visible = false;
+  new IntersectionObserver(([entry]) => {
+    visible = entry.isIntersecting;
+  }).observe(svg);
+
+  const show = (name) => {
+    const value = params[name] ?? fixed[name];
+    return Number.isInteger(value) && name !== "MODULE" && name !== "GEAR_HEIGHT" && name !== "HELIX_ANGLE" ? String(value) : value.toFixed(name === "MODULE" ? 2 : 1);
+  };
 
   const renderCode = () => {
-    code.innerHTML = order.map((name) => {
+    code.innerHTML = lines.map(([name, comment]) => {
       const left = `${name} = `;
-      const value = format(params[name]);
-      const pad = " ".repeat(Math.max(1, 20 - left.length - value.length));
+      const value = show(name);
+      const pad = " ".repeat(Math.max(1, 21 - left.length - value.length));
       const flash = name === lastChanged ? " is-flash" : "";
-      return `${left}<span class="n${flash}" data-n="${name}">${value}</span>${pad}<span class="c"># ${comments[name]}</span>`;
+      return `${left}<span class="n${flash}" data-n="${name}">${value}</span>${pad}<span class="c"># ${comment}</span>`;
     }).join("\n");
     if (lastChanged) {
       requestAnimationFrame(() => code.querySelector(`[data-n="${lastChanged}"]`)?.classList.remove("is-flash"));
     }
   };
 
-  const rounded = (points, radii) => {
-    let path = "";
-    points.forEach((current, index) => {
-      const previous = points[(index - 1 + points.length) % points.length];
-      const next = points[(index + 1) % points.length];
-      const toPrevious = [previous[0] - current[0], previous[1] - current[1]];
-      const toNext = [next[0] - current[0], next[1] - current[1]];
-      const lengthPrevious = Math.hypot(...toPrevious);
-      const lengthNext = Math.hypot(...toNext);
-      const r = Math.min(radii[index] || 0, lengthPrevious / 2, lengthNext / 2);
-      const start = [current[0] + toPrevious[0] / lengthPrevious * r, current[1] + toPrevious[1] / lengthPrevious * r];
-      const end = [current[0] + toNext[0] / lengthNext * r, current[1] + toNext[1] / lengthNext * r];
-      path += `${index === 0 ? "M" : "L"}${start[0].toFixed(2)} ${start[1].toFixed(2)} Q${current[0].toFixed(2)} ${current[1].toFixed(2)} ${end[0].toFixed(2)} ${end[1].toFixed(2)} `;
-    });
-    return `${path}Z`;
+  const gearPath = (cx, cy, teeth, module, phase, internal) => {
+    const pitch = module * teeth / 2;
+    const tip = internal ? pitch - module * 0.8 : pitch + module * 0.9;
+    const root = internal ? pitch + module * 1.25 : pitch - module * 1.25;
+    const step = (Math.PI * 2) / teeth;
+    const points = [];
+    for (let index = 0; index < teeth; index++) {
+      const angle = phase + index * step;
+      for (const [radius, offset] of [[root, -0.3], [tip, -0.13], [tip, 0.13], [root, 0.3]]) {
+        points.push(`${(cx + Math.cos(angle + offset * step) * radius).toFixed(2)},${(cy + Math.sin(angle + offset * step) * radius).toFixed(2)}`);
+      }
+    }
+    return `M${points.join("L")}Z`;
   };
 
-  const arrow = (x, y, angle) => {
-    const a = [x + Math.cos(angle + 0.42) * 2.2, y + Math.sin(angle + 0.42) * 2.2];
-    const b = [x + Math.cos(angle - 0.42) * 2.2, y + Math.sin(angle - 0.42) * 2.2];
-    return `<path class="arrow" d="M${x} ${y} L${a[0]} ${a[1]} L${b[0]} ${b[1]} Z"/>`;
-  };
-  const horizontal = (x1, x2, y, label, live) => `<line class="dimline" x1="${x1}" y1="${y}" x2="${x2}" y2="${y}"/>${arrow(x1, y, 0)}${arrow(x2, y, Math.PI)}<text x="${(x1 + x2) / 2}" y="${y - 1.4}" text-anchor="middle" class="${live ? "is-live" : ""}">${label}</text>`;
-  const vertical = (x, y1, y2, label, live) => `<line class="dimline" x1="${x}" y1="${y1}" x2="${x}" y2="${y2}"/>${arrow(x, y1, Math.PI / 2)}${arrow(x, y2, -Math.PI / 2)}<text x="${x + 1.6}" y="${(y1 + y2) / 2 + 1.5}" class="${live ? "is-live" : ""}">${label}</text>`;
-  const ext = (x1, y1, x2, y2) => `<line class="ext" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;
+  const circle = (cx, cy, r) => `M${cx - r},${cy}a${r},${r} 0 1,0 ${r * 2},0a${r},${r} 0 1,0 ${-r * 2},0Z`;
 
-  const render = () => {
-    const { THICKNESS: t, PLATE_LEN: p, HOOK_GAP: gap, ARM_LEN: arm, LIP_H: lip } = params;
-    const height = 2 * t + gap;
-    const X = (x) => 62 + x;
-    const Y = (z) => 14 - z;
-    const points = [
-      [-p, 0], [t, 0], [t, -(t + gap)], [arm - t, -(t + gap)], [arm - t, -(t + gap) + lip],
-      [arm, -(t + gap) + lip], [arm, -height], [0, -height], [0, -t], [-p, -t]
-    ].map(([x, z]) => [X(x), Y(z)]);
-    const radii = [1, 0, 8, 1.2, 2.5, 2.5, 3, 8 + t, 6, 1];
-    const holes = [-p * 0.28, -p * 0.72].map((x) => {
-      const hx = X(x);
-      return `<line class="hidden" x1="${hx - 2.25}" y1="${Y(0)}" x2="${hx - 2.25}" y2="${Y(-t) - 2}"/><line class="hidden" x1="${hx + 2.25}" y1="${Y(0)}" x2="${hx + 2.25}" y2="${Y(-t) - 2}"/><path class="hidden" d="M${hx - 4.3} ${Y(-t)} L${hx - 2.25} ${Y(-t) - 2} M${hx + 4.3} ${Y(-t)} L${hx + 2.25} ${Y(-t) - 2}"/><line class="axis" x1="${hx}" y1="${Y(0) - 3}" x2="${hx}" y2="${Y(-t) + 3}"/>`;
-    }).join("");
-    const below = Y(-height);
-    const gapX = X(t + Math.min(arm - 2 * t, 26) * 0.55 + 4);
-    const dims = [
-      horizontal(X(0), X(arm), below + 9, `ARM_LEN ${format(arm)}`, lastChanged === "ARM_LEN"),
-      ext(X(0), below + 1, X(0), below + 11),
-      ext(X(arm), below + 1, X(arm), below + 11),
-      horizontal(X(-p), X(0), Y(0) - 10, `PLATE_LEN ${format(p)}`, false),
-      ext(X(-p), Y(0) - 1, X(-p), Y(0) - 12),
-      ext(X(0), Y(0) - 6, X(0), Y(0) - 12),
-      vertical(gapX, Y(-t), Y(-(t + gap)), `HOOK_GAP ${format(gap)}`, lastChanged === "HOOK_GAP"),
-      vertical(X(arm) + 8, Y(-(t + gap)), Y(-(t + gap) + lip), `LIP_H ${format(lip)}`, lastChanged === "LIP_H"),
-      ext(X(arm) + 1, Y(-(t + gap) + lip), X(arm) + 10, Y(-(t + gap) + lip)),
-      ext(X(arm - t) + 1, Y(-(t + gap)), X(arm) + 10, Y(-(t + gap))),
-      vertical(X(-p) - 7, Y(0), Y(-height), format(height), lastChanged === "HOOK_GAP" || lastChanged === "THICKNESS"),
-      ext(X(-p) - 1, Y(-t), X(-p) - 9, Y(-t)),
-      ext(X(0) - 1, Y(-height), X(-p) - 9, Y(-height))
-    ].join("");
-    svg.innerHTML = `<defs><pattern id="hatch" width="2.2" height="2.2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="2.2" stroke="#86868b" stroke-width="0.35"/></pattern></defs><rect class="desk" x="${X(-p - 8)}" y="${Y(0) - 5}" width="${p + 106}" height="5"/><path class="body" d="${rounded(points, radii)}"/>${holes}${dims}`;
-    svg.setAttribute("viewBox", `0 -2 ${X(arm) + 40} ${Math.max(below + 16, 100) + 2}`);
-    total.textContent = `Overall height ${format(height)} mm`;
+  let geometry = null;
+  const update = () => {
+    const { MODULE: m, SUN_TEETH: zs, PLANET_TEETH: zp, NUM_PLANETS: n } = params;
+    const zr = zs + 2 * zp;
+    const distance = m * (zs + zp) / 2;
+    const ringOuter = m * zr / 2 + m * 1.25 + m * 2.5;
+    const spacing = 2 * distance * Math.sin(Math.PI / n);
+    const planetTip = 2 * (m * zp / 2 + m * 0.9);
+    const even = (zs + zr) % n === 0;
+    const clear = spacing > planetTip + 0.4;
+    geometry = { m, zs, zp, zr, n, distance, ringOuter, scale: 52 / ringOuter };
+    const ratio = 1 + zr / zs;
+    ratioLabel.textContent = `Ratio ${ratio.toFixed(ratio % 1 === 0 ? 0 : 2)} : 1 · ring ${zr} teeth · ⌀ ${(ringOuter * 2).toFixed(0)} mm`;
+    check.textContent = !clear ? "Planets would collide" : even ? "Planets assemble evenly" : "Planets can't be spaced evenly";
+    check.classList.toggle("is-bad", !clear || !even);
+    renderCode();
   };
 
-  const syncFill = (input) => {
-    input.style.setProperty("--fill", `${((input.value - input.min) / (input.max - input.min)) * 100}%`);
+  const draw = (time) => {
+    if (!geometry) return;
+    const { m, zs, zp, zr, n, distance, ringOuter, scale } = geometry;
+    const carrier = reducedMotion ? 0 : time * 0.00025;
+    const sun = carrier * (1 + zr / zs);
+    const parts = [];
+    parts.push(`<path class="g-ring" fill-rule="evenodd" d="${circle(0, 0, ringOuter * scale)}${gearPath(0, 0, zr, m * scale, zp % 2 === 0 ? 0 : Math.PI / zr, true)}"/>`);
+    for (let index = 0; index < n; index++) {
+      const phi = carrier + index * (Math.PI * 2) / n;
+      const x = Math.cos(phi) * distance * scale;
+      const y = Math.sin(phi) * distance * scale;
+      const spin = phi + Math.PI - Math.PI / zp - (zs / zp) * (phi - sun);
+      parts.push(`<path class="g-planet" d="${gearPath(x, y, zp, m * scale, spin, false)}"/><circle class="g-pin" cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="${(m * scale * 1.6).toFixed(2)}"/>`);
+    }
+    parts.push(`<path class="g-sun" d="${gearPath(0, 0, zs, m * scale, sun, false)}"/><circle class="g-hub" r="${(m * scale * 2.4).toFixed(2)}"/>`);
+    parts.push(`<circle class="g-carrier" r="${(distance * scale).toFixed(2)}"/>`);
+    svg.innerHTML = parts.join("");
+  };
+
+  const loop = (time) => {
+    if (visible || time < 100) draw(time);
+    requestAnimationFrame(loop);
   };
 
   inputs.forEach((input) => {
-    syncFill(input);
+    const sync = () => input.style.setProperty("--fill", `${((input.value - input.min) / (input.max - input.min)) * 100}%`);
+    sync();
     input.addEventListener("input", () => {
       params[input.dataset.param] = Number(input.value);
       lastChanged = input.dataset.param;
-      document.querySelector(`[data-out="${input.dataset.param}"]`).textContent = `${input.value} mm`;
-      syncFill(input);
-      render();
-      renderCode();
+      document.querySelector(`[data-out="${input.dataset.param}"]`).textContent = input.dataset.param === "MODULE" ? `${Number(input.value).toFixed(2)} mm` : input.value;
+      sync();
+      update();
     });
   });
-  render();
-  renderCode();
+  update();
+  requestAnimationFrame(loop);
 }
 
 function sheets() {
@@ -542,7 +587,7 @@ function reveals() {
 setupStages();
 sentence();
 appShot();
-parameterDrawing();
+gearDrawing();
 sheets();
 film();
 copyButtons();
