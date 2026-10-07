@@ -69,3 +69,76 @@ Prerequisites
 Download
 
 Grab `CADStudio.dmg` from the [latest release](https://github.com/filippofinke/cad-studio/releases/latest) and drag CAD Studio into Applications. The app isn't notarized, so the first time macOS blocks it: open **System Settings → Privacy & Security** and click **Open Anyway**, or run:
+
+```bash
+xattr -dr com.apple.quarantine "/Applications/CAD Studio.app"
+```
+
+Build from source (needs Xcode 16 or later)
+
+```bash
+git clone https://github.com/filippofinke/cad-studio.git
+cd cad-studio
+./build.sh --install
+```
+
+This builds a universal `CAD Studio.app`, copies it to `/Applications` and launches it. `./build.sh --dmg` builds `build/CADStudio.dmg`. You can also open `CADStudio.xcodeproj` and press ⌘R.
+
+## How it works
+
+Every project is a folder. CAD Studio runs the agent installed on your Mac in headless mode (`claude -p --output-format stream-json`, or `codex exec --json` in its workspace sandbox) inside that folder, with a CAD system prompt that asks for a single parametric `model.py`. The agent runs the script with a dedicated Python environment (`~/Library/Application Support/CAD Studio/venv`, with build123d, matplotlib and numpy) until it produces:
+
+```
+<Project>/
+├── model.py              # parametric build123d script
+├── references/           # images attached in the chat
+├── output/
+│   ├── model.3mf         # main model, with part colors
+│   ├── model.stl
+│   ├── model.step
+│   ├── plate.3mf         # parts laid out ready to print
+│   ├── schematic.svg / .png / .pdf   # page 1 + multi-page PDF
+│   ├── schematic-2.svg …  # one sheet per part
+│   ├── animation.json    # optional: simulated motion, values and collisions
+│   └── manifest.json     # size, volume, parameters, warnings
+└── .cadstudio/           # chat, session, logs and versions
+```
+
+The app streams the agent's text and tool calls into the chat, watches `output/` and reloads the 3D view and the drawing as soon as files change. Each successful generation is copied to `.cadstudio/versions/<n>/` together with the chat and a forked Claude session, so going back to a version also restores what the agent remembers.
+
+## Notes
+
+- Generations use your Claude Code or Codex plan. A simple part takes one to two minutes; a complex mechanism can take half an hour.
+- By default the agent ignores your personal configuration (Claude Code hooks, plugins and MCP servers, Codex `config.toml`). Turn this off in **Settings → Advanced** if your login depends on them.
+- **Settings → Agent → Restricted Bash** (Claude Code) limits the agent to the project's Python interpreter and read-only commands.
+- Files are always in millimeters; the chosen unit is used in replies and drawings.
+
+## Contributing
+
+Open a pull request against `main` with a [Conventional Commits](https://www.conventionalcommits.org) title (`feat: …`, `fix: …`). PRs are squash-merged, and [release-please](https://github.com/googleapis/release-please) turns them into a release PR that bumps the version and updates the [changelog](CHANGELOG.md). Merging it publishes a GitHub release with the DMG attached.
+
+## Author
+
+👤 **Filippo Finke**
+
+- Website: [https://filippofinke.ch](https://filippofinke.ch)
+- Twitter: [@filippofinke](https://twitter.com/filippofinke)
+- GitHub: [@filippofinke](https://github.com/filippofinke)
+- LinkedIn: [@filippofinke](https://linkedin.com/in/filippofinke)
+
+## Show your support
+
+Give a ⭐️ if this project helped you!
+
+<a href="https://www.buymeacoffee.com/filippofinke">
+  <img src="https://github.com/filippofinke/filippofinke/raw/main/images/buymeacoffe.png" alt="Buy Me A McFlurry">
+</a>
+
+## 📝 License
+
+Copyright © 2026 [Filippo Finke](https://github.com/filippofinke).<br />
+This project is [MIT](./LICENSE) licensed.
+
+***
+
+_Not affiliated with Anthropic._
