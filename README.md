@@ -5,9 +5,9 @@
   <h3 align="center">CAD Studio</h3>
 </div>
 
-> Describe a part, get a printable model. A native macOS CAD studio powered by Claude Code or Codex and build123d.
+> Describe a part, get a printable model. A native macOS CAD studio powered by the coding agent on your Mac (Claude Code or Codex) and build123d.
 
-Type "a print-in-place planetary gearbox with four colors, animated with real gear ratios" and CAD Studio has Claude Code (or Codex) write a parametric `model.py`, run it with build123d and hand you a 3D model, an ISO technical drawing and files ready for your slicer. Every change is a new version you can go back to.
+Type "a print-in-place planetary gearbox with four colors, animated with real gear ratios" and CAD Studio has your coding agent write a parametric `model.py`, run it with build123d and hand you a 3D model, an ISO technical drawing and files ready for your slicer. Every change is a new version you can go back to.
 
 <p align="center">
   <img src=".github/demo.gif" alt="CAD Studio demo" width="900" />
@@ -23,7 +23,7 @@ Type "a print-in-place planetary gearbox with four colors, animated with real ge
 - [x] Animate mechanisms with a physics simulation (masses, springs, friction) and per-frame collision checks
 - [x] Multi-part models: assembled, exploded or print-plate view, show, hide or keep parts together
 - [x] Print plate with every part oriented and laid out for printing (`plate.3mf`, opened in your slicer)
-- [x] Floating parameter panel with sliders: tweak dimensions without calling Claude
+- [x] Floating parameter panel with sliders: tweak dimensions without calling the agent
 - [x] ISO technical drawings (first-angle projection): assembly with parts list plus one sheet per part, as a multi-page PDF
 - [x] Version history: jump back to any generation, chat and context included, and compare versions in 3D
 - [x] Attach or paste (⌘V) reference images, sketches, PDFs and STEP/STL files to the chat
@@ -41,7 +41,7 @@ Every screenshot below is from the same project: a print-in-place planetary gear
 | First launch | Describe the part |
 | :---: | :---: |
 | <img src=".github/screenshots/setup.png" alt="Printer and units setup" /> | <img src=".github/screenshots/prompt.png" alt="Prompt" /> |
-| **Claude Code at work** | **The finished gearbox** |
+| **The agent at work** | **The finished gearbox** |
 | <img src=".github/screenshots/agent.png" alt="Agent working" /> | <img src=".github/screenshots/model.png" alt="Generated gearbox" /> |
 
 **Parts, motion and drawings.** Explode the assembly, play the simulated motion and flip through the drawing sheets.
@@ -49,7 +49,7 @@ Every screenshot below is from the same project: a print-in-place planetary gear
 | Exploded view | Simulated motion |
 | :---: | :---: |
 | <img src=".github/screenshots/exploded.png" alt="Exploded view" /> | <img src=".github/screenshots/animation.png" alt="Animation" /> |
-| **Edit parameters without Claude** | **Measure distances** |
+| **Edit parameters without the agent** | **Measure distances** |
 | <img src=".github/screenshots/parameters.png" alt="Parameters" /> | <img src=".github/screenshots/measure.png" alt="Measure" /> |
 | **Section view** | **One sheet per part** |
 | <img src=".github/screenshots/section.png" alt="Section" /> | <img src=".github/screenshots/drawings.png" alt="Drawing sheets" /> |

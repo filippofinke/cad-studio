@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CAD Studio · Describe a part. Print it.</title>
-<meta name="description" content="A native macOS app that turns a sentence into a parametric build123d model, ISO drawings and a print plate, written and run by Claude Code or Codex on your Mac. Free and MIT licensed.">
+<meta name="description" content="A native macOS app that turns a sentence into a parametric build123d model, ISO drawings and a print plate, written and run by the coding agent on your Mac. Free and MIT licensed.">
 <meta name="theme-color" content="#000000">
 <meta property="og:title" content="CAD Studio">
-<meta property="og:description" content="Describe a part. Print it. Parametric CAD written by Claude Code or Codex on your Mac.">
+<meta property="og:description" content="Describe a part. Print it. Parametric CAD, written by the coding agent on your Mac.">
 <meta property="og:image" content="assets/gearbox.webp">
 <link rel="icon" type="image/png" href="assets/icon.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
@@ -33,6 +33,7 @@
       <a href="#parts">Parts</a>
       <a href="#motion">Motion</a>
       <a href="#drawings">Drawings</a>
+      <a href="#features">Features</a>
       <a href="#start">Get started</a>
     </nav>
     <a class="pill pill-sm" href="https://github.com/filippofinke/cad-studio/releases/latest">Download</a>
@@ -44,7 +45,7 @@
   <div class="hero-copy">
     <h1>CAD Studio</h1>
     <p class="hero-tag">Describe a part. Print&nbsp;it.</p>
-    <p class="hero-sub">Parametric CAD, written and run by Claude Code or Codex on your&nbsp;Mac.</p>
+    <p class="hero-sub">Parametric CAD, written and run by the coding agent on your&nbsp;Mac.</p>
     <div class="ctas">
       <a class="pill" href="https://github.com/filippofinke/cad-studio/releases/latest">Download for macOS</a>
       <button class="link-cta" type="button" data-film-open>Watch the film <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -67,11 +68,11 @@
 
 <section class="tile tile-parchment reveal-shot">
   <div class="shot-copy">
-    <h2>Watch Claude work.<br>Then hold the result.</h2>
+    <h2>Watch it take shape.<br>Then hold the result.</h2>
     <p>Every step streams into the chat as it happens: the code being written, the model being built, the drawing being checked. The 3D view, the parameters and the technical drawing land the moment the files do.</p>
   </div>
   <figure class="app-shot">
-    <div class="appwin" role="img" aria-label="CAD Studio window from the real gearbox session: the chat with Claude's steps and reply, the 3D model and the assembly drawing">
+    <div class="appwin" role="img" aria-label="CAD Studio window from the real gearbox session: the chat with the agent's steps and reply, the 3D model and the assembly drawing">
       <div class="appwin-bar">
         <span class="appwin-lights" aria-hidden="true"><i></i><i></i><i></i></span>
         <span class="appwin-status"><b>Planetary Gearbox</b> <span class="appwin-chev">›</span> <span class="appwin-ok"></span> Model generated</span>
@@ -101,7 +102,7 @@
 <section class="tile tile-black code" id="code">
   <div class="tile-head">
     <h2>Real code.<br>Every number is yours.</h2>
-    <p>Claude writes a parametric build123d script, not a mesh. Tooth counts, module and planets are named constants, and CAD Studio turns them into sliders. Change one and the gearbox rebuilds in seconds, without asking Claude again.</p>
+    <p>The agent writes a parametric build123d script, not a mesh. Tooth counts, module and planets are named constants, and CAD Studio turns them into sliders. Change one and the gearbox rebuilds in seconds, without asking the agent again.</p>
   </div>
   <div class="code-stage">
     <div class="drawing-card gear-card">
@@ -137,7 +138,7 @@
 <section class="tile tile-black motion" id="motion">
   <div class="tile-head tile-head-center">
     <h2>See how it moves<br>before you print it.</h2>
-    <p>Ask for an animation and Claude simulates the mechanism in Python: masses, friction and the push of your hand. The real solids are checked for collisions in every third frame.</p>
+    <p>Ask for an animation and the agent simulates the mechanism in Python: masses, friction and the push of your hand. The real solids are checked for collisions in every third frame.</p>
   </div>
   <div class="motion-stage">
     <canvas class="stage" data-stage="motion" data-model="models/gearbox.3mf" data-animation="models/gearbox-animation.json" data-ghost="Carrier" aria-label="The gearbox from above, carrier see-through, turning with the simulated speeds"></canvas>
@@ -173,13 +174,30 @@
   </div>
 </section>
 
+<section class="tile tile-black inspect" id="inspect">
+  <div class="tile-head tile-head-center">
+    <h2>Measure it.<br>Cut it open.</h2>
+    <p>Click two points for the distance and its X, Y and Z deltas. Slide a section plane along any axis to see inside, down to the herringbone teeth and the pins.</p>
+  </div>
+  <div class="inspect-grid">
+    <figure class="inspect-shot">
+      <img src="assets/gear-measure.webp" alt="The gearbox in the 3D view with a 70 mm measurement across the ring, shown with its X, Y and Z deltas" width="724" height="534" loading="lazy">
+      <figcaption><b>Measure</b> Point to point, in your units.</figcaption>
+    </figure>
+    <figure class="inspect-shot">
+      <img src="assets/gear-section.webp" alt="The gearbox cut in half by a section plane, showing the teeth of the ring, planets and sun" width="724" height="534" loading="lazy">
+      <figcaption><b>Section</b> X, Y or Z, at any depth.</figcaption>
+    </figure>
+  </div>
+</section>
+
 <section class="tile tile-parchment bento-tile">
   <h2 class="bento-title">Everything a maker needs.<br>Nothing in the way.</h2>
   <div class="bento">
     <article class="card card-wide card-dark">
       <div class="card-copy">
         <h3>Every change is a version.</h3>
-        <p>“Make it 90 mm across.” Version 2 lands next to version 1, outlined in orange. Go back any time: the chat and what Claude remembers come back too.</p>
+        <p>“Make it 90 mm across.” Version 2 lands next to version 1, outlined in orange. Go back any time: the chat and what the agent remembers come back too.</p>
       </div>
       <img src="assets/gear-compare.webp" alt="Version 1 of the gearbox, 70 mm, inside the orange outline of version 2, 90 mm" width="950" height="620" loading="lazy">
     </article>
@@ -214,7 +232,7 @@
     <article class="card card-local card-dark">
       <div class="card-copy">
         <h3>Yours, on your Mac.</h3>
-        <p>CAD Studio runs your own Claude Code or Codex in a folder you choose. No accounts, no servers, nothing uploaded by the app.</p>
+        <p>CAD Studio runs the agent you already use, in a folder you choose. No accounts, no servers, nothing uploaded by the app.</p>
       </div>
       <ul class="local-icons" aria-hidden="true">
         <li><svg viewBox="0 0 48 48"><rect x="9" y="10" width="30" height="20" rx="2.5"/><path d="M4 36h40l-2.5 3.5h-35z"/><path d="M20 33.5h8"/></svg></li>
@@ -222,6 +240,130 @@
         <li><svg viewBox="0 0 48 48"><path d="M14 35h21a8 8 0 0 0 1.5-15.85A11 11 0 0 0 15.3 18.2 8.5 8.5 0 0 0 14 35z"/><path d="M8 8l32 32"/></svg></li>
       </ul>
     </article>
+    <article class="card card-feature">
+      <svg class="card-glyph" viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="9" width="26" height="30" rx="3"/><path d="M13 30l6-7 4 4 3-3 7 6"/><circle cx="16" cy="17" r="2.5"/><path d="M38 20v16a6 6 0 0 1-12 0V22a3.5 3.5 0 0 1 7 0v13"/></svg>
+      <div class="card-copy">
+        <h3>Show it what you mean.</h3>
+        <p>Paste a screenshot with ⌘V, or drop in a sketch, a photo, a PDF drawing or the STEP of the part it has to fit. The agent measures what it can instead of guessing.</p>
+      </div>
+    </article>
+    <article class="card card-feature">
+      <svg class="card-glyph" viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="8" width="36" height="9" rx="4.5"/><rect x="6" y="21" width="36" height="9" rx="4.5"/><rect x="6" y="34" width="24" height="9" rx="4.5"/><path d="M37 34v9M32.5 38.5h9"/></svg>
+      <div class="card-copy">
+        <h3>Line up the next idea.</h3>
+        <p>Keep typing while it works. Messages wait in a queue and go out one by one as each version finishes. If something fails, the queue pauses for you.</p>
+      </div>
+    </article>
+    <article class="card card-feature">
+      <svg class="card-glyph" viewBox="0 0 48 48" aria-hidden="true"><path d="M8 40h32M12 40V12h24v28"/><path d="M12 18h24"/><path d="M22 18v6l2 3 2-3v-6"/><path d="M18 36h12"/></svg>
+      <div class="card-copy">
+        <h3>Made for your printer.</h3>
+        <p>FDM, multi-material, resin or SLS, in millimeters, centimeters, meters or inches. Wall thickness, overhangs, clearances and colors follow what your machine can do.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="tile tile-white features" id="features">
+  <div class="tile-head tile-head-center">
+    <h2>Everything in the box.</h2>
+    <p>One app, from the first sentence to the file on your print bed.</p>
+  </div>
+  <div class="feature-groups">
+    <div class="feature-group">
+      <h3>Design</h3>
+      <ul>
+        <li>Chat that writes and fixes parametric build123d scripts</li>
+        <li>Named parameters as sliders, rebuilt locally in seconds</li>
+        <li>Reference images, sketches, PDFs and STEP or STL files</li>
+        <li>Message queue that sends the next request when a version is done</li>
+        <li>Build checks on every run: valid solids, warnings and errors in the chat</li>
+      </ul>
+    </div>
+    <div class="feature-group">
+      <h3>View</h3>
+      <ul>
+        <li>Live 3D view with orbit, zoom, pan, grid and wireframe</li>
+        <li>Multi-color 3MF parts, shown in their real colors</li>
+        <li>Assembled, exploded and print plate views</li>
+        <li>Show, hide or keep parts together</li>
+        <li>Point-to-point measurements and section planes on X, Y and Z</li>
+      </ul>
+    </div>
+    <div class="feature-group">
+      <h3>Simulate</h3>
+      <ul>
+        <li>Mechanisms animated by a physics simulation in Python</li>
+        <li>Masses, springs, friction and the force of your hand</li>
+        <li>Collision checks on the real solids, frame by frame</li>
+        <li>Live readouts of speeds, angles and forces as it plays</li>
+      </ul>
+    </div>
+    <div class="feature-group">
+      <h3>Document</h3>
+      <ul>
+        <li>ISO first-angle technical drawings with every model</li>
+        <li>Assembly sheet with balloons and a parts list</li>
+        <li>One sheet per part, with gear data where it applies</li>
+        <li>All sheets in one multi-page PDF</li>
+      </ul>
+    </div>
+    <div class="feature-group">
+      <h3>Print</h3>
+      <ul>
+        <li>Design rules for FDM, multi-material, resin and SLS</li>
+        <li>Print plate with every part oriented and laid out</li>
+        <li><code>plate.3mf</code> opened straight in your slicer</li>
+        <li>STEP, 3MF, STL, the PDF and <code>model.py</code> in one ZIP</li>
+      </ul>
+    </div>
+    <div class="feature-group">
+      <h3>Work your way</h3>
+      <ul>
+        <li>Every generation saved as a version, chat and context included</li>
+        <li>Compare any two versions in 3D</li>
+        <li>Panels you can drag anywhere, layout saved per project</li>
+        <li>Each project is a plain folder you can open, copy or back up</li>
+        <li>English, Italian, German and French</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="tile tile-black how" id="how">
+  <div class="tile-head tile-head-center">
+    <h2>Bring your own agent.</h2>
+    <p>CAD Studio has no AI of its own and no account to make. It drives the coding agent already signed in on your Mac, with your plan, and you can switch agents in Settings at any time.</p>
+  </div>
+  <ol class="flow">
+    <li>
+      <span class="flow-file">prompt</span>
+      <h3>You describe it.</h3>
+      <p>In words, with pictures or with the file it has to fit. In millimeters or inches.</p>
+    </li>
+    <li>
+      <span class="flow-file">model.py</span>
+      <h3>The agent writes the code.</h3>
+      <p>A build123d script with every dimension as a named parameter, plus the drawing and the simulation.</p>
+    </li>
+    <li>
+      <span class="flow-file">python model.py</span>
+      <h3>It runs and checks.</h3>
+      <p>The script runs in a local Python. The agent looks at the drawings it produced and fixes what is wrong.</p>
+    </li>
+    <li>
+      <span class="flow-file">output/</span>
+      <h3>You get files.</h3>
+      <p>3MF, STEP, STL, the print plate and the PDF, in a folder you own. Nothing leaves your Mac through the app.</p>
+    </li>
+  </ol>
+  <div class="agents">
+    <p class="agents-label">Works with</p>
+    <ul>
+      <li><b>Claude Code</b><span>Anthropic's command line agent</span></li>
+      <li><b>Codex</b><span>OpenAI's command line agent</span></li>
+    </ul>
+    <p class="agents-note">Choose the model and the reasoning effort in Settings.</p>
   </div>
 </section>
 
@@ -254,7 +396,7 @@
 
 <footer class="footer">
   <div class="footer-inner">
-    <p class="footer-note">CAD Studio runs the Claude Code or Codex installed on your Mac and uses your plan. Requires macOS 15 or later and uv or Python 3.10–3.13. Generation time depends on the part. Not affiliated with Anthropic.</p>
+    <p class="footer-note">CAD Studio runs the coding agent installed on your Mac (Claude Code or Codex) and uses your plan. Requires macOS 15 or later and uv or Python 3.10–3.13. Generation time depends on the part. Not affiliated with Anthropic or OpenAI.</p>
     <div class="footer-cols">
       <div>
         <h4>Download</h4>
