@@ -26,7 +26,7 @@ Type "a print-in-place planetary gearbox with four colors, animated with real ge
 - [x] Floating parameter panel with sliders: tweak dimensions without calling Claude
 - [x] ISO technical drawings (first-angle projection): assembly with parts list plus one sheet per part, as a multi-page PDF
 - [x] Version history: jump back to any generation, chat and context included, and compare versions in 3D
-- [x] Attach reference images and sketches to the chat
+- [x] Attach or paste (⌘V) reference images, sketches, PDFs and STEP/STL files to the chat
 - [x] Export STEP, 3MF, STL, PDF drawing and `model.py` as one ZIP
 - [x] Printer-aware design rules for FDM, multi-material, resin and SLS, in mm, cm, m or inches
 - [x] Drag panels anywhere: chat left, right or at the bottom, layout saved per project

@@ -27,14 +27,12 @@ struct ChatView: View {
         for provider in providers {
             if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
                 _ = provider.loadObject(ofClass: URL.self) { url, _ in
-                    guard let url, UTType(filenameExtension: url.pathExtension)?.conforms(to: .image) == true else { return }
+                    guard let url, url.isFileURL else { return }
                     Task { @MainActor in chat.attach([url]) }
                 }
             } else {
-                provider.loadDataRepresentation(forTypeIdentifier: UTType.png.identifier) { data, _ in
-                    guard let data else { return }
-                    let url = FileManager.default.temporaryDirectory.appending(path: "\(UUID().uuidString).png")
-                    guard (try? data.write(to: url)) != nil else { return }
+                provider.loadDataRepresentation(forTypeIdentifier: UTType.image.identifier) { data, _ in
+                    guard let data, let url = Attachments.savedImage(data) else { return }
                     Task { @MainActor in chat.attach([url]) }
                 }
             }

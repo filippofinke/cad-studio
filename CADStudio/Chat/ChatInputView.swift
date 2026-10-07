@@ -4,6 +4,7 @@ import UniformTypeIdentifiers
 struct ChatInputView: View {
     let project: Project
     @FocusState private var isFocused: Bool
+    @State private var pasteMonitor: Any?
 
     private var chat: ChatViewModel { project.chat }
 
@@ -18,15 +19,15 @@ struct ChatInputView: View {
             }
             HStack(alignment: .bottom, spacing: 6) {
                 Button {
-                    chooseImages()
+                    chooseFiles()
                 } label: {
                     Image(systemName: "paperclip")
                         .font(.system(size: 14))
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
-                .help("Allega immagini di riferimento")
-                .accessibilityLabel(Text("Allega immagini"))
+                .help("Allega immagini o file di riferimento (puoi anche incollarli con ⌘V)")
+                .accessibilityLabel(Text("Allega file"))
                 TextField(
                     project.isBusy ? "Scrivi il prossimo messaggio: partirà al termine…" : "Descrivi l’oggetto o la modifica…",
                     text: Binding(get: { chat.draft }, set: { chat.draft = $0 }),
@@ -58,6 +59,24 @@ struct ChatInputView: View {
         .onChange(of: chat.inputFocusRequest) {
             isFocused = true
         }
+        .onAppear {
+            pasteMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+                guard isFocused,
+                      event.modifierFlags.intersection(.deviceIndependentFlagsMask) == .command,
+                      event.charactersIgnoringModifiers == "v"
+                else { return event }
+                let urls = Attachments.urls(from: .general)
+                guard !urls.isEmpty else { return event }
+                chat.attach(urls)
+                return nil
+            }
+        }
+        .onDisappear {
+            if let pasteMonitor {
+                NSEvent.removeMonitor(pasteMonitor)
+            }
+            pasteMonitor = nil
+        }
     }
 
     private var attachmentStrip: some View {
@@ -84,9 +103,9 @@ struct ChatInputView: View {
         }
     }
 
-    private func chooseImages() {
+    private func chooseFiles() {
         let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.image]
+        panel.allowedContentTypes = [.item]
         panel.allowsMultipleSelection = true
         panel.prompt = String(localized: "Allega")
         if panel.runModal() == .OK {
@@ -140,13 +159,20 @@ struct AttachmentThumbnail: View {
 
     var body: some View {
         Group {
-            if let image = NSImage(contentsOf: url) {
+            if Attachments.isImage(url), let image = NSImage(contentsOf: url) {
                 Image(nsImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
             } else {
-                Image(systemName: "photo")
-                    .foregroundStyle(.secondary)
+                VStack(spacing: 3) {
+                    Image(nsImage: NSWorkspace.shared.icon(forFile: url.path))
+                        .resizable()
+                        .frame(width: size * 0.5, height: size * 0.5)
+                    Text(url.pathExtension.uppercased())
+                        .font(.system(size: max(8, size * 0.15), weight: .semibold))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
             }
         }
         .frame(width: size, height: size)

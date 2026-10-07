@@ -32,7 +32,7 @@ enum CodexRunner {
         if let sessionID = request.sessionID {
             arguments += ["resume", sessionID]
         }
-        for image in request.images {
+        for image in request.images where Attachments.isImage(image) {
             arguments += ["-i", image.path]
         }
         arguments.append(request.prompt)

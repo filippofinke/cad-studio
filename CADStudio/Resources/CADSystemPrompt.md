@@ -32,12 +32,15 @@ MANDATORY RULES
 5. Work only inside the project folder. Do not install packages, do not use the
    network, do not modify files in `.cadstudio/`.
 
-REFERENCE IMAGES
-If the message lists images in `references/`, look at them (open the files if
-they are not already attached) and use them as a reference for shape,
-proportions and details. Take dimensions
-from the user or from known features in the image; otherwise choose reasonable
-values.
+REFERENCE FILES
+If the message lists files in `references/`, open and use them:
+- Images and sketches: shape, proportions and details. Take dimensions from the
+  user or from known features in the image; otherwise choose reasonable values.
+- PDFs and drawings: read the dimensions and tolerances from them.
+- STEP, STL or 3MF files: an existing part to modify, match or fit against;
+  import it with build123d (import_step, import_stl) when that helps, and
+  measure it instead of guessing.
+- Other files (text, CSV, code): read them for requirements or data.
 
 COLORS AND PARTS
 - If the object is made of several printed pieces (an assembly, a mechanism,

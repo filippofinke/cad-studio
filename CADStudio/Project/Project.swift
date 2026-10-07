@@ -243,10 +243,10 @@ final class Project {
     }
 
     private static func prompt(_ text: String, references: [String], missing: [String]) -> String {
-        var prompt = text.isEmpty && !references.isEmpty ? "Create a model based on the attached images." : text
+        var prompt = text.isEmpty && !references.isEmpty ? "Create a model based on the attached files." : text
         if !references.isEmpty {
             let list = references.map { "- \($0)" }.joined(separator: "\n")
-            prompt += "\n\nAttached reference images:\n\(list)"
+            prompt += "\n\nAttached reference files:\n\(list)"
         }
         if !missing.isEmpty {
             let list = missing.map { "- \($0)" }.joined(separator: "\n")
