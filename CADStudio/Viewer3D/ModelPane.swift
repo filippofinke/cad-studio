@@ -142,7 +142,7 @@ struct ModelPane: View {
                     Image(systemName: "play.circle")
                 }
                 .disabled(project.isBusy)
-                .help("Chiedi a Claude di simulare e animare il meccanismo")
+                .help("Chiedi all’agente di simulare e animare il meccanismo")
                 .accessibilityLabel(Text("Crea animazione"))
             }
             colorLegend

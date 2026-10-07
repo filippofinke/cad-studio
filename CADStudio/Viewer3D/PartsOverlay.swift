@@ -35,7 +35,7 @@ struct PartsOverlay: View {
                     partList
                 }
                 if layout == .plate, output.plateParts.isEmpty {
-                    Text("Claude non ha ancora preparato il piatto di stampa: le parti sono affiancate senza ruotarle. Chiedi di prepararlo nella chat.")
+                    Text("L’agente non ha ancora preparato il piatto di stampa: le parti sono affiancate senza ruotarle. Chiedi di prepararlo nella chat.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)

@@ -45,7 +45,6 @@ struct ProjectWindow: View {
 struct ProjectWorkspace: View {
     let project: Project
     @Bindable private var python = PythonEnvironment.shared
-    @Bindable private var claude = ClaudeLocator.shared
 
     var body: some View {
         ProjectSplitView(project: project, layout: project.displayedLayout)
@@ -58,8 +57,11 @@ struct ProjectWorkspace: View {
             .sheet(isPresented: $python.isSetupSheetPresented) {
                 PythonSetupSheet(python: python)
             }
-            .sheet(isPresented: $claude.isMissingSheetPresented) {
-                ClaudeMissingSheet(locator: claude)
+            .sheet(isPresented: Binding(
+                get: { AgentLocator.current.isMissingSheetPresented },
+                set: { AgentLocator.current.isMissingSheetPresented = $0 }
+            )) {
+                AgentMissingSheet(locator: AgentLocator.current)
             }
     }
 }

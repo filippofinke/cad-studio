@@ -6,6 +6,7 @@ struct ClaudeRequest {
     let projectName: String
     let python: URL
     let environment: String
+    let images: [URL]
 }
 
 enum ClaudeRunner {
@@ -63,7 +64,7 @@ enum ClaudeRunner {
             + readOnlyCommands.map { "Bash(\($0):*)" }
     }
 
-    private static func systemPrompt(for request: ClaudeRequest) -> String {
+    static func systemPrompt(for request: ClaudeRequest) -> String {
         guard let url = Bundle.main.url(forResource: "CADSystemPrompt", withExtension: "md"),
               let template = try? String(contentsOf: url, encoding: .utf8)
         else { return "" }

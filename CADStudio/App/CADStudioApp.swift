@@ -38,7 +38,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         Task {
             await PythonEnvironment.shared.check()
-            await ClaudeLocator.shared.locate()
+            await AgentLocator.current.locate()
         }
     }
 

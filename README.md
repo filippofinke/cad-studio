@@ -5,9 +5,9 @@
   <h3 align="center">CAD Studio</h3>
 </div>
 
-> Describe a part, get a printable model. A native macOS CAD studio powered by Claude Code and build123d.
+> Describe a part, get a printable model. A native macOS CAD studio powered by Claude Code or Codex and build123d.
 
-Type "a print-in-place planetary gearbox with four colors, animated with real gear ratios" and CAD Studio has Claude Code write a parametric `model.py`, run it with build123d and hand you a 3D model, an ISO technical drawing and files ready for your slicer. Every change is a new version you can go back to.
+Type "a print-in-place planetary gearbox with four colors, animated with real gear ratios" and CAD Studio has Claude Code (or Codex) write a parametric `model.py`, run it with build123d and hand you a 3D model, an ISO technical drawing and files ready for your slicer. Every change is a new version you can go back to.
 
 <p align="center">
   <img src=".github/demo.gif" alt="CAD Studio demo" width="900" />
@@ -63,7 +63,7 @@ Every screenshot below is from the same project: a print-in-place planetary gear
 Prerequisites
 
 - macOS 15 or later
-- [Claude Code](https://claude.com/claude-code), signed in (run `claude` once in Terminal)
+- [Claude Code](https://claude.com/claude-code) signed in (run `claude` once in Terminal), or [Codex CLI](https://developers.openai.com/codex/cli) signed in (`codex login`); pick one in **Settings → Agent**
 - [uv](https://docs.astral.sh/uv/) or Python 3.10–3.13, used to install build123d on first launch
 
 Download
@@ -86,7 +86,7 @@ This builds a universal `CAD Studio.app`, copies it to `/Applications` and launc
 
 ## How it works
 
-Every project is a folder. CAD Studio runs the Claude Code installed on your Mac in headless mode (`claude -p --output-format stream-json`) inside that folder, with a CAD system prompt that asks for a single parametric `model.py`. The agent runs the script with a dedicated Python environment (`~/Library/Application Support/CAD Studio/venv`, with build123d, matplotlib and numpy) until it produces:
+Every project is a folder. CAD Studio runs the agent installed on your Mac in headless mode (`claude -p --output-format stream-json`, or `codex exec --json` in its workspace sandbox) inside that folder, with a CAD system prompt that asks for a single parametric `model.py`. The agent runs the script with a dedicated Python environment (`~/Library/Application Support/CAD Studio/venv`, with build123d, matplotlib and numpy) until it produces:
 
 ```
 <Project>/
@@ -108,9 +108,9 @@ The app streams the agent's text and tool calls into the chat, watches `output/`
 
 ## Notes
 
-- Generations use your Claude Code plan. A simple part takes one to two minutes.
-- By default the agent ignores your personal Claude Code hooks, plugins and MCP servers. Turn this off in **Settings → Advanced** if your login depends on them.
-- **Settings → Claude Code → Restricted Bash** limits the agent to the project's Python interpreter and read-only commands.
+- Generations use your Claude Code or Codex plan. A simple part takes one to two minutes; a complex mechanism can take half an hour.
+- By default the agent ignores your personal configuration (Claude Code hooks, plugins and MCP servers, Codex `config.toml`). Turn this off in **Settings → Advanced** if your login depends on them.
+- **Settings → Agent → Restricted Bash** (Claude Code) limits the agent to the project's Python interpreter and read-only commands.
 - Files are always in millimeters; the chosen unit is used in replies and drawings.
 
 ## Contributing

@@ -6,8 +6,8 @@ struct SettingsView: View {
             Tab("Generale", systemImage: "gearshape") {
                 GeneralSettingsView()
             }
-            Tab("Claude Code", systemImage: "sparkles") {
-                ClaudeSettingsView(locator: ClaudeLocator.shared)
+            Tab("Agente", systemImage: "sparkles") {
+                AgentSettingsView()
             }
             Tab("Python", systemImage: "chevron.left.forwardslash.chevron.right") {
                 PythonSettingsView(python: PythonEnvironment.shared)
@@ -61,56 +61,31 @@ private struct GeneralSettingsView: View {
     }
 }
 
-private struct ClaudeSettingsView: View {
-    let locator: ClaudeLocator
-    @AppStorage(AppSettings.claudePathKey) private var customPath = ""
-    @AppStorage(AppSettings.claudeModelKey) private var model = ""
+private struct AgentSettingsView: View {
+    @AppStorage(AppSettings.agentEngineKey) private var engineName = AgentEngine.claude.rawValue
     @AppStorage(AppSettings.claudeEffortKey) private var effort = ""
     @AppStorage(AppSettings.restrictedBashKey) private var restrictedBash = false
+
+    private var engine: AgentEngine { AgentEngine(rawValue: engineName) ?? .claude }
 
     var body: some View {
         Form {
             Section {
-                LabeledContent("Eseguibile:") {
-                    switch locator.state {
-                    case .found(let url, _):
-                        PathText(url: url)
-                    case .checking, .unknown:
-                        ProgressView()
-                            .controlSize(.small)
-                    case .missing:
-                        Text("Non trovato")
-                            .foregroundStyle(.red)
+                Picker("Agente:", selection: $engineName) {
+                    ForEach(AgentEngine.allCases, id: \.self) { engine in
+                        Text(engine.name).tag(engine.rawValue)
                     }
                 }
-                LabeledContent("Versione:") {
-                    if case .found(_, let version) = locator.state {
-                        Text(version)
-                            .fontDesign(.monospaced)
-                            .textSelection(.enabled)
-                    } else {
-                        Text("—")
-                    }
-                }
-                TextField("Percorso personalizzato:", text: $customPath, prompt: Text("Automatico"))
-                    .fontDesign(.monospaced)
-                HStack {
-                    Spacer()
-                    Button("Verifica") {
-                        Task { await locator.locate() }
-                    }
-                }
-            }
-            Section {
-                TextField("Modello:", text: $model, prompt: Text("Predefinito di Claude Code"))
-                    .fontDesign(.monospaced)
+                .pickerStyle(.segmented)
             } footer: {
-                Text("Ad esempio “sonnet” oppure “opus”. Lascia vuoto per usare il modello configurato in Claude Code.")
+                Text("CAD Studio usa l’agente installato su questo Mac e il tuo piano. Puoi cambiarlo in qualsiasi momento: i progetti esistenti continuano con l’agente scelto qui.")
                     .foregroundStyle(.secondary)
             }
+            AgentEngineSection(locator: AgentLocator.locator(for: engine))
+                .id(engine)
             Section {
                 Picker("Effort:", selection: $effort) {
-                    Text("Predefinito di Claude Code").tag("")
+                    Text("Predefinito dell’agente").tag("")
                     Text("Basso, più veloce").tag("low")
                     Text("Medio").tag("medium")
                     Text("Alto, più accurato").tag("high")
@@ -119,15 +94,77 @@ private struct ClaudeSettingsView: View {
                 Text("Un effort più basso fa ragionare meno l’agente prima di agire: le risposte arrivano prima, ma per pezzi complessi potrebbero servire più correzioni.")
                     .foregroundStyle(.secondary)
             }
-            Section {
-                Toggle("Bash limitato", isOn: $restrictedBash)
-            } footer: {
-                Text("Con Bash limitato l’agente può eseguire solo l’interprete Python dell’ambiente di CAD Studio e alcuni comandi di sola lettura (ls, cat, head…). È più sicuro, ma l’agente ha meno autonomia per diagnosticare i problemi e alcuni tentativi potrebbero essere rifiutati.")
-                    .foregroundStyle(.secondary)
+            if engine == .claude {
+                Section {
+                    Toggle("Bash limitato", isOn: $restrictedBash)
+                } footer: {
+                    Text("Con Bash limitato l’agente può eseguire solo l’interprete Python dell’ambiente di CAD Studio e alcuni comandi di sola lettura (ls, cat, head…). È più sicuro, ma l’agente ha meno autonomia per diagnosticare i problemi e alcuni tentativi potrebbero essere rifiutati.")
+                        .foregroundStyle(.secondary)
+                }
+            } else {
+                Section {
+                    Text("Codex lavora nella sua sandbox: può scrivere solo nella cartella del progetto e non usa la rete.")
+                        .foregroundStyle(.secondary)
+                }
             }
         }
         .formStyle(.grouped)
         .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+private struct AgentEngineSection: View {
+    let locator: AgentLocator
+    @AppStorage private var customPath: String
+    @AppStorage private var model: String
+
+    init(locator: AgentLocator) {
+        self.locator = locator
+        _customPath = AppStorage(wrappedValue: "", locator.engine.pathKey)
+        _model = AppStorage(wrappedValue: "", locator.engine.modelKey)
+    }
+
+    var body: some View {
+        Section {
+            LabeledContent("Eseguibile:") {
+                switch locator.state {
+                case .found(let url, _):
+                    PathText(url: url)
+                case .checking:
+                    ProgressView()
+                        .controlSize(.small)
+                case .unknown:
+                    Text("—")
+                case .missing:
+                    Text("Non trovato")
+                        .foregroundStyle(.red)
+                }
+            }
+            LabeledContent("Versione:") {
+                if case .found(_, let version) = locator.state {
+                    Text(version)
+                        .fontDesign(.monospaced)
+                        .textSelection(.enabled)
+                } else {
+                    Text("—")
+                }
+            }
+            TextField("Percorso personalizzato:", text: $customPath, prompt: Text("Automatico"))
+                .fontDesign(.monospaced)
+            TextField("Modello:", text: $model, prompt: Text("Predefinito di \(locator.engine.name)"))
+                .fontDesign(.monospaced)
+            HStack {
+                Spacer()
+                Button("Verifica") {
+                    Task { await locator.locate() }
+                }
+            }
+        }
+        .task {
+            if locator.state == .unknown {
+                await locator.locate()
+            }
+        }
     }
 }
 
@@ -189,13 +226,13 @@ private struct AdvancedSettingsView: View {
                     Text("json (risposta unica)").tag(false)
                 }
             } footer: {
-                Text("Il formato json non mostra il testo in streaming né le singole attività, ma può essere utile con versioni di Claude Code che non supportano lo streaming.")
+                Text("Vale per Claude Code. Il formato json non mostra il testo in streaming né le singole attività, ma può essere utile con versioni che non supportano lo streaming.")
                     .foregroundStyle(.secondary)
             }
             Section {
-                Toggle("Ignora hook, plugin e server MCP personali", isOn: $isolatesClaude)
+                Toggle("Ignora le configurazioni personali dell’agente", isOn: $isolatesClaude)
             } footer: {
-                Text("L’agente CAD non carica le impostazioni utente di Claude Code (hook, plugin) né i server MCP configurati, così parte più velocemente e risponde in modo prevedibile. Disattiva se la tua autenticazione dipende da impostazioni utente, ad esempio apiKeyHelper.")
+                Text("L’agente CAD non carica le tue impostazioni utente (hook, plugin e server MCP di Claude Code, config.toml di Codex), così parte più velocemente e risponde in modo prevedibile. Disattiva se la tua autenticazione dipende da impostazioni utente, ad esempio apiKeyHelper.")
                     .foregroundStyle(.secondary)
             }
         }

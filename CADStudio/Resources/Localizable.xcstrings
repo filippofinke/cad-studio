@@ -57,6 +57,258 @@
         }
       }
     },
+    "%@ ha terminato con un errore (codice %d).": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ wurde mit einem Fehler beendet (Code %d)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ended with an error (code %d)."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ s’est arrêté avec une erreur (code %d)."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ha terminato con un errore (codice %d)."
+          }
+        }
+      }
+    },
+    "%@ non trovato": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ nicht gefunden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ not found"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ introuvable"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ non trovato"
+          }
+        }
+      }
+    },
+    "%@ non è autenticato. Apri il Terminale ed esegui `%@` per effettuare l’accesso.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ist nicht angemeldet. Öffne das Terminal und führe `%@` aus, um dich anzumelden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ isn't signed in. Open Terminal and run `%@` to sign in."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ n’est pas connecté. Ouvrez le Terminal et lancez `%@` pour vous connecter."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ non è autenticato. Apri il Terminale ed esegui `%@` per effettuare l’accesso."
+          }
+        }
+      }
+    },
+    "%@ non è installato oppure non è stato trovato. Installalo o indica il percorso dell’eseguibile.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ist nicht installiert oder wurde nicht gefunden. Installiere es oder gib den Pfad zur ausführbaren Datei an."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ isn't installed or couldn't be found. Install it or set the path to the executable."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ n’est pas installé ou est introuvable. Installez-le ou indiquez le chemin de l’exécutable."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ non è installato oppure non è stato trovato. Installalo o indica il percorso dell’eseguibile."
+          }
+        }
+      }
+    },
+    "%@ scrive lo script CAD, genera il modello 3D e la tavola tecnica.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ schreibt das CAD-Skript und erzeugt das 3D-Modell und die technische Zeichnung."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ writes the CAD script and generates the 3D model and the technical drawing."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ écrit le script CAO et génère le modèle 3D et le dessin technique."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ scrive lo script CAD, genera il modello 3D e la tavola tecnica."
+          }
+        }
+      }
+    },
+    "%@ sta lavorando…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ arbeitet…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is working…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ travaille…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ sta lavorando…"
+          }
+        }
+      }
+    },
+    "%@ sta lavorando… · %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ arbeitet… · %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is working… · %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ travaille… · %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ sta lavorando… · %@"
+          }
+        }
+      }
+    },
+    "%@ sta ragionando…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ denkt nach…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is thinking…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ réfléchit…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ sta ragionando…"
+          }
+        }
+      }
+    },
+    "%@ sta scrivendo…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ schreibt…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is writing…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ écrit…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ sta scrivendo…"
+          }
+        }
+      }
+    },
     "%@ · %@": {
       "localizations": {
         "de": {
@@ -281,6 +533,34 @@
         }
       }
     },
+    "Accesso a %@ richiesto": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anmeldung bei %@ erforderlich"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign-in to %@ required"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connexion à %@ requise"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accesso a %@ richiesto"
+          }
+        }
+      }
+    },
     "Accesso a Claude Code richiesto": {
       "localizations": {
         "de": {
@@ -417,6 +697,62 @@
           "stringUnit": {
             "state": "translated",
             "value": "Adatta alla vista"
+          }
+        }
+      }
+    },
+    "Agente": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agent"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agent"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agent"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agente"
+          }
+        }
+      }
+    },
+    "Agente:": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agent:"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agent:"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agent :"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agente:"
           }
         }
       }
@@ -1177,6 +1513,34 @@
         }
       }
     },
+    "CAD Studio usa %@ installato su questo Mac. Installalo dal Terminale con uno dei comandi seguenti, poi esegui `%@` per effettuare l’accesso.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CAD Studio verwendet das auf diesem Mac installierte %@. Installiere es im Terminal mit einem der folgenden Befehle und führe dann `%@` aus, um dich anzumelden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CAD Studio uses the %@ installed on this Mac. Install it from Terminal with one of the commands below, then run `%@` to sign in."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CAD Studio utilise %@ installé sur ce Mac. Installez-le depuis le Terminal avec l’une des commandes ci-dessous, puis lancez `%@` pour vous connecter."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CAD Studio usa %@ installato su questo Mac. Installalo dal Terminale con uno dei comandi seguenti, poi esegui `%@` per effettuare l’accesso."
+          }
+        }
+      }
+    },
     "CAD Studio usa Claude Code installato su questo Mac. Installalo dal Terminale con uno dei comandi seguenti, poi esegui `claude` una volta per effettuare l’accesso.": {
       "localizations": {
         "de": {
@@ -1201,6 +1565,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "CAD Studio usa Claude Code installato su questo Mac. Installalo dal Terminale con uno dei comandi seguenti, poi esegui `claude` una volta per effettuare l’accesso."
+          }
+        }
+      }
+    },
+    "CAD Studio usa l’agente installato su questo Mac e il tuo piano. Puoi cambiarlo in qualsiasi momento: i progetti esistenti continuano con l’agente scelto qui.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CAD Studio verwendet den auf diesem Mac installierten Agenten und deinen Plan. Du kannst jederzeit wechseln: Bestehende Projekte laufen mit dem hier gewählten Agenten weiter."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CAD Studio uses the agent installed on this Mac and your plan. You can switch at any time: existing projects continue with the agent chosen here."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CAD Studio utilise l’agent installé sur ce Mac et votre forfait. Vous pouvez en changer à tout moment : les projets existants continuent avec l’agent choisi ici."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CAD Studio usa l’agente installato su questo Mac e il tuo piano. Puoi cambiarlo in qualsiasi momento: i progetti esistenti continuano con l’agente scelto qui."
           }
         }
       }
@@ -1481,6 +1873,62 @@
           "stringUnit": {
             "state": "translated",
             "value": "Chiedi a Claude di simulare e animare il meccanismo"
+          }
+        }
+      }
+    },
+    "Chiedi all’agente di correggere": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den Agenten um eine Korrektur bitten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask the agent to fix it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander à l’agent de corriger"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiedi all’agente di correggere"
+          }
+        }
+      }
+    },
+    "Chiedi all’agente di simulare e animare il meccanismo": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den Agenten bitten, den Mechanismus zu simulieren und zu animieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask the agent to simulate and animate the mechanism"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander à l’agent de simuler et d’animer le mécanisme"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiedi all’agente di simulare e animare il meccanismo"
           }
         }
       }
@@ -1821,6 +2269,34 @@
         }
       }
     },
+    "Codex lavora nella sua sandbox: può scrivere solo nella cartella del progetto e non usa la rete.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codex arbeitet in seiner Sandbox: Es darf nur im Projektordner schreiben und hat keinen Netzwerkzugriff."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codex works in its sandbox: it can only write inside the project folder and has no network access."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codex travaille dans son bac à sable : il ne peut écrire que dans le dossier du projet et n’accède pas au réseau."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codex lavora nella sua sandbox: può scrivere solo nella cartella del progetto e non usa la rete."
+          }
+        }
+      }
+    },
     "Compila modello": {
       "localizations": {
         "de": {
@@ -2069,6 +2545,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "Configura Claude Code…"
+          }
+        }
+      }
+    },
+    "Configura l’agente…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agent einrichten…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the agent…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configurer l’agent…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configura l’agente…"
           }
         }
       }
@@ -2629,6 +3133,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "English"
+          }
+        }
+      }
+    },
+    "Errore di %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@-Fehler"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ error"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erreur de %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Errore di %@"
           }
         }
       }
@@ -3389,6 +3921,34 @@
         }
       }
     },
+    "Ignora le configurazioni personali dell’agente": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Persönliche Konfiguration des Agenten ignorieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ignore the agent's personal configuration"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ignorer la configuration personnelle de l’agent"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ignora le configurazioni personali dell’agente"
+          }
+        }
+      }
+    },
     "Il comando “%@” non è riuscito. Controlla il log per i dettagli.": {
       "localizations": {
         "de": {
@@ -3581,6 +4141,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "Impossibile aprire il progetto"
+          }
+        }
+      }
+    },
+    "Impossibile avviare %@.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ konnte nicht gestartet werden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't start %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de lancer %@."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile avviare %@."
           }
         }
       }
@@ -4369,6 +4957,34 @@
         }
       }
     },
+    "L’agente CAD non carica le tue impostazioni utente (hook, plugin e server MCP di Claude Code, config.toml di Codex), così parte più velocemente e risponde in modo prevedibile. Disattiva se la tua autenticazione dipende da impostazioni utente, ad esempio apiKeyHelper.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der CAD-Agent lädt deine Benutzereinstellungen nicht (Hooks, Plugins und MCP-Server von Claude Code, config.toml von Codex). So startet er schneller und verhält sich vorhersehbar. Schalte das aus, wenn deine Anmeldung von Benutzereinstellungen abhängt, etwa apiKeyHelper."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The CAD agent doesn't load your user settings (Claude Code hooks, plugins and MCP servers, Codex config.toml), so it starts faster and behaves predictably. Turn this off if your sign-in depends on user settings, such as apiKeyHelper."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’agent CAO ne charge pas vos réglages utilisateur (hooks, plugins et serveurs MCP de Claude Code, config.toml de Codex) : il démarre plus vite et se comporte de façon prévisible. Désactivez cette option si votre connexion dépend de réglages utilisateur, par exemple apiKeyHelper."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’agente CAD non carica le tue impostazioni utente (hook, plugin e server MCP di Claude Code, config.toml di Codex), così parte più velocemente e risponde in modo prevedibile. Disattiva se la tua autenticazione dipende da impostazioni utente, ad esempio apiKeyHelper."
+          }
+        }
+      }
+    },
     "L’agente adatta spessori, giochi e consigli di stampa alla tua stampante e usa l’unità scelta nelle risposte e nella tavola. I file STL e 3MF restano sempre in millimetri.": {
       "localizations": {
         "de": {
@@ -4393,6 +5009,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "L’agente adatta spessori, giochi e consigli di stampa alla tua stampante e usa l’unità scelta nelle risposte e nella tavola. I file STL e 3MF restano sempre in millimetri."
+          }
+        }
+      }
+    },
+    "L’agente non ha ancora preparato il piatto di stampa: le parti sono affiancate senza ruotarle. Chiedi di prepararlo nella chat.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Agent hat die Druckplatte noch nicht vorbereitet: Die Teile liegen unrotiert nebeneinander. Bitte im Chat darum."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The agent hasn't prepared the print plate yet: the parts are placed side by side without rotating them. Ask for it in the chat."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’agent n’a pas encore préparé le plateau d’impression : les pièces sont posées côte à côte sans rotation. Demandez-le dans le chat."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’agente non ha ancora preparato il piatto di stampa: le parti sono affiancate senza ruotarle. Chiedi di prepararlo nella chat."
           }
         }
       }
@@ -6273,6 +6917,62 @@
         }
       }
     },
+    "Predefinito dell’agente": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standard des Agenten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agent default"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Par défaut de l’agent"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Predefinito dell’agente"
+          }
+        }
+      }
+    },
+    "Predefinito di %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standard von %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ default"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Par défaut de %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Predefinito di %@"
+          }
+        }
+      }
+    },
     "Predefinito di Claude Code": {
       "localizations": {
         "de": {
@@ -7281,34 +7981,6 @@
         }
       }
     },
-    "Tavola tecnica": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Technische Zeichnung"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Technical drawing"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dessin technique"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tavola tecnica"
-          }
-        }
-      }
-    },
     "Tavola tecnica, %@": {
       "localizations": {
         "de": {
@@ -7697,6 +8369,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vai alla schematica 2D"
+          }
+        }
+      }
+    },
+    "Vale per Claude Code. Il formato json non mostra il testo in streaming né le singole attività, ma può essere utile con versioni che non supportano lo streaming.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gilt für Claude Code. Das json-Format zeigt weder gestreamten Text noch einzelne Schritte, kann aber bei Versionen ohne Streaming helfen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Applies to Claude Code. The json format doesn't stream text or show individual steps, but can help with versions that don't support streaming."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "S’applique à Claude Code. Le format json n’affiche ni le texte en continu ni les étapes, mais peut aider avec les versions qui ne gèrent pas le streaming."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vale per Claude Code. Il formato json non mostra il testo in streaming né le singole attività, ma può essere utile con versioni che non supportano lo streaming."
           }
         }
       }
@@ -8509,6 +9209,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "v%lld"
+          }
+        }
+      }
+    },
+    "~/.local/bin/%@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "~/.local/bin/%@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "~/.local/bin/%@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "~/.local/bin/%@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "~/.local/bin/%@"
           }
         }
       }

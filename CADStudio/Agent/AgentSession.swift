@@ -18,6 +18,8 @@ final class AgentSession {
         var updatedAt = Date.distantPast
     }
     private var log: FileHandle?
+    private var engine = AgentEngine.current
+    private var translator = CodexTranslator()
 
     init(project: Project) {
         self.project = project
@@ -25,7 +27,9 @@ final class AgentSession {
 
     private var chat: ChatViewModel { project.chat }
 
-    func run(_ prompt: String, allowsResume: Bool = true) async {
+    func run(_ prompt: String, images: [URL] = [], allowsResume: Bool = true) async {
+        engine = AgentEngine.current
+        translator = CodexTranslator()
         streamingID = nil
         unconfirmedTextIDs = []
         hasText = false
@@ -33,14 +37,15 @@ final class AgentSession {
         liveTools = [:]
         thinkingIndex = nil
 
-        guard let claude = await ClaudeLocator.shared.resolve() else {
+        let locator = AgentLocator.current
+        guard let executable = await locator.resolve() else {
             chat.append(ChatMessage(
                 role: .system,
-                text: String(localized: "Claude Code non è installato oppure non è stato trovato. Installalo o indica il percorso dell’eseguibile."),
+                text: String(localized: "\(engine.name) non è installato oppure non è stato trovato. Installalo o indica il percorso dell’eseguibile."),
                 action: .configureClaude
             ))
-            ClaudeLocator.shared.isMissingSheetPresented = true
-            project.agentDidFinish(.failed(String(localized: "Claude Code non trovato")))
+            locator.isMissingSheetPresented = true
+            project.agentDidFinish(.failed(String(localized: "\(engine.name) non trovato")))
             return
         }
 
@@ -50,15 +55,20 @@ final class AgentSession {
             sessionID: sessionID,
             projectName: project.name,
             python: PythonEnvironment.shared.interpreter,
-            environment: environmentSummary()
+            environment: environmentSummary(),
+            images: images
         )
         openLog()
         defer { closeLog() }
 
         do {
-            let result = try await ClaudeRunner.run(claude, request: request, directory: project.folder.root) { [weak self] line in
+            let directory = project.folder.root
+            let onLine: ProcessRunner.LineHandler = { [weak self] line in
                 self?.handle(line)
             }
+            let result = engine == .codex
+                ? try await CodexRunner.run(executable, request: request, directory: directory, onLine: onLine)
+                : try await ClaudeRunner.run(executable, request: request, directory: directory, onLine: onLine)
             if sessionID != nil, !result.wasInterrupted, isMissingSession(result) {
                 project.metadata.sessionID = nil
                 chat.append(ChatMessage(
@@ -66,19 +76,24 @@ final class AgentSession {
                     text: String(localized: "La sessione precedente non è stata trovata: il contesto della conversazione è ripartito, ma il model.py esistente resta la base del lavoro.")
                 ))
                 closeLog()
-                await run(prompt, allowsResume: false)
+                await run(prompt, images: images, allowsResume: false)
                 return
             }
             finish(result)
         } catch {
-            chat.append(ChatMessage(role: .system, text: String(localized: "Impossibile avviare Claude Code."), detail: error.localizedDescription))
-            project.agentDidFinish(.failed(String(localized: "Errore di Claude Code")))
+            chat.append(ChatMessage(role: .system, text: String(localized: "Impossibile avviare \(engine.name)."), detail: error.localizedDescription))
+            project.agentDidFinish(.failed(String(localized: "Errore di \(engine.name)")))
         }
     }
 
     private func handle(_ line: String) {
         log?.write(Data((line + "\n").utf8))
-        switch StreamEvent(line: line) {
+        let events = engine == .codex ? translator.events(for: line) : [StreamEvent(line: line)]
+        events.forEach(process)
+    }
+
+    private func process(_ event: StreamEvent) {
+        switch event {
         case .started(let sessionID):
             if project.metadata.sessionID != sessionID {
                 project.metadata.sessionID = sessionID
@@ -91,11 +106,11 @@ final class AgentSession {
             stopBlock(index)
         case .textDelta(let text):
             appendStreamingText(text)
-            show(.working(String(localized: "Claude sta scrivendo…")))
+            show(.working(String(localized: "\(engine.name) sta scrivendo…")))
         case .toolInputDelta(let index, let json):
             appendToolInput(json, to: index)
         case .thinking:
-            show(.working(String(localized: "Claude sta ragionando…")))
+            show(.working(String(localized: "\(engine.name) sta ragionando…")))
         case .thinkingTokens(let tokens):
             updateThinking(tokens: tokens)
         case .assistant(let blocks):
@@ -119,13 +134,13 @@ final class AgentSession {
         case .thinking:
             thinkingIndex = index
             thinkingStart = .now
-            chat.activeThinkingID = chat.append(ChatMessage(role: .thinking, text: String(localized: "Claude sta ragionando…")))
-            show(.working(String(localized: "Claude sta ragionando…")))
+            chat.activeThinkingID = chat.append(ChatMessage(role: .thinking, text: String(localized: "\(engine.name) sta ragionando…")))
+            show(.working(String(localized: "\(engine.name) sta ragionando…")))
         case .toolUse(let id, let name):
             liveTools[index] = LiveTool(id: id, name: name)
             let title = liveTitle(name: name, json: "")
             chat.append(ChatMessage(role: .tool, text: title, tool: ToolActivity(toolUseID: id, name: name, input: "")))
-            show(.working(String(localized: "Claude sta lavorando… · \(title)")))
+            show(.working(String(localized: "\(engine.name) sta lavorando… · \(title)")))
         case .text, .other:
             break
         }
@@ -150,7 +165,7 @@ final class AgentSession {
             tool.updatedAt = .now
             let title = liveTitle(name: tool.name, json: tool.json)
             chat.updateTool(tool.id, title: title, preview: ToolSummary.livePreview(name: tool.name, json: tool.json))
-            show(.working(String(localized: "Claude sta lavorando… · \(title)")))
+            show(.working(String(localized: "\(engine.name) sta lavorando… · \(title)")))
         }
         liveTools[index] = tool
     }
@@ -227,7 +242,7 @@ final class AgentSession {
             } else {
                 chat.append(ChatMessage(role: .tool, text: title, tool: ToolActivity(toolUseID: id, name: name, input: inputText)))
             }
-            show(.working(String(localized: "Claude sta lavorando… · \(title)")))
+            show(.working(String(localized: "\(engine.name) sta lavorando… · \(title)")))
         }
     }
 
@@ -257,18 +272,18 @@ final class AgentSession {
         if isAuthenticationError(details) {
             chat.append(ChatMessage(
                 role: .system,
-                text: String(localized: "Claude Code non è autenticato. Apri il Terminale ed esegui `claude` una volta per effettuare l’accesso."),
+                text: String(localized: "\(engine.name) non è autenticato. Apri il Terminale ed esegui `\(engine.loginCommand)` per effettuare l’accesso."),
                 detail: details,
                 action: .openTerminal
             ))
-            project.agentDidFinish(.failed(String(localized: "Accesso a Claude Code richiesto")))
+            project.agentDidFinish(.failed(String(localized: "Accesso a \(engine.name) richiesto")))
         } else {
             chat.append(ChatMessage(
                 role: .system,
-                text: String(localized: "Claude Code ha terminato con un errore (codice \(result.status))."),
+                text: String(localized: "\(engine.name) ha terminato con un errore (codice \(result.status))."),
                 detail: details.isEmpty ? nil : details
             ))
-            project.agentDidFinish(.failed(String(localized: "Errore di Claude Code")))
+            project.agentDidFinish(.failed(String(localized: "Errore di \(engine.name)")))
         }
     }
 
@@ -276,10 +291,13 @@ final class AgentSession {
         guard turnResult == nil || turnResult?.isError == true else { return false }
         let text = (turnResult?.text ?? "") + result.output + result.errorOutput
         return text.localizedCaseInsensitiveContains("No conversation found")
+            || text.localizedCaseInsensitiveContains("no rollout found")
+            || text.localizedCaseInsensitiveContains("session not found")
+            || text.localizedCaseInsensitiveContains("thread not found")
     }
 
     private func isAuthenticationError(_ text: String) -> Bool {
-        ["invalid api key", "/login", "not logged in", "authentication", "oauth token", "unauthorized"]
+        ["invalid api key", "/login", "not logged in", "authentication", "oauth token", "unauthorized", "codex login", "401"]
             .contains { text.localizedCaseInsensitiveContains($0) }
     }
 

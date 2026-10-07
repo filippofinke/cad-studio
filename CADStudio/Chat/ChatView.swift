@@ -101,7 +101,7 @@ struct ChatView: View {
                 configuration: NSWorkspace.OpenConfiguration()
             )
         case .configureClaude:
-            ClaudeLocator.shared.isMissingSheetPresented = true
+            AgentLocator.current.isMissingSheetPresented = true
         }
     }
 }
@@ -126,7 +126,7 @@ private struct ChatEmptyState: View {
             VStack(spacing: 4) {
                 Text("Descrivi un oggetto")
                     .font(.title3.weight(.semibold))
-                Text("Claude Code scrive lo script CAD, genera il modello 3D e la tavola tecnica.")
+                Text("\(AgentEngine.current.name) scrive lo script CAD, genera il modello 3D e la tavola tecnica.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)

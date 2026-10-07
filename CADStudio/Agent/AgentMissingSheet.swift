@@ -1,25 +1,40 @@
 import SwiftUI
 
-struct ClaudeMissingSheet: View {
-    @Bindable var locator: ClaudeLocator
-    @AppStorage(AppSettings.claudePathKey) private var customPath = ""
+struct AgentMissingSheet: View {
+    @Bindable var locator: AgentLocator
+    @AppStorage private var customPath: String
+
+    init(locator: AgentLocator) {
+        self.locator = locator
+        _customPath = AppStorage(wrappedValue: "", locator.engine.pathKey)
+    }
+
+    private var engine: AgentEngine { locator.engine }
+
+    private var installCommands: [String] {
+        switch engine {
+        case .claude: ["curl -fsSL https://claude.ai/install.sh | bash", "npm install -g @anthropic-ai/claude-code"]
+        case .codex: ["npm install -g @openai/codex", "brew install --cask codex"]
+        }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             Label {
-                Text("Claude Code non trovato")
+                Text("\(engine.name) non trovato")
                     .font(.headline)
             } icon: {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundStyle(.yellow)
             }
-            Text("CAD Studio usa Claude Code installato su questo Mac. Installalo dal Terminale con uno dei comandi seguenti, poi esegui `claude` una volta per effettuare l’accesso.")
+            Text("CAD Studio usa \(engine.name) installato su questo Mac. Installalo dal Terminale con uno dei comandi seguenti, poi esegui `\(engine.loginCommand)` per effettuare l’accesso.")
                 .font(.callout)
                 .fixedSize(horizontal: false, vertical: true)
-            CodeBlock(code: "curl -fsSL https://claude.ai/install.sh | bash")
-            CodeBlock(code: "npm install -g @anthropic-ai/claude-code")
+            ForEach(installCommands, id: \.self) { command in
+                CodeBlock(code: command)
+            }
             LabeledContent("Percorso dell’eseguibile:") {
-                TextField("Percorso", text: $customPath, prompt: Text("~/.local/bin/claude"))
+                TextField("Percorso", text: $customPath, prompt: Text("~/.local/bin/\(engine.command)"))
                     .labelsHidden()
                     .fontDesign(.monospaced)
             }

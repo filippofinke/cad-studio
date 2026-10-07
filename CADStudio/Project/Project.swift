@@ -186,10 +186,10 @@ final class Project {
         chat.append(ChatMessage(role: .user, text: text, attachments: references.isEmpty ? nil : references))
         chat.save()
         buildError = nil
-        activity = .working(String(localized: "Claude sta lavorando…"))
+        activity = .working(String(localized: "\(AgentEngine.current.name) sta lavorando…"))
         let prompt = Self.prompt(text, references: references, missing: missingRequirements)
         task = Task {
-            await agent?.run(prompt)
+            await agent?.run(prompt, images: references.map { folder.root.appending(path: $0) })
         }
     }
 
@@ -232,7 +232,7 @@ final class Project {
         var prompt = text.isEmpty && !references.isEmpty ? "Create a model based on the attached images." : text
         if !references.isEmpty {
             let list = references.map { "- \($0)" }.joined(separator: "\n")
-            prompt += "\n\nAttached reference images (open them with the Read tool):\n\(list)"
+            prompt += "\n\nAttached reference images:\n\(list)"
         }
         if !missing.isEmpty {
             let list = missing.map { "- \($0)" }.joined(separator: "\n")

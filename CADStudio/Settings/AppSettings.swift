@@ -2,7 +2,10 @@ import Foundation
 
 enum AppSettings {
     static let defaultProjectLocationKey = "defaultProjectLocation"
+    static let agentEngineKey = "agentEngine"
     static let claudePathKey = "claudePath"
+    static let codexPathKey = "codexPath"
+    static let codexModelKey = "codexModel"
     static let claudeModelKey = "claudeModel"
     static let claudeEffortKey = "claudeEffort"
     static let restrictedBashKey = "restrictedBash"
@@ -21,12 +24,12 @@ enum AppSettings {
         return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
 
-    static var claudePath: URL? {
-        string(claudePathKey).map { URL(filePath: NSString(string: $0).expandingTildeInPath) }
-    }
-
     static var claudeModel: String? {
         string(claudeModelKey)
+    }
+
+    static var codexModel: String? {
+        string(codexModelKey)
     }
 
     static var claudeEffort: String? {

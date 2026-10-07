@@ -33,6 +33,14 @@ enum JSONValue: Decodable, Sendable {
         if case .string(let value) = self { value } else { nil }
     }
 
+    var number: Double? {
+        if case .number(let value) = self { value } else { nil }
+    }
+
+    var array: [JSONValue]? {
+        if case .array(let value) = self { value } else { nil }
+    }
+
     var displayText: String {
         switch self {
         case .string(let value):

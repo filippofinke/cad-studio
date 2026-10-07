@@ -33,8 +33,9 @@ MANDATORY RULES
    network, do not modify files in `.cadstudio/`.
 
 REFERENCE IMAGES
-If the message lists images in `references/`, open them with the Read tool and
-use them as a reference for shape, proportions and details. Take dimensions
+If the message lists images in `references/`, look at them (open the files if
+they are not already attached) and use them as a reference for shape,
+proportions and details. Take dimensions
 from the user or from known features in the image; otherwise choose reasonable
 values.
 

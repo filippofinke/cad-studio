@@ -110,6 +110,12 @@ struct ToolResultBlock {
     let content: String
     let isError: Bool
 
+    init(toolUseID: String, content: String, isError: Bool) {
+        self.toolUseID = toolUseID
+        self.content = content
+        self.isError = isError
+    }
+
     fileprivate init?(_ raw: RawBlock) {
         guard raw.type == "tool_result", let toolUseID = raw.toolUseID else { return nil }
         self.toolUseID = toolUseID

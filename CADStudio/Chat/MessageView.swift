@@ -70,9 +70,9 @@ private struct SystemMessageView: View {
 
     private func title(for action: ChatMessage.Action) -> LocalizedStringKey {
         switch action {
-        case .askClaudeToFix: "Chiedi a Claude di correggere"
+        case .askClaudeToFix: "Chiedi all’agente di correggere"
         case .openTerminal: "Apri il Terminale"
-        case .configureClaude: "Configura Claude Code…"
+        case .configureClaude: "Configura l’agente…"
         }
     }
 }
