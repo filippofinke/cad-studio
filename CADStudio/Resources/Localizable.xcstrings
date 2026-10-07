@@ -1065,6 +1065,34 @@
         }
       }
     },
+    "Analizza il modello": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analysiert das Modell"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyzing the model"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyse le modèle"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analizza il modello"
+          }
+        }
+      }
+    },
     "Anima il movimento di questo meccanismo con una simulazione fisica.": {
       "localizations": {
         "de": {
@@ -1765,58 +1793,58 @@
         }
       }
     },
-    "Cerca file %@": {
+    "Cerca nel progetto": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sucht Dateien %@"
+            "value": "Durchsucht das Projekt"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Finds files %@"
+            "value": "Searching the project"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recherche les fichiers %@"
+            "value": "Cherche dans le projet"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cerca file %@"
+            "value": "Cerca nel progetto"
           }
         }
       }
     },
-    "Cerca “%@”": {
+    "Cerca sul web": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sucht nach „%@“"
+            "value": "Sucht im Web"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Searches for “%@”"
+            "value": "Searching the web"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recherche « %@ »"
+            "value": "Cherche sur le web"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cerca “%@”"
+            "value": "Cerca sul web"
           }
         }
       }
@@ -2013,6 +2041,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "Codex lavora nella sua sandbox: può scrivere solo nella cartella del progetto e non usa la rete."
+          }
+        }
+      }
+    },
+    "Compila il modello": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erstellt das Modell"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Building the model"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Construit le modèle"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compila il modello"
           }
         }
       }
@@ -2325,6 +2381,90 @@
         }
       }
     },
+    "Controlla i risultati": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prüft die Ergebnisse"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking the results"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérifie les résultats"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Controlla i risultati"
+          }
+        }
+      }
+    },
+    "Controlla il disegno": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prüft die Zeichnung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking the drawing"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérifie le dessin"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Controlla il disegno"
+          }
+        }
+      }
+    },
+    "Controlla un'anteprima": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prüft eine Vorschau"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking a preview"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérifie un aperçu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Controlla un'anteprima"
+          }
+        }
+      }
+    },
     "Copia": {
       "localizations": {
         "de": {
@@ -2377,34 +2517,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Crea"
-          }
-        }
-      }
-    },
-    "Crea %@": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Erstellt %@"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Creates %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Crée %@"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Crea %@"
           }
         }
       }
@@ -2885,30 +2997,30 @@
         }
       }
     },
-    "Esegue %@": {
+    "Esamina i file": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Führt %@ aus"
+            "value": "Sieht Dateien durch"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Runs %@"
+            "value": "Looking through files"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Exécute %@"
+            "value": "Examine les fichiers"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Esegue %@"
+            "value": "Esamina i file"
           }
         }
       }
@@ -4061,6 +4173,34 @@
         }
       }
     },
+    "Installa i componenti": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installiert Komponenten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installing components"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installe des composants"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installa i componenti"
+          }
+        }
+      }
+    },
     "Installazione componenti": {
       "localizations": {
         "de": {
@@ -4509,6 +4649,34 @@
         }
       }
     },
+    "Lavora sul progetto": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arbeitet am Projekt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Working on the project"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Travaille sur le projet"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lavora sul progetto"
+          }
+        }
+      }
+    },
     "Layout": {
       "localizations": {
         "de": {
@@ -4537,30 +4705,30 @@
         }
       }
     },
-    "Legge %@": {
+    "Legge un file": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Liest %@"
+            "value": "Liest eine Datei"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reads %@"
+            "value": "Reading a file"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lit %@"
+            "value": "Lit un fichier"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Legge %@"
+            "value": "Legge un file"
           }
         }
       }
@@ -5041,30 +5209,58 @@
         }
       }
     },
-    "Modifica %@": {
+    "Modifica il modello": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bearbeitet %@"
+            "value": "Bearbeitet das Modell"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Edits %@"
+            "value": "Editing the model"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Modifie %@"
+            "value": "Modifie le modèle"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Modifica %@"
+            "value": "Modifica il modello"
+          }
+        }
+      }
+    },
+    "Modifica un file di supporto": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bearbeitet eine Hilfsdatei"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editing a helper file"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifie un fichier auxiliaire"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifica un file di supporto"
           }
         }
       }
@@ -6609,6 +6805,62 @@
         }
       }
     },
+    "Prepara un file di supporto": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bereitet eine Hilfsdatei vor"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparing a helper file"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prépare un fichier auxiliaire"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prepara un file di supporto"
+          }
+        }
+      }
+    },
+    "Prepara un'anteprima": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bereitet eine Vorschau vor"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparing a preview"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prépare un aperçu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prepara un'anteprima"
+          }
+        }
+      }
+    },
     "Pronto": {
       "localizations": {
         "de": {
@@ -6801,6 +7053,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "Riduci (⌘−)"
+          }
+        }
+      }
+    },
+    "Rilegge il modello": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liest das Modell erneut"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reviewing the model"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Relit le modèle"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rilegge il modello"
           }
         }
       }
@@ -7281,6 +7561,62 @@
         }
       }
     },
+    "Scrive il modello": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schreibt das Modell"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing the model"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Écrit le modèle"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scrive il modello"
+          }
+        }
+      }
+    },
+    "Scrive un file": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schreibt eine Datei"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing a file"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Écrit un fichier"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scrive un file"
+          }
+        }
+      }
+    },
     "Scrivi il prossimo messaggio: partirà al termine…": {
       "localizations": {
         "de": {
@@ -7417,6 +7753,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sezione"
+          }
+        }
+      }
+    },
+    "Sistema i file": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordnet Dateien"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tidying up files"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Range les fichiers"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistema i file"
           }
         }
       }
@@ -7641,6 +8005,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "Storico delle versioni"
+          }
+        }
+      }
+    },
+    "Studia il riferimento": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Studiert die Referenz"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Studying the reference"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Étudie la référence"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Studia il riferimento"
           }
         }
       }

@@ -4,22 +4,58 @@ enum ToolSummary {
     static func title(name: String, input: JSONValue, root: URL, python: URL) -> String {
         switch name {
         case "Bash":
-            return String(localized: "Esegue \(shortCommand(input["command"]?.string ?? "", root: root, python: python))")
+            return commandTitle(shortCommand(input["command"]?.string ?? "", root: root, python: python))
         case "Write":
-            return String(localized: "Crea \(file(input, root: root))")
+            let path = file(input, root: root)
+            if path.isEmpty { return String(localized: "Scrive un file") }
+            return isModel(path) ? String(localized: "Scrive il modello") : String(localized: "Prepara un file di supporto")
         case "Edit", "MultiEdit":
-            return String(localized: "Modifica \(file(input, root: root))")
+            return isModel(file(input, root: root)) ? String(localized: "Modifica il modello") : String(localized: "Modifica un file di supporto")
         case "Read":
-            return String(localized: "Legge \(file(input, root: root))")
-        case "Glob":
-            return String(localized: "Cerca file \(input["pattern"]?.string ?? "")")
-        case "Grep":
-            return String(localized: "Cerca “\(input["pattern"]?.string ?? "")”")
+            return readTitle(file(input, root: root))
+        case "Glob", "Grep":
+            return String(localized: "Cerca nel progetto")
         case "TodoWrite":
             return String(localized: "Aggiorna il piano di lavoro")
+        case "WebSearch", "WebFetch":
+            return String(localized: "Cerca sul web")
         default:
-            return name
+            return String(localized: "Lavora sul progetto")
         }
+    }
+
+    private static func isModel(_ path: String) -> Bool {
+        (path as NSString).lastPathComponent == "model.py"
+    }
+
+    private static func readTitle(_ path: String) -> String {
+        let name = (path as NSString).lastPathComponent.lowercased()
+        let ext = (name as NSString).pathExtension
+        if path.isEmpty { return String(localized: "Legge un file") }
+        if path.hasPrefix("references/") { return String(localized: "Studia il riferimento") }
+        if isModel(path) { return String(localized: "Rilegge il modello") }
+        if name.hasPrefix("schematic") || ext == "pdf" { return String(localized: "Controlla il disegno") }
+        if name == "manifest.json" { return String(localized: "Controlla i risultati") }
+        if ["png", "jpg", "jpeg", "svg", "webp"].contains(ext) { return String(localized: "Controlla un'anteprima") }
+        return String(localized: "Legge un file")
+    }
+
+    private static func commandTitle(_ command: String) -> String {
+        let text = command.trimmingCharacters(in: .whitespaces)
+        let words = text.split(whereSeparator: { $0 == " " || $0 == "\t" }).map(String.init)
+        let tool = (words.first.map { ($0 as NSString).lastPathComponent }) ?? ""
+        if text.isEmpty { return String(localized: "Lavora sul progetto") }
+        if text.contains("pip install") || tool == "uv" { return String(localized: "Installa i componenti") }
+        if tool.hasPrefix("python") {
+            return words.dropFirst().first == "model.py" ? String(localized: "Compila il modello") : String(localized: "Analizza il modello")
+        }
+        if ["rsvg-convert", "sips", "magick", "convert", "qlmanage"].contains(tool) { return String(localized: "Prepara un'anteprima") }
+        if ["ls", "cat", "head", "tail", "grep", "rg", "find", "wc", "file", "stat"].contains(tool) || (tool == "sed" && !text.contains(" -i")) {
+            return String(localized: "Esamina i file")
+        }
+        if ["sed", "perl"].contains(tool), text.contains("model.py") { return String(localized: "Modifica il modello") }
+        if ["sed", "mv", "cp", "rm", "mkdir", "touch", "perl"].contains(tool) { return String(localized: "Sistema i file") }
+        return String(localized: "Lavora sul progetto")
     }
 
     static func liveTitle(name: String, json: String, root: URL, python: URL) -> String {
