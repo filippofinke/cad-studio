@@ -160,6 +160,9 @@ struct CodexTranslator {
             var inner = String(command.dropFirst(prefix.count))
             if let first = inner.first, first == "'" || first == "\"", inner.last == first, inner.count > 1 {
                 inner = String(inner.dropFirst().dropLast())
+                if first == "\"" {
+                    inner = inner.replacingOccurrences(of: "\\\"", with: "\"").replacingOccurrences(of: "\\$", with: "$")
+                }
             }
             return inner
         }
