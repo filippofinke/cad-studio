@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/filippofinke/cad-studio/compare/v1.1.0...v1.2.0) (2026-10-09)
+
+
+### Features
+
+* **site:** new push latch film and a tighter feature grid ([a7c4c47](https://github.com/filippofinke/cad-studio/commit/a7c4c477e135340eb1d653e739a1ecdb00d9f4ab))
+
 ## [1.1.0](https://github.com/filippofinke/cad-studio/compare/v1.0.0...v1.1.0) (2026-10-08)
 
 
