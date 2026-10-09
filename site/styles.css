@@ -894,6 +894,10 @@ code, pre {
   grid-column: span 2;
 }
 
+.card-span {
+  grid-column: span 2;
+}
+
 .card-wide img {
   flex: none;
   height: auto;
@@ -1295,7 +1299,8 @@ code, pre {
   }
 
   .card-wide,
-  .card-local {
+  .card-local,
+  .card-span {
     grid-column: auto;
   }
 
